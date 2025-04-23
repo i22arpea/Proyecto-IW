@@ -31,19 +31,3 @@ Herramientas: MagicDraw, GitHub
 
 🔧 4. Instalación y Uso
 
-
-
-📊 Estructura del Proyecto
-Muestra la organización de los archivos. Ejemplo:
-
-/wordle-project
-│── src/
-│   ├── game_logic.py
-│   ├── ui.py
-│── assets/
-│── docs/
-│── README.md
-│── requirements.txt
-
-🎨 Capturas de Pantalla
-
