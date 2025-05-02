@@ -1,0 +1,11 @@
+.user-icon {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    cursor: pointer;
+}
+
+.login-container {
+    text-align: center;
+    padding: 20px;
+}

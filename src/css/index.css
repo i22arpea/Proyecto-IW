@@ -3,6 +3,7 @@
   --color-texto: #f5f5f5;
   --color-separador: #404040;
   --color-tecla: #818384;
+  --color-tecla-presionada: #707273;
   --color-letras: #ffffff;
   --color-incorrecto: #3a3a3c;
   --color-correcto: #6ca969;
@@ -131,10 +132,10 @@ code {
   justify-content: center;
   text-align: center;
   align-items: center;
-  content: '';
   padding: 1rem;
-  height: 62px;
-  width: 62px;
+  height: min(14vw, 62px);
+  width: min(14vw, 62px);
+  font-size: clamp(1rem, 2vw, 1.5rem);
   background-color: var(--color-fondo);
   color: var(--color-texto);
   border: 2px solid var(--color-separador);
@@ -162,22 +163,35 @@ code {
 }
 
 .key {
+  transition: all 0.1s ease-in-out;
   display: flex;
   align-items: center;
   justify-content: center;
   text-transform: uppercase;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   font-weight: bold;
-  font-size: 0.875rem;
+  height: clamp(2.5rem, 6vw, 3.5rem);
+  font-size: clamp(0.75rem, 2vw, 1rem);
   line-height: 1.25rem;
   padding: 0.25rem;
   border-radius: 0.25rem;
   flex: 1 1 0;
-  height: 3.5rem;
   cursor: pointer;
   border: 1px solid var(--color-tecla);
   background-color: var(--color-tecla);
   color: var(--color-letras);
+  user-select: none;
+}
+
+/* Efecto al pasar el ratón */
+.key:hover {
+  transform: scale(1.1);
+}
+
+/* Efecto de "presionado" */
+.key.active {
+  background-color: var(--color-tecla-presionada); /* o el tono oscuro que prefieras */
+  transform: scale(0.95);
 }
 
 .scale-up-center {
@@ -428,5 +442,52 @@ code {
   .Toastify__toast {
     border-radius: 0.3rem;
     margin-bottom: 0.5rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .titulo {
+    font-size: 1.5rem;
+  }
+
+  .board {
+    padding: 0.5rem;
+  }
+
+  .fila {
+    column-gap: 0.25rem;
+  }
+
+  .keyboard {
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .header {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .key {
+    font-size: 0.75rem;
+    height: 2.5rem;
+  }
+
+  .stats-stats {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .square {
+    width: 10vw;
+    height: 10vw;
+  }
+
+  .key {
+    font-size: 0.6rem;
+    height: 2rem;
   }
 }
