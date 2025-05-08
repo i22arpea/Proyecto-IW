@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/i22arpea/Proyecto-IW/static/css/main.6a1521a3.css",
+    "main.js": "/i22arpea/Proyecto-IW/static/js/main.399d555e.js",
+    "index.html": "/i22arpea/Proyecto-IW/index.html",
+    "main.6a1521a3.css.map": "/i22arpea/Proyecto-IW/static/css/main.6a1521a3.css.map",
+    "main.399d555e.js.map": "/i22arpea/Proyecto-IW/static/js/main.399d555e.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.6a1521a3.css",
+    "static/js/main.399d555e.js"
+  ]
+}
