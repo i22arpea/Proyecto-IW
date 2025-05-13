@@ -1,8 +1,8 @@
 import React from 'react'
 import { Juego } from '../types/types'
-import displayMenu from '../utils/displayMenu'
+import displayMenu from '../utils/desplegarMenu'
 import llenarArray from '../utils/llenarArray'
-import restartGame from '../utils/restartGame'
+import restartGame from '../utils/resetearJuego'
 
 interface HeaderProps {
   juego: Juego

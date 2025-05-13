@@ -1,5 +1,5 @@
 import { Juego } from "../types/types";
-import displayMenu from "../utils/displayMenu";
+import displayMenu from "../utils/desplegarMenu";
 
 interface StatsProps {
   juego: Juego

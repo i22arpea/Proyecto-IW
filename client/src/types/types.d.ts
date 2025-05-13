@@ -29,3 +29,13 @@ export interface Juego {
   maxStreak: number;
   hardModeMustContain: Array<Letters>;
 }
+
+import { JwtPayload } from 'jsonwebtoken';
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: string | JwtPayload;
+    }
+  }
+}
