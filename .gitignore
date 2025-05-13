@@ -5,6 +5,11 @@
 /.pnp
 .pnp.js
 
+# Ignora cualquier carpeta node_modules en cualquier parte del proyecto
+/node_modules/
+**/node_modules/
+
+
 # testing
 /coverage
 
