@@ -2,7 +2,8 @@
 
 # === DEPENDENCIAS ===
 /node_modules
-**/node_modules/
+/.pnp
+.pnp.js
 
 # === PRODUCCIÓN Y BUILD ===
 /build
