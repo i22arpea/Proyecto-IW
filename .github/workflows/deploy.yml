@@ -32,11 +32,6 @@ jobs:
           cd client
           npm run build
 
-      - name: Set git user for deploy
-        run: |
-          git config --global user.name "i22arpea"
-          git config --global user.email "i22arpea@uco.es"
-
       - name: Deploy to GitHub Pages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
