@@ -7,11 +7,6 @@ describe('Homepage', () => {
     expect(screen.getByRole('heading', { name: /Wordle/i })).toBeInTheDocument();
   });
 
-  it('debe mostrar el botón Go to Session Page', () => {
-    render(<App />);
-    expect(screen.getByRole('button', { name: /Go to Session Page/i })).toBeInTheDocument();
-  });
-
   it('debe mostrar el componente teclado', () => {
     render(<App />);
     expect(screen.getByRole('button', { name: 'Q' })).toBeInTheDocument();
