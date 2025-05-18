@@ -6,9 +6,10 @@ import llenarArray from '../utils/llenarArray'
 interface KeyboardProps {
   juego: Juego
   setJuego: React.Dispatch<React.SetStateAction<Juego>>
+  children?: React.ReactNode // Added children to props
 }
 
-function Keyboard({ juego, setJuego }: KeyboardProps) {
+function Keyboard({ juego, setJuego, children }: KeyboardProps) { // Destructure children
   function renderKey(i: string) {
     return (
       <button
@@ -28,6 +29,7 @@ function Keyboard({ juego, setJuego }: KeyboardProps) {
 
   return (
     <div className="keyboard">
+      {children} {/* Render children if provided */}
       <div className="fila-keyboard">
         {renderKey('Q')}
         {renderKey('W')}
@@ -102,5 +104,9 @@ function Keyboard({ juego, setJuego }: KeyboardProps) {
     </div>
   )
 }
+
+Keyboard.defaultProps = {
+  children: undefined,
+};
 
 export default Keyboard

@@ -63,6 +63,7 @@ function checkWord() {
   const cantidadRepetidos: Record<string, number> = {};
 
   const palabra = desencriptarPalabra(juegoActual.dailyWord);
+  console.log('Palabra diaria:', palabra); // <-- Mostrar palabra diaria por consola
 
   for (let i = 0; i < palabra.length; i++) {
     cantidadRepetidos[palabra[i]] = 0;

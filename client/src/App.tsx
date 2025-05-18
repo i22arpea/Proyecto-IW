@@ -1,18 +1,48 @@
+import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import Board from './components/Tablero';
 import Header from './components/Header';
-import Help from './components/Ayuda';
-import Keyboard from './components/Teclado';
 import Settings from './components/Opciones';
 import Stats from './components/Stats';
+import LoginRegister from './components/LoginRegister';
+import LoginPage from './components/LoginPage';
 import { encriptarPalabra } from './libs/crypto';
-import { Juego } from './types/types';
+import { Juego } from './types/types.d';
 import cargarSettings from './utils/cargarOpciones';
 import keyPress from './utils/presionarTecla';
 import llenarArray from './utils/llenarArray';
 import recuperarStats from './utils/recuperarStats';
 import words from './json/palabras_5.json';
+import Teclado from './components/Teclado';
+import Ayuda from './components/Ayuda';
+
+
+
+function HomePage({ juego, setJuego, goToSessionPage }: any) {
+  return (
+    <div className="game">
+      <div className="game-main">
+        <Header juego={juego} setJuego={setJuego} />
+        <Board />
+        <Teclado juego={juego} setJuego={setJuego} />
+      </div>
+      <div className="game-help hidden scale-up-center">
+        <Ayuda />
+      </div>
+      <div className="game-stats hidden scale-up-center">
+        <Stats juego={juego} />
+      </div>
+      <div className="game-settings hidden scale-up-center">
+        <Settings juego={juego} setJuego={setJuego} />
+      </div>
+      <button type="button" onClick={goToSessionPage} className="navigate-button">
+        Go to Session Page
+      </button>
+      <ToastContainer limit={3} />
+    </div>
+  );
+}
 
 export default function App() {
   const [juego, setJuego] = useState<Juego>({
@@ -39,6 +69,12 @@ export default function App() {
     maxStreak: 0,
     hardModeMustContain: [],
   });
+
+  const navigate = useNavigate();
+
+  const goToSessionPage = () => {
+    navigate('/login');
+  };
 
   useEffect(() => {
     function getLastData() {
@@ -111,22 +147,15 @@ export default function App() {
   }, [juego]);
 
   return (
-    <div className="game">
-      <div className="game-main">
-        <Header juego={juego} setJuego={setJuego} />
-        <Board />
-        <Keyboard juego={juego} setJuego={setJuego} />
-      </div>
-      <div className="game-help hidden scale-up-center">
-        <Help />
-      </div>
-      <div className="game-stats hidden scale-up-center">
-        <Stats juego={juego} />
-      </div>
-      <div className="game-settings hidden scale-up-center">
-        <Settings juego={juego} setJuego={setJuego} />
-      </div>
-      <ToastContainer limit={3} />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage juego={juego} setJuego={setJuego} goToSessionPage={goToSessionPage} />} />
+        <Route path="/register" element={<LoginRegister onLogin={goToSessionPage} />} />
+        <Route path="/help" element={<Ayuda />} />
+        <Route path="/stats" element={<Stats juego={juego} />} />
+        <Route path="/settings" element={<Settings juego={juego} setJuego={setJuego} />} />
+        <Route path="/login" element={<LoginPage />} />
+      </Routes>
+    </Router>
   );
 }

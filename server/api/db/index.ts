@@ -1,39 +1,29 @@
 import { readFileSync } from 'fs';
-import Redis from 'ioredis';
 import { join } from 'path';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Redis client setup
-const client = new Redis(process.env.REDIS_URL!);
-client.on('error', (e) => {
-  console.error('Redis connection error:', e);
-  throw e;
-});
-
 // File path for words JSON
 const wordsFile = join(process.cwd(), './api/json/palabras_5.json');
 
-// Redis functions
+// Functions for words
 export const getWord = async (): Promise<string> => {
   try {
-    const word = await client.get('dailyWord');
-    return word || '';
+    const raw = readFileSync(wordsFile, 'utf-8');
+    const data = JSON.parse(raw);
+    // Devuelve la primera palabra como ejemplo
+    return data[0] || '';
   } catch (error) {
-    console.error('Error fetching word from Redis:', error);
+    console.error('Error fetching word from file:', error);
     throw error;
   }
 };
 
-export const setWord = async (word: string) => {
-  try {
-    await client.set('dailyWord', word);
-  } catch (error) {
-    console.error('Error setting word in Redis:', error);
-    throw error;
-  }
+export const setWord = async (_word: string) => {
+  // No implementado: aquí podrías guardar la palabra en MongoDB si lo deseas
+  console.warn('setWord no implementado sin Redis.');
 };
 
 export const setRandomWord = async (): Promise<string> => {
@@ -41,7 +31,7 @@ export const setRandomWord = async (): Promise<string> => {
     const raw = readFileSync(wordsFile, 'utf-8');
     const data = JSON.parse(raw);
     const randomWord = data[Math.floor(Math.random() * data.length)];
-    await setWord(randomWord);
+    // Aquí podrías guardar la palabra en MongoDB si lo deseas
     return randomWord;
   } catch (error) {
     console.error('Error setting random word:', error);
@@ -63,11 +53,8 @@ export const getRandomWord = (): string => {
 // MongoDB connection
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/wordle';
-    await mongoose.connect(mongoURI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    const mongoURI = process.env.MONGO_URI || 'mongodb+srv://i22arpea:Arroyo02@cluster0.zio55q0.mongodb.net/';
+    await mongoose.connect(mongoURI);
     console.log('MongoDB connected successfully');
   } catch (error) {
     console.error('Error connecting to MongoDB:', error);
