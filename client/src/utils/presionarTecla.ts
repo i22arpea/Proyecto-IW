@@ -230,7 +230,7 @@ function keyPress(e: string, juego: Juego) {
     if (existe) {
       moveRow();
     }
-  } else if (e.length === 1 && square.textContent === '' && /[a-zA-Z11]/.test(e)) {
+  } else if (e.length === 1 && square.textContent === '' && /[a-zA-Z]/.test(e)) {
     const span = document.createElement('span');
     span.textContent = e;
     square.appendChild(span);
