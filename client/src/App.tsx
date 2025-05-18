@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import Board from './components/Tablero';
 import Header from './components/Header';
