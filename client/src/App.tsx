@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import Board from './components/Tablero';
@@ -19,7 +19,7 @@ import Ayuda from './components/Ayuda';
 
 
 
-function HomePage({ juego, setJuego, goToSessionPage }: any) {
+function HomePage({ juego, setJuego }: any) {
   return (
     <div className="game">
       <div className="game-main">
@@ -36,9 +36,6 @@ function HomePage({ juego, setJuego, goToSessionPage }: any) {
       <div className="game-settings hidden scale-up-center">
         <Settings juego={juego} setJuego={setJuego} />
       </div>
-      <button type="button" onClick={goToSessionPage} className="navigate-button">
-        Go to Session Page
-      </button>
       <ToastContainer limit={3} />
     </div>
   );
@@ -69,12 +66,6 @@ export default function App() {
     maxStreak: 0,
     hardModeMustContain: [],
   });
-
-  const navigate = useNavigate();
-
-  const goToSessionPage = () => {
-    navigate('/login');
-  };
 
   useEffect(() => {
     function getLastData() {
@@ -149,8 +140,8 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<HomePage juego={juego} setJuego={setJuego} goToSessionPage={goToSessionPage} />} />
-        <Route path="/register" element={<LoginRegister onLogin={goToSessionPage} />} />
+        <Route path="/" element={<HomePage juego={juego} setJuego={setJuego} />} />
+        <Route path="/register" element={<LoginRegister onLogin={() => {}} />} />
         <Route path="/help" element={<Ayuda />} />
         <Route path="/stats" element={<Stats juego={juego} />} />
         <Route path="/settings" element={<Settings juego={juego} setJuego={setJuego} />} />

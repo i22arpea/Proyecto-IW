@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom'; // Ensure this is listed before other imports
 import React, { useState } from 'react';
 import { Juego } from '../types/types.d';
 import displayMenu from '../utils/desplegarMenu';
@@ -11,9 +10,8 @@ interface HeaderProps {
   setJuego: React.Dispatch<React.SetStateAction<Juego>>;
 }
 
-export default function Header({ juego, setJuego }: HeaderProps) { // Destructure children
+export default function Header({ juego, setJuego }: HeaderProps) {
   const [showLogin, setShowLogin] = useState(false);
-  const navigate = useNavigate();
 
   return (
     <header className="header">
@@ -109,7 +107,7 @@ export default function Header({ juego, setJuego }: HeaderProps) { // Destructur
           viewBox="0 0 24 24"
           width="24"
           xmlns="http://www.w3.org/2000/svg"
-          onClick={() => navigate('/login')}
+          onClick={() => setShowLogin(true)}
         >
           <path d="M0 0h24v24H0z" fill="none" stroke="none" />
           <path d="M10 12h10m-5 -5l5 5l-5 5" />
