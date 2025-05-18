@@ -32,6 +32,11 @@ jobs:
           cd client
           npm run build
 
+      - name: Set git user for deploy
+        run: |
+          git config --global user.name "Adrian Arpea"
+          git config --global user.email "adrian.arpea@gmail.com"
+
       - name: Deploy to GitHub Pages
         run: |
           cd client
