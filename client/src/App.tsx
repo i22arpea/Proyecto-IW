@@ -141,7 +141,7 @@ export default function App() {
     <Router>
       <Routes>
         <Route path="/" element={<HomePage juego={juego} setJuego={setJuego} />} />
-        <Route path="/register" element={<LoginRegister onLogin={() => {}} />} />
+        <Route path="/register" element={<LoginRegister onLogin={() => { /* noop */ }} />} />
         <Route path="/help" element={<Ayuda />} />
         <Route path="/stats" element={<Stats juego={juego} />} />
         <Route path="/settings" element={<Settings juego={juego} setJuego={setJuego} />} />
