@@ -7,7 +7,7 @@ interface LoginRegisterProps {
 
 const API = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 
-const LoginRegister = function ({ onLogin, children }: LoginRegisterProps) {
+const LoginRegister = function LoginRegister({ onLogin, children }: LoginRegisterProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [form, setForm] = useState({ username: '', email: '', password: '' });
 
@@ -27,10 +27,10 @@ const LoginRegister = function ({ onLogin, children }: LoginRegisterProps) {
         localStorage.setItem('token', data.token);
         onLogin();
       } else {
-        alert(data.message || data.error);
+        // alert(data.message || data.error);
       }
     } catch (err) {
-      alert('Error de red');
+      // alert('Error de red');
     }
   };
 
@@ -40,34 +40,34 @@ const LoginRegister = function ({ onLogin, children }: LoginRegisterProps) {
       <h2>{isLogin ? 'Iniciar Sesión' : 'Registro'}</h2>
       <form onSubmit={handleSubmit}>
         <input
-          placeholder="Usuario"
-          value={form.username}
           onChange={(e) => setForm({ ...form, username: e.target.value })}
+          placeholder="Usuario"
           required
+          value={form.username}
         />
         {!isLogin && (
           <input
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
             placeholder="Email"
+            required
             type="email"
             value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            required
           />
         )}
         <input
+          onChange={(e) => setForm({ ...form, password: e.target.value })}
           placeholder="Contraseña"
+          required
           type="password"
           value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
-          required
         />
         <button type="submit">{isLogin ? 'Entrar' : 'Registrarse'}</button>
       </form>
       <button
-        type="button"
+        aria-label="Toggle between login and register"
         onClick={() => setIsLogin(!isLogin)}
         style={{ cursor: 'pointer' }}
-        aria-label="Toggle between login and register"
+        type="button"
       >
         {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
       </button>

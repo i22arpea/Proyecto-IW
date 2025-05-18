@@ -13,8 +13,6 @@ export default function cargarSettings(juego: Juego) {
   const backspaceIcon = document.querySelector('.icon-tabler-backspace');
 
   if (!backspaceIcon) {
-    console.error('Cant get backspaceIcon');
-
     return;
   }
 

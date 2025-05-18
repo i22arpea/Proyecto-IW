@@ -19,7 +19,7 @@ import Ayuda from './components/Ayuda';
 
 
 
-function HomePage({ juego, setJuego }: any) {
+function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<React.SetStateAction<Juego>> }) {
   return (
     <div className="game">
       <div className="game-main">
@@ -72,8 +72,7 @@ export default function App() {
       const rawData = localStorage.getItem('juego');
 
       if (!rawData) {
-        console.log('No saved data');
-
+        // console.log('No saved data');
         return;
       }
       const savedData = JSON.parse(rawData);
@@ -140,12 +139,12 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<HomePage juego={juego} setJuego={setJuego} />} />
-        <Route path="/register" element={<LoginRegister onLogin={() => { /* noop */ }} />} />
-        <Route path="/help" element={<Ayuda />} />
-        <Route path="/stats" element={<Stats juego={juego} />} />
-        <Route path="/settings" element={<Settings juego={juego} setJuego={setJuego} />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route element={<HomePage juego={juego} setJuego={setJuego} />} path="/" />
+        <Route element={<LoginRegister onLogin={() => { /* noop */ }} />} path="/register" />
+        <Route element={<Ayuda />} path="/help" />
+        <Route element={<Stats juego={juego} />} path="/stats" />
+        <Route element={<Settings juego={juego} setJuego={setJuego} />} path="/settings" />
+        <Route element={<LoginPage />} path="/login" />
       </Routes>
     </Router>
   );
