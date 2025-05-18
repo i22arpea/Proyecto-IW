@@ -151,6 +151,7 @@ function checkWord() {
       }
 
       squareLetter.classList.add('correcto');
+
       cantidadRepetidos[word[i]] -= 1;
     }
   }
@@ -282,6 +283,7 @@ function keyPress(e: string, juego: Juego) {
   }
 
   fallaste();
+
   return juegoActual;
 }
 

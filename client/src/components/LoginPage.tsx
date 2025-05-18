@@ -21,9 +21,11 @@ export default function LoginPage() {
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem('token', data.token);
+
         window.location.href = '/';
       } else {
         const data = await response.json();
+
         setError(data.error || 'Error al iniciar sesión');
       }
     } catch (err) {
@@ -37,9 +39,9 @@ export default function LoginPage() {
         <h2>Iniciar Sesión</h2>
 
         <input
+          name="username"
           autoComplete="username"
           className="login-input"
-          name="username"
           placeholder="Usuario"
           required
           type="text"
@@ -48,9 +50,9 @@ export default function LoginPage() {
         />
 
         <input
+          name="email"
           autoComplete="email"
           className="login-input"
-          name="email"
           placeholder="Correo"
           required
           type="email"
@@ -59,9 +61,9 @@ export default function LoginPage() {
         />
 
         <input
+          name="password"
           autoComplete="current-password"
           className="login-input"
-          name="password"
           placeholder="Contraseña"
           required
           type="password"

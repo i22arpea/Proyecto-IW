@@ -40,28 +40,28 @@ const LoginRegister = function LoginRegister({ onLogin, children }: LoginRegiste
       <h2>{isLogin ? 'Iniciar Sesión' : 'Registro'}</h2>
       <form onSubmit={handleSubmit}>
         <input
-          onChange={(e) => setForm({ ...form, username: e.target.value })}
           placeholder="Usuario"
           required
           value={form.username}
+          onChange={(e) => setForm({ ...form, username: e.target.value })}
         />
 
         {!isLogin && (
           <input
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
             placeholder="Email"
             required
             type="email"
             value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
           />
         )}
 
         <input
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
           placeholder="Contraseña"
           required
           type="password"
           value={form.password}
+          onChange={(e) => setForm({ ...form, password: e.target.value })}
         />
 
         <button type="submit">{isLogin ? 'Entrar' : 'Registrarse'}</button>
@@ -69,9 +69,9 @@ const LoginRegister = function LoginRegister({ onLogin, children }: LoginRegiste
 
       <button
         aria-label="Toggle between login and register"
-        onClick={() => setIsLogin(!isLogin)}
         style={{ cursor: 'pointer' }}
         type="button"
+        onClick={() => setIsLogin(!isLogin)}
       >
         {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
       </button>
