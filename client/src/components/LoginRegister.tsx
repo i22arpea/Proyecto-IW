@@ -45,6 +45,7 @@ const LoginRegister = function LoginRegister({ onLogin, children }: LoginRegiste
           required
           value={form.username}
         />
+
         {!isLogin && (
           <input
             onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -54,6 +55,7 @@ const LoginRegister = function LoginRegister({ onLogin, children }: LoginRegiste
             value={form.email}
           />
         )}
+
         <input
           onChange={(e) => setForm({ ...form, password: e.target.value })}
           placeholder="Contraseña"
@@ -61,8 +63,10 @@ const LoginRegister = function LoginRegister({ onLogin, children }: LoginRegiste
           type="password"
           value={form.password}
         />
+
         <button type="submit">{isLogin ? 'Entrar' : 'Registrarse'}</button>
       </form>
+
       <button
         aria-label="Toggle between login and register"
         onClick={() => setIsLogin(!isLogin)}
