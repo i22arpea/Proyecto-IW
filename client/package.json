@@ -25,7 +25,8 @@
     "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "lint": "eslint src/**/**.{ts,tsx}"
+    "lint": "eslint src/**/**.{ts,tsx}",
+    "test": "react-scripts test --env=jsdom --passWithNoTests"
   },
   "eslintConfig": {
     "extends": [
