@@ -44,7 +44,6 @@ export default function LoginPage() {
           className="login-input"
           name="username"
           placeholder="Usuario"
-          required
           type="text"
           value={usuario}
           onChange={e => setUsuario(e.target.value)}
@@ -55,7 +54,6 @@ export default function LoginPage() {
           className="login-input"
           name="email"
           placeholder="Correo"
-          required
           type="email"
           value={correo}
           onChange={e => setCorreo(e.target.value)}
@@ -66,7 +64,6 @@ export default function LoginPage() {
           className="login-input"
           name="password"
           placeholder="Contraseña"
-          required
           type="password"
           value={password}
           onChange={e => setPassword(e.target.value)}
