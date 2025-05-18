@@ -37,7 +37,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd client
-          npx gh-pages -d build -u "i22arpea <i22arpea@uco.es>"
+          npx gh-pages -d build \
+          -u "i22arpea <i22arpea@uco.es>" \
+          -r https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
 
       - name: Confirm deployment
         run: echo "Deployment to GitHub Pages complete"
