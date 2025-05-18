@@ -38,9 +38,11 @@ jobs:
           git config --global user.email "i22arpea@uco.es"
 
       - name: Deploy to GitHub Pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd client
-          npm run deploy
+          npx gh-pages -d build -u "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
 
       - name: Confirm deployment
         run: echo "Deployment to GitHub Pages complete"
