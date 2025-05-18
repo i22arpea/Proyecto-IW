@@ -41,7 +41,6 @@ const LoginRegister = function LoginRegister({ onLogin, children }: LoginRegiste
       <form onSubmit={handleSubmit}>
         <input
           placeholder="Usuario"
-          required
           value={form.username}
           onChange={(e) => setForm({ ...form, username: e.target.value })}
         />
@@ -49,7 +48,6 @@ const LoginRegister = function LoginRegister({ onLogin, children }: LoginRegiste
         {!isLogin && (
           <input
             placeholder="Email"
-            required
             type="email"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -58,7 +56,6 @@ const LoginRegister = function LoginRegister({ onLogin, children }: LoginRegiste
 
         <input
           placeholder="Contraseña"
-          required
           type="password"
           value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}

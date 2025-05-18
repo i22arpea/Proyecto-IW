@@ -144,6 +144,7 @@ function checkWord() {
     if (word[i] === desencriptarPalabra(juegoActual.dailyWord)[i]) {
       square[i + 5 * (juegoActual.row - 1)].classList.add('correcto');
       const squareLetter = document.getElementById(word[i].toUpperCase());
+      
       juegoActual.hardModeMustContain.push({ letter: word[i], position: i + 1 });
 
       if (!squareLetter) {
@@ -196,6 +197,7 @@ function checkWord() {
     }
 
     const nuevaDistribucion = { ...juegoActual.distribucion };
+    
     nuevaDistribucion[juegoActual.row] += 1;
     juegoActual = {
       ...juegoActual,
@@ -218,6 +220,7 @@ function moveRow() {
 
   const nextRow = juegoActual.row + 1;
   const nextPosition = juegoActual.position + 1;
+  
   juegoActual = {
     ...juegoActual,
     row: nextRow,
@@ -241,6 +244,7 @@ function fallaste() {
 
     const nuevasJugadas = juegoActual.jugadas + 1;
     const nuevaDistribucion = { ...juegoActual.distribucion };
+    
     nuevaDistribucion.X += 1;
     juegoActual = {
       ...juegoActual,
@@ -277,6 +281,7 @@ function keyPress(e: string, juego: Juego) {
     }
   } else if (e.length === 1 && square.textContent === '' && /[a-zA-Z]/.test(e)) {
     const span = document.createElement('span');
+
     span.textContent = e;
     square.appendChild(span);
     movePosition();
