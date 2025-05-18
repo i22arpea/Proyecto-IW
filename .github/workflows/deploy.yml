@@ -8,7 +8,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -19,13 +18,19 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          cd client
+          npm install
 
       - name: Build
-        run: npm run build
+        run: |
+          cd client
+          npm run build
 
       - name: Deploy to GitHub Pages
-        run: npm run deploy
+        run: |
+          cd client
+          npm run deploy
 
       - name: Confirm deployment
         run: echo "Deployment to GitHub Pages complete"
