@@ -136,45 +136,44 @@ function checkWord() {
   let delay = 0;
 
   for (let i = 0; i < 5; i++) {
-    square[i + 5 * (juegoActual.row - 1)].style.animationDelay = `${delay}s`;
-    square[i + 5 * (juegoActual.row - 1)].style.transitionDelay = `${delay}s`;
+    const idx = i + 5 * (juegoActual.row - 1);
+    if (!square[idx]) continue; // Robustez: saltar si el square no existe
+    square[idx].style.animationDelay = `${delay}s`;
+    square[idx].style.transitionDelay = `${delay}s`;
     delay += 0.4;
-    square[i + 5 * (juegoActual.row - 1)].classList.add('scale-up-center');
+    square[idx].classList.add('scale-up-center');
 
     if (word[i] === desencriptarPalabra(juegoActual.dailyWord)[i]) {
-      square[i + 5 * (juegoActual.row - 1)].classList.add('correcto');
+      square[idx].classList.add('correcto');
       const squareLetter = document.getElementById(word[i].toUpperCase());
-      
       juegoActual.hardModeMustContain.push({ letter: word[i], position: i + 1 });
-
-      if (!squareLetter) {
-        throw new Error("Can't get actual square");
+      if (squareLetter) {
+        squareLetter.classList.add('correcto');
       }
-
-      squareLetter.classList.add('correcto');
-
       cantidadRepetidos[word[i]] -= 1;
     }
   }
 
   for (let i = 0; i < 5; i++) {
+    const idx = i + 5 * (juegoActual.row - 1);
     const squareLetter = document.getElementById(word[i].toUpperCase());
-
-    if (!squareLetter) {
-      throw new Error("Can't get actual square");
-    }
-
+    if (!square[idx]) continue; // Robustez: saltar si el square no existe
+    // No lanzar error si squareLetter no existe, solo continuar
     if (
       desencriptarPalabra(juegoActual.dailyWord).includes(word[i]) &&
       cantidadRepetidos[word[i]] > 0
     ) {
-      square[i + 5 * (juegoActual.row - 1)].classList.add('presente');
+      square[idx].classList.add('presente');
       juegoActual.hardModeMustContain.push({ letter: word[i], position: 0 });
-      squareLetter.classList.add('presente');
+      if (squareLetter) {
+        squareLetter.classList.add('presente');
+      }
       cantidadRepetidos[word[i]] -= 1;
     } else {
-      square[i + 5 * (juegoActual.row - 1)].classList.add('incorrecto');
-      squareLetter.classList.add('incorrecto');
+      square[idx].classList.add('incorrecto');
+      if (squareLetter) {
+        squareLetter.classList.add('incorrecto');
+      }
     }
   }
 
@@ -279,7 +278,12 @@ function keyPress(e: string, juego: Juego) {
     if (existe) {
       moveRow();
     }
-  } else if (e.length === 1 && square.textContent === '' && /[a-zA-Z]/.test(e)) {
+  } else if (
+  e.length === 1 &&
+  square &&
+  square.textContent === '' &&
+  /[a-zA-Z]/.test(e)
+) {
     const span = document.createElement('span');
 
     span.textContent = e;
