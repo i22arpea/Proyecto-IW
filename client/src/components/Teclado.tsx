@@ -75,6 +75,7 @@ function Keyboard({ juego, setJuego, children }: KeyboardProps) { // Destructure
         {renderKey('N')}
         {renderKey('M')}
         <button
+          aria-label="Cerrar ayuda"
           className="key key-special"
           type="button"
           onClick={() => {

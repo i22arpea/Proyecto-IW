@@ -46,7 +46,7 @@ export default function Settings({ juego, setJuego, children }: SettingsProps) {
       <div className="settings-container">
         <h3 className="settings-titulo">
           Ajustes
-          <button className="ayuda-salir" type="button">
+          <button aria-label="Cerrar ayuda" className="ayuda-salir" type="button">
             <svg
               className="icon icon-tabler icon-tabler-x"
               fill="none"

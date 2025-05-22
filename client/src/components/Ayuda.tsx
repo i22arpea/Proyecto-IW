@@ -29,7 +29,7 @@ export default function Help({ children }: HelpProps) { // Destructure children
         <div className="ayuda-container">
           <h3 className="ayuda-titulo">
             Como Jugar
-            <button className="ayuda-salir" type="button">
+            <button aria-label="Cerrar ayuda" className="ayuda-salir" type="button">
               <svg
                 className="icon icon-tabler icon-tabler-x"
                 fill="none"
