@@ -5,7 +5,6 @@ import diccionario from '../json/final_dictionary.json';
 
 let juegoActual: Juego;
 
-// TODO: Mejorar que no exista variable global juegoActual.
 function movePosition(stepForward = true) {
   if (stepForward) {
     const nextPosition = juegoActual.position + 1;
@@ -24,6 +23,7 @@ function movePosition(stepForward = true) {
 
 function indexOfChars(str: string, char: string): number[] {
   const indexes: number[] = [];
+
   const split = str.split('');
 
   for (let i = 0; i < split.length; i++) {
@@ -64,9 +64,11 @@ function checkWord() {
 
   const palabra = desencriptarPalabra(juegoActual.dailyWord);
 
+  // console.log('Palabra diaria:', palabra); // <-- Mostrar palabra diaria por consola
   for (let i = 0; i < palabra.length; i++) {
     cantidadRepetidos[palabra[i]] = 0;
   }
+
   for (let i = 0; i < palabra.length; i++) {
     cantidadRepetidos[palabra[i]] += 1;
   }
@@ -108,6 +110,7 @@ function checkWord() {
 
         return false;
       }
+
       const indexes = indexOfChars(word, letter);
 
       if (!indexes.includes(position - 1) && position !== 0) {
@@ -126,6 +129,7 @@ function checkWord() {
         return false;
       }
     }
+
     juegoActual.hardModeMustContain = [];
   }
 
@@ -140,12 +144,15 @@ function checkWord() {
     if (word[i] === desencriptarPalabra(juegoActual.dailyWord)[i]) {
       square[i + 5 * (juegoActual.row - 1)].classList.add('correcto');
       const squareLetter = document.getElementById(word[i].toUpperCase());
-
+      
       juegoActual.hardModeMustContain.push({ letter: word[i], position: i + 1 });
+
       if (!squareLetter) {
         throw new Error("Can't get actual square");
       }
+
       squareLetter.classList.add('correcto');
+
       cantidadRepetidos[word[i]] -= 1;
     }
   }
@@ -176,15 +183,13 @@ function checkWord() {
       position: 'top-center',
       autoClose: 5000,
       hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
       draggable: true,
       progress: undefined,
     });
+
     const nuevasJugadas = juegoActual.jugadas + 1;
     const nuevasVictorias = juegoActual.victorias + 1;
     const nuevaRacha = juegoActual.streak + 1;
-
     let nuevaMayorRacha = juegoActual.maxStreak;
 
     if (nuevaRacha > nuevaMayorRacha) {
@@ -192,7 +197,7 @@ function checkWord() {
     }
 
     const nuevaDistribucion = { ...juegoActual.distribucion };
-
+    
     nuevaDistribucion[juegoActual.row] += 1;
     juegoActual = {
       ...juegoActual,
@@ -215,7 +220,7 @@ function moveRow() {
 
   const nextRow = juegoActual.row + 1;
   const nextPosition = juegoActual.position + 1;
-
+  
   juegoActual = {
     ...juegoActual,
     row: nextRow,
@@ -233,15 +238,13 @@ function fallaste() {
       position: 'top-center',
       autoClose: 5000,
       hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
       draggable: true,
       progress: undefined,
     });
 
     const nuevasJugadas = juegoActual.jugadas + 1;
     const nuevaDistribucion = { ...juegoActual.distribucion };
-
+    
     nuevaDistribucion.X += 1;
     juegoActual = {
       ...juegoActual,
@@ -261,13 +264,14 @@ function keyPress(e: string, juego: Juego) {
     return juegoActual;
   }
 
-  let square = document.getElementsByClassName('square')[juegoActual.position - 1];
+  let square = document.getElementsByClassName('square')[juegoActual.position - 1] as HTMLElement;
 
   if (e === 'Backspace') {
     if (square.textContent === '') {
       movePosition(false);
     }
-    square = document.getElementsByClassName('square')[juegoActual.position - 1];
+
+    square = document.getElementsByClassName('square')[juegoActual.position - 1] as HTMLElement;
     square.textContent = '';
   } else if (e === 'Enter') {
     const existe = checkWord();
@@ -275,13 +279,19 @@ function keyPress(e: string, juego: Juego) {
     if (existe) {
       moveRow();
     }
-  } else if (e.length === 1 && square.textContent === '' && /[a-zA-Z\u00f1\u00d1]/.test(e)) {
+} else if (
+  e.length === 1 &&
+  square &&
+  square.textContent === '' &&
+  /[a-zA-Z]/.test(e)
+) {
     const span = document.createElement('span');
 
     span.textContent = e;
     square.appendChild(span);
     movePosition();
   }
+
   fallaste();
 
   return juegoActual;

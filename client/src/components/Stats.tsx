@@ -1,11 +1,13 @@
-import { Juego } from "../types/types";
+import React from 'react';
+import { Juego } from "../types/types.d"; // Fixed import path
 import displayMenu from "../utils/desplegarMenu";
 
 interface StatsProps {
-  juego: Juego
+  juego: Juego;
+  children?: React.ReactNode; // Added children to props
 }
 
-export default function Stats({ juego }: StatsProps) {
+export default function Stats({ juego, children }: StatsProps) { // Destructure children
   function renderDistribution(index: string) {
     const porcentaje: number = (juego.distribucion[index] * 100) / juego.jugadas;
     const chart = document.getElementById(`d-${index}`);
@@ -27,6 +29,7 @@ export default function Stats({ juego }: StatsProps) {
 
   return (
     <div className="stats">
+      {children} {/* Render children if provided */}
       <div className="stats-container">
         <h3 className="stats-titulo">
           Estadisticas
@@ -106,3 +109,7 @@ export default function Stats({ juego }: StatsProps) {
     </div>
   );
 }
+
+Stats.defaultProps = {
+  children: undefined,
+};

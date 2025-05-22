@@ -1,4 +1,10 @@
-export default function Board() {
+import React from 'react';
+
+interface BoardProps {
+  children?: React.ReactNode; // Added children to props
+}
+
+export default function Board({ children }: BoardProps) { // Destructure children
   function renderSquare(i: number) {
     return <button aria-label="square" className="square" type="button" value={i} />;
   }
@@ -6,6 +12,7 @@ export default function Board() {
   return (
     <main className="board-flex">
       <div className="board">
+        {children} {/* Render children if provided */}
         <div className="fila">
           {renderSquare(1)}
           {renderSquare(2)}
@@ -52,3 +59,7 @@ export default function Board() {
     </main>
   );
 }
+
+Board.defaultProps = {
+  children: undefined,
+};

@@ -7,9 +7,10 @@ import restartGame from '../utils/resetearJuego';
 interface SettingsProps {
   juego: Juego;
   setJuego: React.Dispatch<React.SetStateAction<Juego>>;
+  children?: React.ReactNode; // Added children to props
 }
 
-export default function Settings({ juego, setJuego }: SettingsProps) {
+export default function Settings({ juego, setJuego, children }: SettingsProps) { // Destructure children
   function cambiarModoDificil() {
     const newState = restartGame(juego);
 
@@ -41,6 +42,7 @@ export default function Settings({ juego, setJuego }: SettingsProps) {
 
   return (
     <div className="settings">
+      {children} {/* Render children if provided */}
       <div className="settings-container">
         <h3 className="settings-titulo">
           Ajustes
@@ -149,3 +151,7 @@ export default function Settings({ juego, setJuego }: SettingsProps) {
     </div>
   );
 }
+
+Settings.defaultProps = {
+  children: undefined,
+};
