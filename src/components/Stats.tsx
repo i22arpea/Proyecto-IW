@@ -1,11 +1,41 @@
+import React, { useEffect } from 'react';
 import { Juego } from "../types/types";
 import displayMenu from "../utils/displayMenu";
+import { LOGROS } from '../utils/logros';
+import { Logro } from '../types/logros';
 
 interface StatsProps {
   juego: Juego
 }
 
+function obtenerLogros(juego: Juego): Logro[] {
+  // Copia los logros y marca como obtenidos según el estado del juego
+  return LOGROS.map((logro) => {
+    switch (logro.id) {
+      case 'primer_partida':
+        return { ...logro, obtenido: juego.jugadas > 0 };
+      case 'primer_victoria':
+        return { ...logro, obtenido: juego.victorias > 0 };
+      case 'racha_5':
+        return { ...logro, obtenido: juego.streak >= 5 || juego.maxStreak >= 5 };
+      case 'victorias_10':
+        return { ...logro, obtenido: juego.victorias >= 10 };
+      default:
+        return logro;
+    }
+  });
+}
+
 export default function Stats({ juego }: StatsProps) {
+  useEffect(() => {
+    // Cambia la clase del body según el modoOscuro
+    if (juego.modoOscuro) {
+      document.body.classList.remove('modo-claro');
+    } else {
+      document.body.classList.add('modo-claro');
+    }
+  }, [juego.modoOscuro]);
+
   function renderDistribution(index: string) {
     const porcentaje: number = (juego.distribucion[index] * 100) / juego.jugadas;
     const chart = document.getElementById(`d-${index}`);
@@ -24,6 +54,12 @@ export default function Stats({ juego }: StatsProps) {
       </div>
     );
   }
+
+  const logros = obtenerLogros(juego);
+  const porcentajeLogros =
+    logros.length > 0
+      ? ((logros.filter((l) => l.obtenido).length * 100) / logros.length).toFixed(0)
+      : '0';
 
   return (
     <div className="stats">
@@ -82,6 +118,19 @@ export default function Stats({ juego }: StatsProps) {
               {renderDistribution('6')}
               {renderDistribution('X')}
             </div>
+          </div>
+          <h3 className="stats-titulo">Logros</h3>
+          <div className="stats-logros">
+            <div className="stats-logros-porcentaje">
+              <strong>{porcentajeLogros}%</strong> de logros obtenidos
+            </div>
+            <ul>
+              {logros.map((logro) => (
+                <li key={logro.id} className={logro.obtenido ? 'logro-obtenido' : 'logro-no-obtenido'}>
+                  <span>{logro.nombre}</span> - <small>{logro.descripcion}</small>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>

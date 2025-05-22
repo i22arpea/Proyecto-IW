@@ -7,6 +7,8 @@
   --color-incorrecto: #3a3a3c;
   --color-correcto: #6ca969;
   --color-presente: #c9b360;
+  --color-fondo-logros: #23272e;
+  --color-fondo-logros-claro: #e6e6e6;
 }
 
 * {
@@ -391,6 +393,45 @@ code {
   margin-left: 1rem;
   height: 20px;
   background-color: #3c89ee;
+}
+
+/* Logros */
+.stats-logros {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  border-radius: 8px;
+  padding: 1rem;
+  background: var(--color-fondo-logros, #23272e);
+  transition: background 0.3s;
+}
+
+.modo-claro .stats-logros {
+  background: var(--color-fondo-logros-claro, #e6e6e6);
+}
+
+.stats-logros-porcentaje {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: #6ca969;
+}
+
+.logro-obtenido {
+  color: #6ca969;
+  font-weight: bold;
+}
+
+.logro-no-obtenido {
+  color: #818384;
+  opacity: 0.7;
+}
+
+.stats-logros ul {
+  list-style: none;
+  padding: 0;
+}
+
+.stats-logros li {
+  margin-bottom: 0.5rem;
 }
 
 /* Media queries */
