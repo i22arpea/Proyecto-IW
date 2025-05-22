@@ -1,43 +1,30 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# === DEPENDENCIAS ===
+# dependencies
 /node_modules
 /.pnp
 .pnp.js
 
-# === PRODUCCIÓN Y BUILD ===
+# Ignora cualquier carpeta node_modules en cualquier parte del proyecto
+/node_modules/
+**/node_modules/
+
+
+# testing
+/coverage
+
+# production
 /build
-**/build/
-**/dist/
-client/.next/
-client/build/
-server/build/
-client/dist/
 
-# === ENTORNOS ===
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 .env
-.env.*
-!.env.example
+.vscode
 
-# === VSCODE ===
-.vscode/
-
-# === LOGS ===
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-# === SISTEMAS ===
-.DS_Store
-.pnp
-.pnp.js
-
-# === TEST ===
-/coverage
-
-# === TYPESCRIPT ===
-*.tsbuildinfo
-
-# === CACHE ===
-**/.eslintcache
-.cache/
