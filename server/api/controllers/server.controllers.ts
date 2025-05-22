@@ -4,7 +4,11 @@ import {
 } from '../db';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { User } from '../db/user.model';
+import User, { IUser } from '../models/user.model';
+
+const getUserByUsername = async (username: string): Promise<IUser | null> => {
+  return await User.findOne({ username });
+};
 
 export const getPing = async (req: Request, res: Response) => res.send('Pong');
 
