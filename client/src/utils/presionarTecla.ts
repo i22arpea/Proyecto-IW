@@ -41,8 +41,13 @@ function checkWord() {
   const square = document.querySelectorAll<HTMLElement>('.square');
 
   for (let i = juegoActual.row * 5 - 5; i < juegoActual.row * 5; i++) {
-    word += square[i].textContent;
+  if (!square[i]) {
+    console.warn(`La celda ${i} no existe aún.`);
+    return false;
   }
+
+  word += square[i].textContent || '';
+}
 
   if (word.length !== 5) {
     toast.info('No hay suficientes letras', {
