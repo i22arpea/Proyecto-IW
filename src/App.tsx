@@ -110,6 +110,16 @@ export default function App() {
     localStorage.setItem('juego', JSON.stringify(juego));
   }, [juego]);
 
+  useEffect(() => {
+    function handleBeforeUnload() {
+      // Actualiza el estado visual antes de guardar
+      const juegoActualizado = llenarArray(juego);
+      localStorage.setItem('juego', JSON.stringify(juegoActualizado));
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [juego]);
+
   return (
     <div className="game">
       <div className="game-main">
