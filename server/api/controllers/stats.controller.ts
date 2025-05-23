@@ -23,7 +23,9 @@ export const getUserHistory = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.id;
 
-    const historial = await CompletedGame.find({ userId }).sort({ createdAt: -1 });
+    const historial = await CompletedGame.find({ userId })
+      .populate('userId', 'username') // Incluye solo el campo username del usuario
+      .sort({ createdAt: -1 });
 
     res.json(historial);
   } catch (error) {
