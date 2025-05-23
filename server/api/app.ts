@@ -3,6 +3,9 @@ import cors from 'cors';
 import express from 'express';
 import connectDB from './db/index';
 import Routes from './routes/server.routes';
+import userRoutes from './routes/user.routes';
+import statsRoutes from './routes/stats.routes';
+import authRoutes from './routes/auth.routes';
 
 dotenv.config();
 
@@ -17,6 +20,9 @@ app.use(express.json());
 
 // API Routes
 app.use(Routes);
+app.use('/api', userRoutes);
+app.use('/api', statsRoutes);
+app.use('/api', authRoutes);
 
 
 // Default route
@@ -35,6 +41,4 @@ app.get('*', (req, res) => {
   });
 });
 
-
-// Only export the app, do NOT start the server here
 export default app;

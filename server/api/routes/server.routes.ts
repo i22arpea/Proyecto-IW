@@ -8,7 +8,7 @@ import {
   setDailyWord,
   registerUser,
   loginUser,
-} from '../controllers/server.controllers';
+} from '../controllers/server.controller';
 import { authenticateToken } from '../middleware/authMiddleware';
 
 const router = Router();
