@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import User from '../models/user.model';
+import * as crypto from 'crypto';
 
 /**
  * Actualizar el perfil del usuario autenticado.
@@ -78,5 +79,30 @@ export const getProfile = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('❌ Error al obtener perfil:', error);
     return res.status(500).json({ message: 'Error al obtener perfil del usuario' });
+  }
+};
+export const recoverPassword = async (req: Request, res: Response) => {
+  try {
+    const { usernameOrEmail, newPassword } = req.body;
+
+    const user = await User.findOne({
+      $or: [
+        { username: usernameOrEmail },
+        { email: usernameOrEmail }
+      ]
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado.' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+
+    await user.save();
+
+    res.status(200).json({ message: 'Contraseña actualizada correctamente.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al actualizar la contraseña', error });
   }
 };
