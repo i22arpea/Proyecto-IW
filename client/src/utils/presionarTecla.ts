@@ -42,7 +42,8 @@ function checkWord() {
 
   for (let i = juegoActual.row * 5 - 5; i < juegoActual.row * 5; i++) {
   if (!square[i]) {
-    console.warn(`La celda ${i} no existe aún.`);
+    // console.warn(`La celda ${i} no existe aún.`);
+    
     return false;
   }
 
