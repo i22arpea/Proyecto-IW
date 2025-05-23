@@ -1,10 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
-// Extend Express Request interface to include user property
+// Extiende la Request para que req.user tenga un id
 declare module 'express-serve-static-core' {
   interface Request {
-    user?: string | JwtPayload;
+    user?: {
+      id: string;
+    };
   }
 }
 
@@ -18,7 +20,13 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
 
   try {
     const verified = jwt.verify(token, process.env.JWT_SECRET || 'secret') as JwtPayload;
-    req.user = verified;
+
+    // Asegúrate de que el token contiene un campo 'id'
+    if (typeof verified !== 'object' || !verified.id) {
+      return res.status(403).json({ error: 'Invalid token structure.' });
+    }
+
+    req.user = { id: verified.id }; // Normalizado para controladores
     next();
   } catch (error) {
     res.status(403).json({ error: 'Invalid or expired token.' });
