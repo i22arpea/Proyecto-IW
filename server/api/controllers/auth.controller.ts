@@ -80,3 +80,10 @@ export const login = async (req: Request, res: Response) => {
     return res.status(500).json({ error: 'Fallo en el inicio de sesión' });
   }
 };
+
+//logout de usuario
+
+export const logout = async (_req: Request, res: Response) => {
+  // Aquí simplemente devolvemos un mensaje porque el token se gestiona en el frontend
+  return res.status(200).json({ message: 'Sesión cerrada correctamente.' });
+};
