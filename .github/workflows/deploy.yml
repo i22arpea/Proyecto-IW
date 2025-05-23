@@ -1,0 +1,50 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - Fusión-frontend-y-backend
+
+permissions:
+  contents: write      
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: |
+          cd client
+          npm install
+
+      - name: Run tests
+        run: |
+          cd client
+          npm test -- --watchAll=false
+
+      - name: Build
+        run: |
+          cd client
+          npm run build
+
+      - name: Deploy to GitHub Pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd client
+          npx gh-pages -d build \
+          -u "i22arpea <i22arpea@uco.es>" \
+          -r https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
+
+      - name: Confirm deployment
+        run: echo "Deployment to GitHub Pages complete"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

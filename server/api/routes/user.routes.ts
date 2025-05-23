@@ -1,0 +1,14 @@
+import express from 'express';
+import { updateProfile, deleteAccount, getProfile } from '../controllers/user.controller';
+import { authenticateToken } from '../middleware/authMiddleware';
+import { recoverPassword } from '../controllers/user.controller';
+
+const router = express.Router();
+
+router.put('/usuarios/modificarPerfil', authenticateToken, updateProfile);
+router.delete('/usuarios', authenticateToken, deleteAccount);
+router.get('/usuarios/verPerfil', authenticateToken, getProfile);
+router.post('/usuarios/recover-password', recoverPassword);
+
+
+export default router;

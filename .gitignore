@@ -1,0 +1,50 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# === DEPENDENCIAS ===
+/node_modules
+/client/node_modules
+/server/node_modules
+**/node_modules/
+/.pnp
+.pnp.js
+
+# === PRODUCCIÓN Y BUILD ===
+/build
+**/build/
+**/dist/
+client/.next/
+client/build/
+server/build/
+client/dist/
+
+# === ENTORNOS ===
+.env
+.env.*
+!.env.example
+
+# === VSCODE ===
+.vscode/
+
+# === LOGS ===
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+<<<<<<< HEAD
+
+=======
+# === SISTEMAS ===
+.DS_Store
+.pnp
+.pnp.js
+
+# === TEST ===
+/coverage
+
+# === TYPESCRIPT ===
+*.tsbuildinfo
+
+# === CACHE ===
+**/.eslintcache
+.cache/
+>>>>>>> 0072b8eaf05869d958d2cea51484e8d5aa0f9e67

@@ -1,37 +1,29 @@
-# Proyecto-IW
-Proyecto dedicado a Wordle
+# Proyecto - Wordle
 
-Este es un clon del popular juego Wordle, desarrollado en Java como parte de un proyecto académico/personal. Permite a los jugadores adivinar una palabra de 5 letras en 6 intentos, proporcionando pistas visuales según la precisión de cada intento.
+Este es un proyecto para el juego Wordle que consta de dos partes principales: el **frontend** y el **backend**. El frontend está desarrollado con **React**, mientras que el backend está construido usando **Node.js** con **Express**. Este archivo README describe cómo ejecutar ambas partes por separado y simultáneamente.
 
+## Estructura del Proyecto
 
-🚀 Características
-
-Juego de palabras con 6 intentos por partida.
-
-Posibilidad de iniciar sesión y guardar progreso.
-
-Estadísticas e historial de partidas jugadas.
-
-Personalización de temas y colores.
-
-Opción de compartir resultados en redes sociales y añadir amigos.
-
-Posibilidad de ver ranking de mejores jugadores.
-
-
-🛠️ Tecnologías Utilizadas
-
-Lenguaje: JavaScript
-
-Frameworks: Node.js , React.js
-
-Base de datos: MySQL
-
-Herramientas: MagicDraw, GitHub 
-
-🔧 4. Instalación y Uso
+/Proyecto-IW
+├── /client <-- Frontend (React)
+│ ├── /node_modules
+│ ├── /public
+│ ├── /src
+│ ├── package.json
+│ ├── README.md
+│ ├── tsconfig.json
+├── /server <-- Backend (Node.js/Express)
+│ ├── /node_modules
+│ ├── /api
+│ ├── /build
+│ ├── package.json
+│ ├── tsconfig.json
+├── package.json <-- Archivo raíz
 
 
-🚀Wordle_API
 
-https://github.com/i22arpea/Wordle_API
+## Ejecución del Proyecto
+
+1. Ejecución del frontend -> npm start --prefix client
+2. Ejecución del backend -> npm start --prefix server
+3. Ejecución simultánea -> npm start
