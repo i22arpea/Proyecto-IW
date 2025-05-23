@@ -7,6 +7,7 @@ import userRoutes from './routes/user.routes';
 import statsRoutes from './routes/stats.routes';
 import authRoutes from './routes/auth.routes';
 import friendRoutes from './routes/friend.routes';
+import gameRoutes from './routes/game.routes';
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.use('/api', userRoutes);
 app.use('/api', statsRoutes);
 app.use('/api', authRoutes);
 app.use('/api/amigos', friendRoutes);
+app.use('/api/partidas', gameRoutes);
 
 
 // Default route
