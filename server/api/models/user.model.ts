@@ -6,6 +6,7 @@ export interface IUser extends Document {
   password: string;
   name?: string;
   surname?: string;
+  profileImage?: string; // URL o base64 de la imagen de perfil
   friends: mongoose.Types.ObjectId[];
   friendRequests: mongoose.Types.ObjectId[];
   totalGames: number;
@@ -26,6 +27,7 @@ const UserSchema: Schema = new Schema<IUser>({
   password: { type: String, required: true },
   name: { type: String },
   surname: { type: String },
+  profileImage: { type: String, default: '' },
   friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   friendRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   totalGames: { type: Number, default: 0 },

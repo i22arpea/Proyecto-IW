@@ -9,24 +9,24 @@ import User from '../models/user.model';
 export const updateProfile = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.id;
-    const { email, preferences, currentPassword, newPassword } = req.body;
+    const { name, surname, profileImage, currentPassword, newPassword } = req.body;
 
     const user = await User.findById(userId);
-
     if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
 
-    if (email) user.email = email;
-    if (preferences) user.preferences = preferences;
+    if (name) user.name = name;
+    if (surname) user.surname = surname;
+    if (profileImage) user.profileImage = profileImage;
 
+    // Si el usuario desea cambiar su contraseña
     if (newPassword) {
-      // Verificar contraseña actual antes de permitir cambio
       if (!currentPassword) {
-        return res.status(400).json({ message: 'Debes proporcionar la contraseña actual para cambiarla' });
+        return res.status(400).json({ message: 'Debes proporcionar la contraseña actual para cambiarla.' });
       }
 
       const passwordMatch = await bcrypt.compare(currentPassword, user.password);
       if (!passwordMatch) {
-        return res.status(401).json({ message: 'Contraseña actual incorrecta' });
+        return res.status(401).json({ message: 'Contraseña actual incorrecta.' });
       }
 
       const salt = await bcrypt.genSalt(10);
@@ -35,9 +35,9 @@ export const updateProfile = async (req: Request, res: Response) => {
 
     await user.save();
 
-    return res.json({ message: 'Perfil actualizado correctamente' });
+    return res.json({ message: 'Perfil actualizado correctamente.' });
   } catch (error) {
-    console.error(error);
+    console.error('❌ Error al actualizar perfil:', error);
     return res.status(500).json({ message: 'Error al actualizar el perfil' });
   }
 };
@@ -60,5 +60,23 @@ export const deleteAccount = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Error al eliminar la cuenta' });
+  }
+};
+
+//Ver perfil de usuario
+export const getProfile = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.id;
+
+    const user = await User.findById(userId).select(
+      'username email name surname profileImage preferences'
+    );
+
+    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+
+    return res.json(user);
+  } catch (error) {
+    console.error('❌ Error al obtener perfil:', error);
+    return res.status(500).json({ message: 'Error al obtener perfil del usuario' });
   }
 };

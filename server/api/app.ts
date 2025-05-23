@@ -29,7 +29,7 @@ app.use('/api/amigos', friendRoutes);
 app.use('/api/partidas', gameRoutes);
 
 
-// Default route
+// Hay que acutalizar las rutas
 app.get('*', (req, res) => {
   res.status(200).json({
     Routes: [
