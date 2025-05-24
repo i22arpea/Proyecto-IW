@@ -22,8 +22,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
   const user = await User.findOne({ email });
   if (!user) {
-    // Por seguridad, no revelar si el email existe o no
-    return res.json({ message: 'Si el correo existe, se ha enviado un enlace de recuperación.' });
+    return res.status(404).json({ error: 'No existe ninguna cuenta con ese correo.' });
   }
 
   // Generar token de recuperación válido por 1 hora

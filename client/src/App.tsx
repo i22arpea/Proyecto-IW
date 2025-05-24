@@ -8,6 +8,8 @@ import Stats from './components/Stats';
 import LoginRegister from './components/LoginRegister';
 import LoginPage from './components/LoginPage';
 import ProfilePage from './components/ProfilePage';
+import ResetPasswordPage from './components/ResetPasswordPage';
+import VerifyEmailPage from './components/VerifyEmailPage';
 import { encriptarPalabra } from './libs/crypto';
 import { Juego } from './types/types.d';
 import cargarSettings from './utils/cargarOpciones';
@@ -24,7 +26,32 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
   const [showForgot, setShowForgot] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotMessage, setForgotMessage] = useState<string|null>(null);
+  const [showVerify, setShowVerify] = useState(false);
+  const [verifyMessage, setVerifyMessage] = useState<string | null>(null);
+  const [verifyLoading, setVerifyLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    if (window.location.pathname === '/verify-email' && token) {
+      setShowVerify(true);
+      setVerifyLoading(true);
+      fetch('/api/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token })
+      })
+        .then(async res => {
+          const data = await res.json();
+          setVerifyMessage(data.message || data.error || 'Error al verificar el correo.');
+        })
+        .catch(() => {
+          setVerifyMessage('Error de red al verificar el correo.');
+        })
+        .finally(() => setVerifyLoading(false));
+    }
+  }, []);
 
   return (
     <div className="game">
@@ -135,7 +162,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                 </button>
                 <div style={{ textAlign: 'center', marginTop: '0.7rem', color: '#aaa', fontSize: '0.95rem' }}>
                   ¿No tienes cuenta? <span
-                    style={{ color: '#1ed760', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '2px' }}
+                    style={{ color: '#1ed760', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '2px', fontSize: '0.93rem' }}
                     role="button"
                     tabIndex={0}
                     onClick={() => { setShowLogin(false); setShowRegister(true); }}
@@ -195,16 +222,15 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email })
                   });
+                  const text = await res.text();
+                  let data;
+                  try {
+                    data = JSON.parse(text);
+                  } catch { data = {}; }
                   if (!res.ok) {
-                    const errorText = await res.text();
-                    try {
-                      const data = JSON.parse(errorText);
-                      setForgotMessage(data.message || data.error || 'Error al solicitar recuperación.');
-                    } catch {
-                      setForgotMessage(`Error al solicitar recuperación: ${errorText}`);
-                    }
+                    setForgotMessage(data.error || data.message || 'Error al solicitar recuperación.');
                   } else {
-                    setForgotMessage('Si el correo existe, se ha enviado un enlace de recuperación.');
+                    setForgotMessage(data.message || 'Si el correo existe, se ha enviado un enlace de recuperación.');
                   }
                 } catch (err) {
                   setForgotMessage('Error de red al solicitar recuperación.');
@@ -217,7 +243,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                 <label htmlFor="forgot-email">Correo electrónico</label>
                 <input id="forgot-email" name="email" type="email" placeholder="Tu correo electrónico" required />
               </div>
-              <button className="login-btn" type="submit" disabled={forgotLoading}>
+              <button className="login-btn" type="submit" disabled={forgotLoading} style={{ width: '100%', padding: '12px 0', fontSize: '1.08rem' }}>
                 {forgotLoading ? 'Enviando...' : 'Enviar enlace de recuperación'}
               </button>
               {forgotMessage && (
@@ -225,10 +251,10 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                   {forgotMessage}
                 </div>
               )}
-              <div style={{ textAlign: 'center', marginTop: '0.7rem', color: '#aaa', fontSize: '0.95rem' }}>
+              <div style={{ textAlign: 'center', marginTop: '0.7rem', color: '#aaa', fontSize: '0.9rem' }}>
                 ¿Recuerdas tu contraseña?{' '}
                 <span
-                  style={{ color: '#1ed760', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '2px' }}
+                  style={{ color: '#1ed760', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '2px', fontSize: '0.93rem' }}
                   role="button"
                   tabIndex={0}
                   onClick={() => { setShowForgot(false); setShowLogin(true); setForgotMessage(null); }}
@@ -301,7 +327,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                       try {
                         const data = JSON.parse(errorText);
                         console.error('Register error:', data);
-                        alert(data.message || data.error || 'Error al registrarse');
+                        alert((data.message || data.error || 'Error al registrarse') + (data.details ? `\nDetalles: ${data.details}` : ''));
                       } catch (parseErr) {
                         console.error('Register error (raw):', errorText);
                         alert(`Error al registrarse: ${errorText}`);
@@ -338,7 +364,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                 </button>
                 <div style={{ textAlign: 'center', marginTop: '0.7rem', color: '#aaa', fontSize: '0.95rem', width: '100%' }}>
                   ¿Ya tienes cuenta? <span
-                    style={{ color: '#1ed760', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '2px' }}
+                    style={{ color: '#1ed760', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '2px', fontSize: '0.93rem' }}
                     role="button"
                     tabIndex={0}
                     onClick={() => { setShowRegister(false); setShowLogin(true); }}
@@ -350,6 +376,33 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                 </div>
               </form>
             </div>
+          </div>
+        </div>
+      )}
+      {showVerify && (
+        <div className="game-login-overlay">
+          <div className="game-login-form-container">
+            <button
+              className="ayuda-salir"
+              type="button"
+              style={{ position: 'absolute', top: 18, right: 18, background: 'none', border: 'none', color: 'var(--color-texto)', fontSize: '2rem', cursor: 'pointer', lineHeight: 1 }}
+              onClick={() => { setShowVerify(false); window.history.replaceState({}, '', '/'); setVerifyMessage(null); }}
+              aria-label="Cerrar verificación"
+            >
+              ×
+            </button>
+            <h2 className="login-title" style={{ textAlign: 'center', marginBottom: '1.5rem', fontWeight: 700, letterSpacing: '0.1em', fontSize: '2rem', color: '#1ed760', textShadow: '0 2px 12px #000a' }}>
+              <span style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: '2.2rem', color: '#fff', background: 'linear-gradient(90deg, #1ed760 60%, #111 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block', marginRight: 8 }}>Wordle</span>
+              <span style={{ fontSize: '1.1rem', color: '#1ed760', fontWeight: 700, marginLeft: 2 }}>Verificación de correo</span>
+            </h2>
+            <div style={{ textAlign: 'center', minHeight: 40, fontSize: '1.1rem', color: '#fff', fontWeight: 500 }}>
+              {verifyLoading ? 'Verificando...' : verifyMessage}
+            </div>
+            {verifyMessage && verifyMessage.includes('correctamente') && (
+              <button className="login-btn" type="button" style={{ marginTop: 24 }} onClick={() => { setShowVerify(false); setShowLogin(true); window.history.replaceState({}, '', '/'); setVerifyMessage(null); }}>
+                Iniciar sesión
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -468,6 +521,8 @@ function App() {
         <Route element={<Settings juego={juego} setJuego={setJuego} />} path="/settings" />
         <Route element={<LoginPage />} path="/login" />
         <Route element={<ProfilePage />} path="/profile" />
+        <Route element={<ResetPasswordPage />} path="/reset-password" />
+        <Route element={<VerifyEmailPage />} path="/verify-email" />
       </Routes>
     </Router>
   );

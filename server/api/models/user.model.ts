@@ -19,6 +19,8 @@ export interface IUser extends Document {
   preferences?: {
     theme?: string;
   };
+  isVerified: boolean; // Nuevo campo para verificación de email
+  verificationToken?: string; // Token de verificación de email
 }
 
 const UserSchema: Schema = new Schema<IUser>({
@@ -43,7 +45,9 @@ const UserSchema: Schema = new Schema<IUser>({
   winRate: { type: Number, default: 0 },
   preferences: {
     theme: { type: String, default: 'light' }
-  }
+  },
+  isVerified: { type: Boolean, default: false }, // Nuevo campo
+  verificationToken: { type: String } // Nuevo campo
 }, {
   timestamps: true
 });

@@ -69,7 +69,7 @@ export default function Header({ juego, setJuego, onLoginClick, onProfileClick }
         </svg>
       </div>
       <h1 className="titulo">Wordle</h1>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
         {/* Iconos de opciones */}
         <svg
           className="icon icon-tabler icon-tabler-chart-bar"
@@ -108,7 +108,7 @@ export default function Header({ juego, setJuego, onLoginClick, onProfileClick }
           <circle cx="12" cy="12" r="3" />
         </svg>
         {/* Icono de perfil/login, separado visualmente */}
-        <div style={{ marginLeft: 8, display: 'flex', alignItems: 'center' }}>
+        <div style={{ marginLeft: 2, display: 'flex', alignItems: 'center' }}>
           {authenticated ? (
             <svg
               className="icon icon-tabler icon-tabler-user-circle"
