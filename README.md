@@ -64,14 +64,14 @@ El frontend en http://localhost:3000 (o una IP local como 192.168.X.X)
 ### Endpoints del Backend
 
 ## 📡 Endpoints del Backend
-# 🔐 Autenticación (/api/auth)
+### 🔐 Autenticación (/api/auth)
 POST /api/auth/register – Registrar un nuevo usuario
 
 POST /api/auth/login – Iniciar sesión y obtener JWT
 
 POST /api/auth/logout – 🔒 Cerrar sesión (requiere token)
 
-# 👥 Amistades (/api/friends)
+### 👥 Amistades (/api/friends)
 POST /api/friends/solicitar – 🔒 Enviar solicitud de amistad
 
 POST /api/friends/responder – 🔒 Responder a una solicitud de amistad
@@ -80,17 +80,17 @@ GET /api/friends – 🔒 Obtener lista de amigos
 
 GET /api/friends/ranking – 🔒 Ranking entre amigos
 
-# 🎮 Partidas (/api/game)
+### 🎮 Partidas (/api/game)
 POST /api/game/guardar – 🔒 Guardar partida en curso
 
 GET /api/game/pendiente – 🔒 Obtener partida pendiente
 
 POST /api/game/finalizar – 🔒 Finalizar partida y guardar resultados
 
-# 🧠 Juego Wordle (/)
+### 🧠 Juego Wordle (/)
 (Rutas públicas y protegidas mezcladas)
 
-# 📢 Públicas:
+### 📢 Públicas:
 GET /ping – Verificar que el servidor responde
 
 GET /api/wordle – Obtener la palabra del día
@@ -107,10 +107,10 @@ POST /register – Registrar usuario (alternativo)
 
 POST /login – Login (alternativo)
 
-# 🔒 Protegida:
+### 🔒 Protegida:
 GET /protected – Ruta protegida de prueba para validar JWT
 
-# 📊 Estadísticas (/api/stats)
+### 📊 Estadísticas (/api/stats)
 GET /api/stats/usuarios/estadisticas – 🔒 Obtener estadísticas del usuario autenticado
 
 GET /api/stats/usuarios/historial – 🔒 Historial de partidas del usuario
