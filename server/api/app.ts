@@ -8,6 +8,7 @@ import statsRoutes from './routes/stats.routes';
 import authRoutes from './routes/auth.routes';
 import friendRoutes from './routes/friend.routes';
 import gameRoutes from './routes/game.routes';
+import passwordRoutes from './routes/password.routes';
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.use('/api', statsRoutes);
 app.use('/api', authRoutes);
 app.use('/api/amigos', friendRoutes);
 app.use('/api/partidas', gameRoutes);
+app.use('/api', passwordRoutes);
 
 
 // Hay que acutalizar las rutas

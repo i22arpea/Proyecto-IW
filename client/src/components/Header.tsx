@@ -4,14 +4,20 @@ import displayMenu from '../utils/desplegarMenu';
 import llenarArray from '../utils/llenarArray';
 import restartGame from '../utils/resetearJuego';
 import LoginRegister from './LoginRegister';
+import { isAuthenticated } from '../utils/authUtils';
+import words from '../json/palabras_5.json';
+import { encriptarPalabra } from '../libs/crypto';
 
-interface HeaderProps {
+export interface HeaderProps {
   juego: Juego;
   setJuego: React.Dispatch<React.SetStateAction<Juego>>;
+  onLoginClick?: () => void;
+  onProfileClick?: () => void;
 }
 
-export default function Header({ juego, setJuego }: HeaderProps) {
+export default function Header({ juego, setJuego, onLoginClick, onProfileClick }: HeaderProps) {
   const [showLogin, setShowLogin] = useState(false);
+  const authenticated = isAuthenticated();
 
   return (
     <header className="header">
@@ -47,8 +53,12 @@ export default function Header({ juego, setJuego }: HeaderProps) {
           width="24"
           xmlns="http://www.w3.org/2000/svg"
           onClick={() => {
-            const newState = restartGame(juego);
-
+            // Resetear el juego y la palabra del día
+            const nuevaPalabra = words[Math.floor(Math.random() * words.length)];
+            const newState = {
+              ...restartGame(juego),
+              dailyWord: encriptarPalabra(nuevaPalabra)
+            };
             llenarArray(newState);
             setJuego(newState);
           }}
@@ -59,7 +69,8 @@ export default function Header({ juego, setJuego }: HeaderProps) {
         </svg>
       </div>
       <h1 className="titulo">Wordle</h1>
-      <div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        {/* Iconos de opciones */}
         <svg
           className="icon icon-tabler icon-tabler-chart-bar"
           fill="none"
@@ -96,23 +107,48 @@ export default function Header({ juego, setJuego }: HeaderProps) {
           <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z" />
           <circle cx="12" cy="12" r="3" />
         </svg>
-        <svg
-          className="icon icon-tabler icon-tabler-login"
-          fill="none"
-          height="24"
-          stroke="#525252"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="1.5"
-          viewBox="0 0 24 24"
-          width="24"
-          xmlns="http://www.w3.org/2000/svg"
-          onClick={() => setShowLogin(true)}
-        >
-          <path d="M0 0h24v24H0z" fill="none" stroke="none" />
-          <path d="M10 12h10m-5 -5l5 5l-5 5" />
-          <path d="M9 16v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2 -2v-10a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v1" />
-        </svg>
+        {/* Icono de perfil/login, separado visualmente */}
+        <div style={{ marginLeft: 8, display: 'flex', alignItems: 'center' }}>
+          {authenticated ? (
+            <svg
+              className="icon icon-tabler icon-tabler-user-circle"
+              fill="none"
+              height="24"
+              stroke="#1ed760"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="1.5"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+              style={{ cursor: 'pointer' }}
+              onClick={onProfileClick}
+            >
+              <path d="M0 0h24v24H0z" fill="none" stroke="none" />
+              <circle cx="12" cy="12" r="9" />
+              <circle cx="12" cy="10" r="3" />
+              <path d="M6.5 18a6.5 6.5 0 0 1 11 0" />
+            </svg>
+          ) : (
+            <svg
+              className="icon icon-tabler icon-tabler-login"
+              fill="none"
+              height="24"
+              stroke="#525252"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="1.5"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+              onClick={onLoginClick}
+            >
+              <path d="M0 0h24v24H0z" fill="none" stroke="none" />
+              <path d="M10 12h10m-5 -5l5 5l-5 5" />
+              <path d="M9 16v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2 -2v-10a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v1" />
+            </svg>
+          )}
+        </div>
       </div>
       {showLogin && (
         <div className="login-modal">
@@ -122,3 +158,8 @@ export default function Header({ juego, setJuego }: HeaderProps) {
     </header>
   );
 }
+
+Header.defaultProps = {
+  onLoginClick: undefined,
+  onProfileClick: undefined,
+};
