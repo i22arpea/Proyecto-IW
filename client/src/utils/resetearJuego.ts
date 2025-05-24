@@ -2,9 +2,11 @@ import { encriptarPalabra } from '../libs/crypto';
 import { Juego } from '../types/types';
 import words from '../json/palabras_5.json';
 import diccionario from '../json/final_dictionary.json';
+import { resetLockedLetters } from './presionarTecla';
 
 // Returns new state to avoid breaking react rules.
 export default function restartGame(juego: Juego) {
+  resetLockedLetters();
   const squares = document.getElementsByClassName('square');
   let newGame = juego;
 
@@ -13,6 +15,8 @@ export default function restartGame(juego: Juego) {
     squares[i].classList.remove('presente');
     squares[i].classList.remove('incorrecto');
     squares[i].classList.remove('scale-up-center');
+    squares[i].classList.remove('locked-correct'); // Quita el bloqueo visual de celdas fijas
+    squares[i].removeAttribute('aria-disabled'); // Quita el atributo de accesibilidad
     squares[i].textContent = '';
   }
   const keys = document.getElementsByClassName('key');

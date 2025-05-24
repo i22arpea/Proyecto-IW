@@ -5,6 +5,9 @@ import diccionario from '../json/final_dictionary.json';
 
 let juegoActual: Juego;
 
+// Guardar letras correctas bloqueadas por fila
+let lockedLetters: { [row: number]: { [col: number]: string } } = {};
+
 function movePosition(stepForward = true) {
   if (stepForward) {
     const nextPosition = juegoActual.position + 1;
@@ -151,16 +154,22 @@ function checkWord() {
     if (word[i] === desencriptarPalabra(juegoActual.dailyWord)[i]) {
       square[i + 5 * (juegoActual.row - 1)].classList.add('correcto');
       const squareLetter = document.getElementById(word[i].toUpperCase());
-      
       juegoActual.hardModeMustContain.push({ letter: word[i], position: i + 1 });
-
       if (!squareLetter) {
         throw new Error("Can't get actual square");
       }
-
       squareLetter.classList.add('correcto');
-
       cantidadRepetidos[word[i]] -= 1;
+      // Guardar la letra correcta bloqueada para la siguiente fila
+      if (!lockedLetters[juegoActual.row]) lockedLetters[juegoActual.row] = {};
+      lockedLetters[juegoActual.row][i] = word[i];
+      // Mostrar visualmente la celda bloqueada en la siguiente fila
+      const nextRowSquare = square[i + 5 * (juegoActual.row)];
+      if (nextRowSquare) {
+        nextRowSquare.textContent = word[i].toUpperCase();
+        nextRowSquare.classList.add('correcto', 'locked-correct');
+        nextRowSquare.setAttribute('aria-disabled', 'true');
+      }
     }
   }
 
@@ -264,14 +273,63 @@ function fallaste() {
 }
 
 // Returns a new state to avoid breaking react rules.
-function keyPress(e: string, juego: Juego) {
+function keyPress(e: string, juego: Juego): Juego {
   juegoActual = juego;
+  let square = document.getElementsByClassName('square')[juegoActual.position - 1] as HTMLElement;
 
-  if (juegoActual.juegoFinalizado) {
-    return juegoActual;
+  // Si la posición está bloqueada por una letra correcta de la fila anterior, saltar automáticamente a la siguiente celda editable
+  if (
+    square &&
+    juegoActual.position > 5 &&
+    lockedLetters[juegoActual.row - 1]
+  ) {
+    let col = (juegoActual.position - 1) % 5;
+    // Si la celda está bloqueada
+    while (lockedLetters[juegoActual.row - 1][col] && square) {
+      // Si la celda está vacía, la rellenamos automáticamente
+      if (square.textContent === '') {
+        square.textContent = lockedLetters[juegoActual.row - 1][col].toUpperCase();
+        square.classList.add('correcto', 'locked-correct');
+        square.setAttribute('aria-disabled', 'true');
+      }
+      // Avanzar a la siguiente celda
+      movePosition();
+      // Actualizar square y col
+      square = document.getElementsByClassName('square')[juegoActual.position - 1] as HTMLElement;
+      col = (juegoActual.position - 1) % 5;
+      // Si nos salimos de la fila, salimos del bucle
+      if (col === 0) break;
+    }
   }
 
-  let square = document.getElementsByClassName('square')[juegoActual.position - 1] as HTMLElement;
+  // Bloquear letras correctas en la siguiente fila
+  if (
+    square &&
+    square.textContent === '' &&
+    /[a-zA-Z]/.test(e) &&
+    juegoActual.position > 5 &&
+    lockedLetters[juegoActual.row - 1]
+  ) {
+    const col = (juegoActual.position - 1) % 5;
+    const locked = lockedLetters[juegoActual.row - 1][col];
+    if (locked) {
+      // Si la letra es diferente a la bloqueada, no permitir escribir
+      if (e.toLowerCase() !== locked.toLowerCase()) {
+        toast.info(`La letra en esta posición debe ser '${locked.toUpperCase()}'`, {
+          position: 'top-center',
+          className: 'toast',
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          transition: Zoom,
+        });
+        return juegoActual;
+      }
+    }
+  }
 
   if (e === 'Backspace') {
     if (square.textContent === '') {
@@ -302,6 +360,11 @@ function keyPress(e: string, juego: Juego) {
   fallaste();
 
   return juegoActual;
+}
+
+// Limpiar lockedLetters al reiniciar el juego
+export function resetLockedLetters() {
+  lockedLetters = {};
 }
 
 export default keyPress;

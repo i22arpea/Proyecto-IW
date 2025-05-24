@@ -218,6 +218,16 @@ code {
   border: 2px solid var(--color-correcto) !important;
 }
 
+.locked-correct {
+  background: var(--color-correcto) !important;
+  color: white !important;
+  border: 2px solid var(--color-correcto) !important;
+  pointer-events: none;
+  opacity: 1;
+  font-weight: bold;
+  font-size: 2rem;
+}
+
 .Toastify__toast-container--top-center {
   width: auto;
   top: 4rem;
