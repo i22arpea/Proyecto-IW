@@ -151,60 +151,28 @@ function App() {
   }, [juego]);
 
   useEffect(() => {
-    async function fetchPendingGame() {
-      if (!localStorage.getItem('token')) return;
+  const handleAutoSave = async () => {
+    if (!juego.juegoFinalizado && localStorage.getItem('token')) {
       try {
-        const res = await fetch('/api/partidas/pendiente', {
+        await fetch('/api/partidas/guardar', {
+          method: 'POST',
           headers: {
+            'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
+          },
+          body: JSON.stringify({
+            secretWord: juego.dailyWord,
+            attempts: juego.estadoActual
+          })
         });
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.secretWord && data.attempts && !juego.juegoFinalizado) {
-            // Reconstruir el estado del juego con la partida pendiente
-            let newState: Juego = {
-              ...juego,
-              dailyWord: data.secretWord,
-              estadoActual: data.attempts,
-              row: 1,
-              position: 1,
-              juegoFinalizado: false,
-            };
-            if (data.attempts[0] && data.attempts[0] !== '') {
-              for (let i = 0; i < data.attempts.length; i++) {
-                if (data.attempts[i] !== '') {
-                  newState = keyPress(data.attempts[i], newState);
-                  if ((i + 1) % 5 === 0) {
-                    newState = llenarArray(newState);
-                    newState = keyPress('Enter', newState);
-                  }
-                }
-              }
-            }
-            setJuego(newState);
-            // Mostrar notificación al usuario con el tema visual correcto
-            if (window && window.document) {
-              import('react-toastify').then(({ toast }) => {
-                toast.info('Se ha recuperado una partida pendiente automáticamente.', {
-                  position: 'top-center',
-                  autoClose: 2500,
-                  hideProgressBar: false,
-                  closeOnClick: true,
-                  pauseOnHover: true,
-                  draggable: true,
-                  theme: newState.modoOscuro ? 'dark' : 'light',
-                });
-              });
-            }
-          }
-        }
       } catch (err) {
-        // Silenciar errores de recuperación automática
+        // Silenciar errores de guardado automático
       }
     }
-    fetchPendingGame();
-  }, []);
+  };
+  window.addEventListener('beforeunload', handleAutoSave);
+  return () => window.removeEventListener('beforeunload', handleAutoSave);
+}, [juego]);
 
   return (
     <Router>
