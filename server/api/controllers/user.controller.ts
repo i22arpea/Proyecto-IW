@@ -161,3 +161,23 @@ export const getPreferences = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Error al obtener preferencias' });
   }
 };
+
+export const getUserByUsername = async (req: Request, res: Response) => {
+  const { username } = req.params;
+
+  if (!username) {
+    return res.status(400).json({ message: 'Falta el nombre de usuario.' });
+  }
+
+  try {
+    const user = await User.findOne({ username }).select('_id username');
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado.' });
+    }
+
+    return res.status(200).json({ _id: user._id, username: user.username });
+  } catch (error) {
+    console.error('❌ Error al buscar usuario por nombre:', error);
+    return res.status(500).json({ message: 'Error interno al buscar usuario.' });
+  }
+};
