@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import UserStats from './UserStats'; // Asegúrate de que la ruta sea correcta
+// import UserStats from './UserStats'; // Asegúrate de que la ruta sea correcta
 
 interface UserProfile {
   username: string;
@@ -25,6 +25,16 @@ export default function ProfilePage() {
     createdAt: string;
   }>>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+
+  // Cargar perfil y historial al montar el componente  
+  const [stats, setStats] = useState<{
+  totalGames: number;
+  wins: number;
+  losses: number;
+  winStreak: number;
+  maxWinStreak: number;
+  winRate: number;
+} | null>(null);
 
   useEffect(() => {
     async function fetchProfile() {
@@ -57,6 +67,22 @@ export default function ProfilePage() {
         setHistoryLoading(false);
       }
     }
+    async function fetchStats() {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('/api/usuarios/estadisticas', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setStats(data);
+        }
+      } catch (err) {
+        console.error('Error al obtener estadísticas');
+      }
+    }
+    fetchStats();
+
     fetchProfile();
     fetchHistory();
   }, []);
@@ -280,7 +306,19 @@ export default function ProfilePage() {
       <h3 style={{color:'#1ed760',marginBottom:8}}>Estadísticas</h3>
       <div style={{color:'#fff',marginBottom:24}}>
         {/* Estadísticas del usuario */}
-        <UserStats history={history} />
+        {stats ? (
+          <ul style={{listStyle: 'none', paddingLeft: 0}}>
+            <li>Total partidas: {stats.totalGames}</li>
+            <li>Victorias: {stats.wins}</li>
+            <li>Derrotas: {stats.losses}</li>
+            <li>Racha actual: {stats.winStreak}</li>
+            <li>Máx. racha: {stats.maxWinStreak}</li>
+            <li>% Victorias: {typeof stats.winRate === 'number' ? stats.winRate.toFixed(2) : '0.00'}%</li>
+          </ul>
+        ) : (
+          <em>No hay estadísticas disponibles.</em>
+        )}
+
       </div>
       <h3 style={{color:'#1ed760',marginBottom:8}}>Historial de partidas</h3>
       <div style={{color:'#fff',marginBottom:24}}>
@@ -357,7 +395,20 @@ export default function ProfilePage() {
         onClick={handleLogout}
         title="Cerrar sesión"
         aria-label="Cerrar sesión"
-        style={{position:'absolute',bottom:24,right:24,background:'#1ed760',border:'none',color:'#181a1b',fontWeight:700,borderRadius:8,padding:'10px 22px',fontSize:'1rem',cursor:'pointer',boxShadow:'0 2px 8px #1ed76033',transition:'background 0.2s'}}
+        style={{
+          marginTop: '2rem',
+          background: '#1ed760',
+          border: 'none',
+          color: '#181a1b',
+          fontWeight: 700,
+          borderRadius: 8,
+          padding: '10px 22px',
+          fontSize: '1rem',
+          cursor: 'pointer',
+          boxShadow: '0 2px 8px #1ed76033',
+          transition: 'background 0.2s',
+          alignSelf: 'flex-end'
+        }}
         onMouseOver={handleLogoutMouseOver}
         onFocus={handleLogoutMouseOver}
         onMouseOut={handleLogoutMouseOut}
@@ -365,6 +416,7 @@ export default function ProfilePage() {
       >
         Cerrar sesión
       </button>
+
     </div>
   );
 }
