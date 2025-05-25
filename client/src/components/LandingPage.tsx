@@ -21,11 +21,12 @@ export default function LandingPage() {
         marginBottom: '2rem',
         textShadow: '0 0 10px #1ed76088'
       }}>
-        Bienvenido a Wordle+
+        Bienvenido a Wordle 2.0
       </h1>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%', maxWidth: 300 }}>
         <button
+          type="button"
           style={botonEstilo}
           onClick={() => navigate('/register')}
         >
@@ -33,6 +34,7 @@ export default function LandingPage() {
         </button>
 
         <button
+          type="button"
           style={botonEstilo}
           onClick={() => navigate('/login')}
         >
@@ -40,6 +42,7 @@ export default function LandingPage() {
         </button>
 
         <button
+          type="button"
           style={{ ...botonEstilo, backgroundColor: '#1ed760', color: '#000', fontWeight: 'bold' }}
           onClick={() => navigate('/jugar')}
         >

@@ -68,7 +68,7 @@ export default function Header({ juego, setJuego, onLoginClick, onProfileClick }
           <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
         </svg>
       </div>
-      <h1 className="titulo">Wordle</h1>
+      <h1 className="titulo">Wordle 2.0</h1>
       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
         {/* Iconos de opciones */}
         <svg
