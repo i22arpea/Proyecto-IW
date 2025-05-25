@@ -7,7 +7,7 @@ export interface IGame extends Document {
 }
 
 const GameSchema = new Schema<IGame>({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario', required: true },
   secretWord: { type: String, required: true },
   attempts: [{ type: String }]
 }, {

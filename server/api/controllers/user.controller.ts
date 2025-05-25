@@ -106,3 +106,58 @@ export const recoverPassword = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Error al actualizar la contraseña', error });
   }
 };
+
+// Actualizar preferencias del usuario autenticado
+
+export const updatePreferences = async (req: Request, res: Response) => {
+  try {
+    const userId = (req.user as { id: string }).id;
+
+    const { language, category, wordLength, theme } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    const newPrefs: any = { ...user.preferences };
+
+  if (language !== undefined) newPrefs.language = language;
+  if (category !== undefined) newPrefs.category = category;
+  if (wordLength !== undefined) newPrefs.wordLength = wordLength;
+  if (theme !== undefined) newPrefs.theme = theme;
+
+  if (req.body.customColors) {
+    const { backgroundColor, letterColor } = req.body.customColors;
+    newPrefs.customColors = {
+      backgroundColor: backgroundColor ?? user.preferences?.customColors?.backgroundColor,
+      letterColor: letterColor ?? user.preferences?.customColors?.letterColor
+    };
+  }
+
+  user.preferences = newPrefs;
+
+
+    await user.save();
+
+    res.json({ message: 'Preferencias actualizadas correctamente', preferences: user.preferences });
+  } catch (error) {
+    console.error('❌ Error al actualizar preferencias:', error);
+    res.status(500).json({ error: 'Error al actualizar preferencias' });
+  }
+};
+
+// Obtener preferencias del usuario autenticado
+export const getPreferences = async (req: Request, res: Response) => {
+  try {
+    const userId = (req.user as { id: string }).id;
+
+    const user = await User.findById(userId).select('preferences');
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    res.json({ preferences: user.preferences });
+  } catch (error) {
+    console.error('❌ Error al obtener preferencias:', error);
+    res.status(500).json({ error: 'Error al obtener preferencias' });
+  }
+};

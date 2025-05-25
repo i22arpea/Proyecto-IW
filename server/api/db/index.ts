@@ -53,7 +53,7 @@ export const getRandomWord = (): string => {
 // MongoDB connection
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGO_URI || 'mongodb+srv://i22arpea:Arroyo02@cluster0.zio55q0.mongodb.net/';
+    const mongoURI = process.env.MONGODB_URI!;
     await mongoose.connect(mongoURI);
     console.log('MongoDB connected successfully');
   } catch (error) {
