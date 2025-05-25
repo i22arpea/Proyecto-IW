@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import Board from './components/Tablero';
 import Header from './components/Header';
@@ -130,7 +130,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/jugar" element={<HomePage juego={juego} setJuego={setJuego} />} />
-        <Route path="/register" element={<LoginRegister onLogin={() => {}} />} />
+        <Route path="/register" element={<LoginRegister initialMode="register" onLogin={() => console.log('Registrado')} />} />
         <Route path="/help" element={<Ayuda />} />
         <Route path="/stats" element={<Stats juego={juego} />} />
         <Route path="/settings" element={<Settings juego={juego} setJuego={setJuego} />} />

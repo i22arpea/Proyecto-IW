@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 
 export default function LoginPage() {
-  const [usuario, setUsuario] = useState('');
-  const [correo, setCorreo] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
@@ -10,23 +9,19 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
 
-    // Aquí puedes cambiar la URL por la de tu backend
     try {
-      const response = await fetch('/login', {
+      const response = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ usuario, correo, password }),
+        body: JSON.stringify({ username, password }),
       });
 
       if (response.ok) {
         const data = await response.json();
-
         localStorage.setItem('token', data.token);
-
         window.location.href = '/';
       } else {
         const data = await response.json();
-
         setError(data.error || 'Error al iniciar sesión');
       }
     } catch (err) {
@@ -42,39 +37,26 @@ export default function LoginPage() {
         <input
           autoComplete="username"
           className="login-input"
-          name="username"
           placeholder="Usuario"
           type="text"
-          value={usuario}
-          onChange={e => setUsuario(e.target.value)}
-        />
-
-        <input
-          autoComplete="email"
-          className="login-input"
-          name="email"
-          placeholder="Correo"
-          type="email"
-          value={correo}
-          onChange={e => setCorreo(e.target.value)}
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
         />
 
         <input
           autoComplete="current-password"
           className="login-input"
-          name="password"
           placeholder="Contraseña"
           type="password"
           value={password}
-          onChange={e => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
+          required
         />
 
         {error && <div className="error">{error}</div>}
 
-        <button
-          className="login-button"
-          type="submit"
-        >
+        <button className="login-button" type="submit">
           Entrar
         </button>
       </form>

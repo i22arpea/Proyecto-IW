@@ -1,17 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface LoginRegisterProps {
   onLogin: () => void;
   children?: React.ReactNode;
+  initialMode?: 'login' | 'register';
 }
 
 const API = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 
-const LoginRegister = function LoginRegister({ onLogin, children }: LoginRegisterProps) {
-  const [isLogin, setIsLogin] = useState(true);
+const LoginRegister = function LoginRegister({ onLogin, children, initialMode }: LoginRegisterProps) {
+  const [isLogin, setIsLogin] = useState(initialMode === 'login');
   const [form, setForm] = useState({ username: '', email: '', password: '' });
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (initialMode === 'register') {
+      setIsLogin(false);
+    }
+  }, [initialMode]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -49,7 +56,7 @@ const LoginRegister = function LoginRegister({ onLogin, children }: LoginRegiste
     }
   };
 
-  // ✅ Definimos color sin ternarios anidados
+  // Color del mensaje sin ternarios anidados
   let messageColor = 'tomato';
   if (message) {
     const lower = message.toLowerCase();
@@ -61,7 +68,7 @@ const LoginRegister = function LoginRegister({ onLogin, children }: LoginRegiste
   return (
     <div style={{ padding: '2rem', maxWidth: '400px', margin: 'auto', textAlign: 'center' }}>
       {children}
-      <h2>{isLogin ? 'Iniciar Sesión' : 'Registro'}</h2>
+      <h2>{isLogin ? 'Iniciar sesión' : 'Registro'}</h2>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <input
@@ -70,6 +77,7 @@ const LoginRegister = function LoginRegister({ onLogin, children }: LoginRegiste
           onChange={(e) => setForm({ ...form, username: e.target.value })}
           required
         />
+
         {!isLogin && (
           <input
             placeholder="Email"
@@ -79,6 +87,7 @@ const LoginRegister = function LoginRegister({ onLogin, children }: LoginRegiste
             required
           />
         )}
+
         <input
           placeholder="Contraseña"
           type="password"
@@ -86,13 +95,16 @@ const LoginRegister = function LoginRegister({ onLogin, children }: LoginRegiste
           onChange={(e) => setForm({ ...form, password: e.target.value })}
           required
         />
+
         <button type="submit" disabled={loading}>
           {loading ? 'Enviando...' : isLogin ? 'Entrar' : 'Registrarse'}
         </button>
       </form>
 
       {message && (
-        <p style={{ marginTop: '1rem', color: messageColor }}>{message}</p>
+        <p style={{ marginTop: '1rem', color: messageColor }}>
+          {message}
+        </p>
       )}
 
       <button
@@ -111,6 +123,7 @@ const LoginRegister = function LoginRegister({ onLogin, children }: LoginRegiste
 
 LoginRegister.defaultProps = {
   children: undefined,
+  initialMode: 'login' as 'login',
 };
 
 export default LoginRegister;
