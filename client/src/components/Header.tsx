@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Juego } from '../types/types.d';
 import displayMenu from '../utils/desplegarMenu';
 import llenarArray from '../utils/llenarArray';
@@ -26,6 +26,21 @@ export default function Header({ juego, setJuego, onLoginClick = undefined, onPr
   const [showAddFriend, setShowAddFriend] = useState(false);
   const authenticated = isAuthenticated();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Reinicia el tablero con nueva palabra al volver a /jugar
+  React.useEffect(() => {
+    if (location.pathname === '/jugar') {
+      const nuevaPalabra = words[Math.floor(Math.random() * words.length)];
+      const newState = {
+        ...restartGame(juego),
+        dailyWord: encriptarPalabra(nuevaPalabra)
+      };
+      llenarArray(newState);
+      setJuego(newState);
+    }
+    // eslint-disable-next-line
+  }, [location.pathname]);
 
   // Implementación por defecto para onProfileClick
   const handleProfileClick = onProfileClick || (() => navigate('/profile'));

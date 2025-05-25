@@ -116,6 +116,18 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
               >
                 Ir sin guardar
               </button>
+              <button
+                type="button"
+                onClick={() => setShowSavePrompt(false)}
+                disabled={saving}
+                style={{
+                  background: 'var(--color-fondo)', color: 'var(--color-texto)', border: '1.5px solid #1ed760', borderRadius: 8, padding: '8px 18px',
+                  fontWeight: 700, fontSize: '1rem', cursor: 'pointer', minWidth: 90
+                }}
+                aria-label="Volver al juego"
+              >
+                Volver al juego
+              </button>
             </div>
           </div>
         </div>
