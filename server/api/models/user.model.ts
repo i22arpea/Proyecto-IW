@@ -6,7 +6,7 @@ export interface IUser extends Document {
   password: string;
   name?: string;
   surname?: string;
-  profileImage?: string; // URL o base64 de la imagen de perfil
+  profileImage?: string;
   friends: mongoose.Types.ObjectId[];
   friendRequests: mongoose.Types.ObjectId[];
   totalGames: number;
@@ -15,12 +15,20 @@ export interface IUser extends Document {
   winStreak: number;
   maxWinStreak: number;
   winsByAttempt: Record<string, number>;
-  winRate: number; // porcentaje de victorias (wins / totalGames)
+  winRate: number;
   preferences?: {
     theme?: string;
+    language?: 'es' | 'en';
+    difficulty?: 'facil' | 'medio' | 'dificil';
+    category?: string;
+    wordLength?: number;
+    customColors?: {
+      backgroundColor: string;
+      letterColor: string;
+    };
   };
-  isVerified: boolean; // Nuevo campo para verificación de email
-  verificationToken?: string; // Token de verificación de email
+  isVerified: boolean;
+  verificationToken?: string;
 }
 
 const UserSchema: Schema = new Schema<IUser>({
@@ -44,12 +52,20 @@ const UserSchema: Schema = new Schema<IUser>({
   },
   winRate: { type: Number, default: 0 },
   preferences: {
-    theme: { type: String, default: 'light' }
+    theme: { type: String, default: 'light' },
+    language: { type: String, enum: ['es', 'en'], default: 'es' },
+    difficulty: { type: String, enum: ['facil', 'medio', 'dificil'], default: 'medio' },
+    category: { type: String, default: 'general' },
+    wordLength: { type: Number, min: 5, max: 10, default: 5 },
+    customColors: {
+      backgroundColor: { type: String, default: '#ffffff' },
+      letterColor: { type: String, default: '#000000' }
+    }
   },
-  isVerified: { type: Boolean, default: false }, // Nuevo campo
-  verificationToken: { type: String } // Nuevo campo
+  isVerified: { type: Boolean, default: false },
+  verificationToken: { type: String }
 }, {
   timestamps: true
 });
 
-export default mongoose.model<IUser>('User', UserSchema);
+export default mongoose.model<IUser>('Usuario', UserSchema, 'Usuarios');

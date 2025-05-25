@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import Game from '../models/game.model';
 import CompletedGame from '../models/completedGame.model';
 import User from '../models/user.model'; // IMPORTANTE: Añadimos el modelo User
+import Word from '../models/word'; // importa tu modelo Word correctamente
 
 // Guardar una partida
 export const saveGame = async (req: Request, res: Response) => {
@@ -109,3 +110,47 @@ export const finishGame = async (req: Request, res: Response) => {
   }
 };
 
+// Obtener palabra aleatoria según preferencias del usuario
+export const getRandomWord = async (req: Request, res: Response) => {
+  try {
+    const userId = (req.user as { id: string }).id;
+    const user = await User.findById(userId);
+
+    if (!user || !user.preferences) {
+      return res.status(400).json({ error: 'Preferencias del usuario no encontradas.' });
+    }
+
+    // Extraer preferencias con fallback por si vienen mal
+    const language = user.preferences.language || 'es';
+    const category = user.preferences.category || 'general';
+    const wordLength = Number(user.preferences.wordLength) || 5;
+
+    console.log('🧪 Buscando palabra con:', {
+      language,
+      category,
+      wordLength,
+      typeOfWordLength: typeof wordLength
+    });
+
+    const [word] = await Word.aggregate([
+      {
+        $match: {
+          language,
+          category,
+          length: wordLength
+        }
+      },
+      { $sample: { size: 1 } }
+    ]);
+
+    if (!word) {
+      console.warn('⚠️ No se encontró ninguna palabra que coincida con:', { language, category, wordLength });
+      return res.status(404).json({ error: 'No se encontró ninguna palabra que coincida con las preferencias.' });
+    }
+
+    return res.json({ word: word.text });
+  } catch (error) {
+    console.error('❌ Error al obtener palabra aleatoria:', error);
+    return res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};
