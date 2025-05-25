@@ -125,13 +125,14 @@ export const updatePreferences = async (req: Request, res: Response) => {
   if (wordLength !== undefined) newPrefs.wordLength = wordLength;
   if (theme !== undefined) newPrefs.theme = theme;
 
-  if (req.body.customColors) {
-    const { backgroundColor, letterColor } = req.body.customColors;
-    newPrefs.customColors = {
-      backgroundColor: backgroundColor ?? user.preferences?.customColors?.backgroundColor,
-      letterColor: letterColor ?? user.preferences?.customColors?.letterColor
-    };
-  }
+  if (req.body.customColors !== undefined) {
+  const { backgroundColor, letterColor } = req.body.customColors || {};
+  newPrefs.customColors = {
+    backgroundColor: backgroundColor ?? user.preferences?.customColors?.backgroundColor,
+    letterColor: letterColor ?? user.preferences?.customColors?.letterColor
+  };
+}
+
 
   user.preferences = newPrefs;
 

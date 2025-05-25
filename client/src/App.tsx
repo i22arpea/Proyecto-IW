@@ -364,42 +364,37 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
 }
 
 function App() {
-  // --- Restaurar partida guardada si existe ---
-  const partidaGuardada = preguntarRestaurarPartida();
-  const [juego, setJuego] = useState<Juego>(
-    partidaGuardada || {
-      position: 1,
-      row: 1,
-      dificil: false,
-      modoOscuro: true,
-      modoDaltonico: false,
-      dailyWord: encriptarPalabra(words[Math.floor(Math.random() * words.length)]),
-      juegoFinalizado: false,
-      jugadas: 0,
-      victorias: 0,
-      distribucion: {
-        1: 0,
-        2: 0,
-        3: 0,
-        4: 0,
-        5: 0,
-        6: 0,
-        X: 0,
-      },
-      estadoActual: [],
-      streak: 0,
-      maxStreak: 0,
-      hardModeMustContain: [],
-    }
-  );
+  const [juego, setJuego] = useState<Juego>({
+    position: 1,
+    row: 1,
+    dificil: false,
+    modoOscuro: true,
+    modoDaltonico: false,
+    // dailyWord: encriptarPalabra(words[Math.floor(Math.random() * words.length)]),
+    juegoFinalizado: false,
+    jugadas: 0,
+    victorias: 0,
+    distribucion: {
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0,
+      6: 0,
+      X: 0
+    },
+    estadoActual: [],
+    streak: 0,
+    maxStreak: 0,
+    hardModeMustContain: [],
+    idioma: 'es',        
+    categoria: 'general',
+    longitud: 5,
+    dailyWord: ''     
+  });
 
-  // Interceptar recarga/cierre para preguntar si guardar
-  useEffect(() => {
-    setupBeforeUnload(juego);
-    return () => {
-      window.onbeforeunload = null;
-    };
-  }, [juego]);
+  const palabra = juego.dailyWord;
+
 
   useEffect(() => {
     const rawData = localStorage.getItem('juego');
@@ -421,6 +416,9 @@ function App() {
         streak: 0,
         maxStreak: 0,
         hardModeMustContain: [],
+        idioma: savedData.idioma ?? 'es',           
+        categoria: savedData.categoria ?? 'general',
+        longitud: savedData.longitud ?? 5           
       };
 
       if (savedData.estadoActual[0] && savedData.estadoActual[0] !== '') {
