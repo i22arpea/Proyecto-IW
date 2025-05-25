@@ -3,6 +3,8 @@ import Game from '../models/game.model';
 import CompletedGame from '../models/completedGame.model';
 import User from '../models/user.model'; // IMPORTANTE: Añadimos el modelo User
 import Word from '../models/word'; // importa tu modelo Word correctamente
+import ProgressGame from '../models/progressGame.model';
+import UserStats from '../models/stats.model';
 
 // Guardar una partida
 export const saveGame = async (req: Request, res: Response) => {
@@ -46,6 +48,17 @@ export const getPendingGame = async (req: Request, res: Response) => {
   }
 };
 
+// Obtener partidas guardadas en progreso del usuario autenticado
+export const getUserInProgressGames = async (req: Request, res: Response) => {
+  try {
+    const userId = (req.user as { id: string }).id;
+    const games = await ProgressGame.find({ userId }).sort({ createdAt: -1 });
+    res.status(200).json(games);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener partidas guardadas en progreso', error });
+  }
+};
+
 // Finalizar partida y pasarla al historial + ACTUALIZAR ESTADÍSTICAS
 // Finalizar partida y pasarla al historial + ACTUALIZAR ESTADÍSTICAS
 // Finalizar partida y pasarla al historial + ACTUALIZAR ESTADÍSTICAS
@@ -63,47 +76,43 @@ export const finishGame = async (req: Request, res: Response) => {
 
     await completedGame.save();
     await Game.deleteOne({ userId });
+    await ProgressGame.deleteOne({ userId }); // Eliminar partida en progreso si existe
 
+    // Actualizar estadísticas en UserStats
+    let stats = await UserStats.findOne({ userId });
+    if (!stats) {
+      stats = new UserStats({ userId });
+    }
+    stats.totalGames += 1;
+    if (won) {
+      stats.wins += 1;
+      stats.winStreak += 1;
+      if (stats.winStreak > stats.maxWinStreak) {
+        stats.maxWinStreak = stats.winStreak;
+      }
+      const attemptKey = attemptsUsed.toString();
+      if (['1', '2', '3', '4', '5', '6'].includes(attemptKey)) {
+        stats.winsByAttempt[attemptKey] = (stats.winsByAttempt[attemptKey] || 0) + 1;
+      }
+    } else {
+      stats.losses += 1;
+      stats.winStreak = 0;
+    }
+    stats.winRate = stats.totalGames > 0 ? (stats.wins / stats.totalGames) * 100 : 0;
+    await stats.save();
+
+    // Actualizar también en User (legacy, para compatibilidad)
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: 'Usuario no encontrado al actualizar estadísticas.' });
     }
-
-    user.totalGames += 1;
-
-    if (won) {
-      user.wins += 1;
-      user.winStreak += 1;
-
-      if (user.winStreak > user.maxWinStreak) {
-        user.maxWinStreak = user.winStreak;
-      }
-
-      const attemptKey = attemptsUsed.toString();
-
-      if (['1', '2', '3', '4', '5', '6'].includes(attemptKey)) {
-        // Asegurarse de que winsByAttempt se trata como un Map
-        let winsMap: Map<string, number>;
-
-        if (user.winsByAttempt instanceof Map) {
-          winsMap = user.winsByAttempt;
-        } else {
-          winsMap = new Map(Object.entries(user.winsByAttempt));
-        }
-
-        const current = winsMap.get(attemptKey) || 0;
-        winsMap.set(attemptKey, current + 1);
-
-        // Convertimos el Map nuevamente a un objeto plano para guardarlo en MongoDB
-        user.winsByAttempt = Object.fromEntries(winsMap);
-      }
-    } else {
-      user.losses += 1;
-      user.winStreak = 0;
-    }
-
-    user.winRate = user.totalGames > 0 ? (user.wins / user.totalGames) * 100 : 0;
-
+    user.totalGames = stats.totalGames;
+    user.wins = stats.wins;
+    user.losses = stats.losses;
+    user.winRate = stats.winRate;
+    user.winStreak = stats.winStreak;
+    user.maxWinStreak = stats.maxWinStreak;
+    user.winsByAttempt = stats.winsByAttempt;
     await user.save();
 
     res.status(201).json({ message: 'Partida finalizada y estadísticas actualizadas correctamente.' });
@@ -181,5 +190,41 @@ export const getUserGameStats = async (req: Request, res: Response) => {
     res.status(200).json({ total, wins, loses, winRate });
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener estadísticas', error });
+  }
+};
+
+// Obtener historial de partidas finalizadas del usuario autenticado
+export const getUserCompletedGames = async (req: Request, res: Response) => {
+  try {
+    const userId = (req.user as { id: string }).id;
+    const games = await CompletedGame.find({ userId }).sort({ createdAt: -1 });
+    res.status(200).json(games);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener el historial de partidas finalizadas', error });
+  }
+};
+
+// Guardar partida en progreso
+export const saveProgressGame = async (req: Request, res: Response) => {
+  try {
+    const userId = (req.user as { id: string }).id;
+    const { secretWord, attempts, idioma, categoria, longitud } = req.body;
+
+    // Busca si ya existe una partida en progreso para este usuario
+    let progressGame = await ProgressGame.findOne({ userId });
+    if (progressGame) {
+      progressGame.secretWord = secretWord;
+      progressGame.attempts = attempts;
+      progressGame.idioma = idioma;
+      progressGame.categoria = categoria;
+      progressGame.longitud = longitud;
+      await progressGame.save();
+    } else {
+      progressGame = new ProgressGame({ userId, secretWord, attempts, idioma, categoria, longitud });
+      await progressGame.save();
+    }
+    res.status(201).json({ message: 'Partida en progreso guardada correctamente.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al guardar partida en progreso', error });
   }
 };

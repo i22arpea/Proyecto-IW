@@ -45,6 +45,18 @@ export default function ProfilePage() {
 
   // Estado para estadísticas del usuario
   const [userStats, setUserStats] = useState<any>(null);
+  const [statsLoading, setStatsLoading] = useState(false);
+
+  // Estado para partidas guardadas en curso
+  const [inProgressGames, setInProgressGames] = useState<Array<{
+    _id: string;
+    secretWord: string;
+    attempts: string[];
+    createdAt: string;
+    idioma: string;
+    categoria: string;
+    longitud: number;
+  }>>([]);
 
   // Cargar perfil, historial y estadísticas al montar el componente  
   useEffect(() => {
@@ -79,6 +91,7 @@ export default function ProfilePage() {
       }
     }
     async function fetchStats() {
+      setStatsLoading(true);
       try {
         const token = localStorage.getItem('token');
         const res = await fetch('/api/stats/usuarios/estadisticas', {
@@ -88,13 +101,28 @@ export default function ProfilePage() {
           const data = await res.json();
           setUserStats(data);
         }
+      } finally {
+        setStatsLoading(false);
+      }
+    }
+    async function fetchInProgressGames() {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('/api/partidas/guardadas', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setInProgressGames(data);
+        }
       } catch (e) {
-        // Se ignora el error, pero el bloque no queda vacío
+        // Opcional: puedes mostrar un mensaje de error si lo deseas
       }
     }
     fetchProfile();
     fetchHistory();
-    fetchStats();
+    fetchStats(); // <-- SIEMPRE obtiene estadísticas de la base de datos
+    fetchInProgressGames();
   }, []);
 
   // Botón de logout
@@ -128,6 +156,19 @@ export default function ProfilePage() {
   const [editField, setEditField] = useState<'username' | 'password' | 'name' | null>(null);
   const [editValue, setEditValue] = useState<string>('');
   const [currentPassword, setCurrentPassword] = useState('');
+
+  // Función para continuar una partida guardada en curso
+  type InProgressGame = {
+    _id: string;
+    secretWord: string;
+    attempts: string[];
+    createdAt: string;
+  };
+  const continueInProgressGame = (game: InProgressGame) => {
+    // Puedes guardar la partida en localStorage o usar navigate con state
+    localStorage.setItem('inProgressGame', JSON.stringify(game));
+    navigate('/jugar', { state: { continueGame: true, gameId: game._id } });
+  };
 
   if (loading && !user) return <div style={{color:'#1ed760',textAlign:'center',marginTop:40}}>Cargando perfil...</div>;
   if (!user) return <div style={{color:'#ff5252',textAlign:'center',marginTop:40}}>No se pudo cargar el perfil.</div>;
@@ -415,7 +456,28 @@ export default function ProfilePage() {
           <h3 style={{ color: '#1ed760', fontSize: '1.18rem', margin: 0, letterSpacing: 1 }}>Estadísticas</h3>
         </div>
         <div style={{ marginBottom: 18, marginTop: 10 }}>
-          <UserStats stats={userStats} />
+          {statsLoading ? (
+            <div style={{ color: '#1ed760', textAlign: 'center' }}>Cargando estadísticas...</div>
+          ) : userStats ? (
+            <UserStats stats={userStats} />
+          ) : history.length > 0 ? (
+            (() => {
+              const total = history.length;
+              const wins = history.filter(h => h.won).length;
+              const loses = total - wins;
+              const winRate = total > 0 ? ((wins / total) * 100).toFixed(1) : '0';
+              return (
+                <div style={{ color: isLightMode ? '#111' : '#fff', textAlign: 'center', fontSize: '1.05rem' }}>
+                  <div><b>Total partidas:</b> {total}</div>
+                  <div><b>Victorias:</b> {wins}</div>
+                  <div><b>Derrotas:</b> {loses}</div>
+                  <div><b>Winrate:</b> {winRate}%</div>
+                </div>
+              );
+            })()
+          ) : (
+            <div style={{ color: '#ff5252', textAlign: 'center' }}>No se pudieron cargar las estadísticas.</div>
+          )}
         </div>
       </div>
       <hr style={{ margin: '1.5rem 0', borderColor: '#1ed76033' }} />
@@ -445,7 +507,13 @@ export default function ProfilePage() {
               {history.map(({ _id: id, secretWord, won, attemptsUsed, createdAt }) => (
                 <tr key={id} style={{ textAlign: 'center', borderBottom: '1px solid #1ed76022' }}>
                   <td style={{ padding: '6px 4px' }}>{new Date(createdAt).toLocaleString()}</td>
-                  <td style={{ padding: '6px 4px', fontFamily: 'monospace', fontWeight: 600 }}>{desencriptarPalabra(secretWord).toUpperCase()}</td>
+                  <td style={{ padding: '6px 4px', fontFamily: 'monospace', fontWeight: 600 }}>
+                    {(() => {
+                      const palabra = desencriptarPalabra(secretWord);
+                      // Forzar mostrar la palabra desencriptada para depuración
+                      return palabra && typeof palabra === 'string' ? palabra.toUpperCase() : secretWord;
+                    })()}
+                  </td>
                   <td style={{ padding: '6px 4px' }}>{attemptsUsed}</td>
                   <td style={{ padding: '6px 4px', color: won ? '#1ed760' : '#ff5252', fontWeight: 700 }}>{won ? 'Victoria' : 'Derrota'}</td>
                 </tr>
@@ -454,25 +522,45 @@ export default function ProfilePage() {
           </table>
         )}
       </div>
-      {/* Historial de palabras jugadas */}
-      {history.length > 0 && (
+      {/* Historial de partidas guardadas */}
+      {inProgressGames.length > 0 && (
         <div style={{ marginBottom: 18 }}>
-          <h4 style={{ color: '#1ed760', margin: '16px 0 8px', fontSize: '1.01rem' }}>Historial de palabras jugadas</h4>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {history.map(({ secretWord, _id }) => (
-              <span key={_id} style={{
-                background: 'var(--color-fondo)',
-                color: isLightMode ? '#111' : 'var(--color-texto)',
-                border: '1px solid #1ed76055',
-                borderRadius: 6,
-                padding: '4px 10px',
-                fontFamily: 'monospace',
-                fontWeight: 600,
-                fontSize: '0.97rem'
-              }}>
-                {desencriptarPalabra(secretWord).toUpperCase()}
-              </span>
-            ))}
+          <h4 style={{ color: '#1ed760', margin: '16px 0 8px', fontSize: '1.01rem' }}>Historial de partidas guardadas</h4>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, flexDirection: 'row' }}>
+            {inProgressGames.map((game) => {
+              const idioma = game.idioma ? game.idioma.toUpperCase() : 'N/A';
+              const categoria = game.categoria ? game.categoria.toUpperCase() : '';
+              return (
+                <span key={game._id} style={{
+                  background: '#1ed76022',
+                  color: '#1ed760',
+                  border: '1px solid #1ed760',
+                  borderRadius: 6,
+                  padding: '4px 10px',
+                  fontFamily: 'monospace',
+                  fontWeight: 600,
+                  fontSize: '0.97rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 14
+                }}>
+                  <span style={{fontWeight:700}}>
+                    {categoria ? `${idioma} / ${categoria}` : idioma}
+                  </span>
+                  <span>|</span>
+                  <span style={{fontWeight:700}}>Letras:</span> {game.longitud ?? '?'}
+                  <span>|</span>
+                  <span style={{fontWeight:700}}>Intentos:</span> {game.attempts?.length ?? 0}
+                  <button
+                    type="button"
+                    style={{ marginLeft: 10, background: '#1ed760', color: '#181a1b', border: 'none', borderRadius: 6, padding: '2px 10px', fontWeight: 700, fontSize: '0.93rem', cursor: 'pointer' }}
+                    onClick={() => continueInProgressGame(game)}
+                  >
+                    Continuar
+                  </button>
+                </span>
+              );
+            })}
           </div>
         </div>
       )}

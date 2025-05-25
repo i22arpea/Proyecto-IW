@@ -325,10 +325,24 @@ function keyPress(e: string, juego: Juego): Juego {
     lockedLetters[juegoActual.row - 1]
   ) {
     let col = (juegoActual.position - 1) % 5;
+    let intentos = 0;
+    const longitud = juegoActual.longitud || 5;
+    // Si la última celda de la fila está bloqueada, no intentar avanzar más
+    if (
+      col === longitud - 1 &&
+      lockedLetters[juegoActual.row - 1][col] &&
+      square.classList.contains('locked-correct')
+    ) {
+      // Solo bloquear escritura de letras, pero permitir Enter y Backspace
+      if (e.length === 1 && /[a-zA-Z]/.test(e)) {
+        return juegoActual;
+      }
+      // Si es Enter o Backspace, dejar que siga el flujo normal
+    }
     // Si la celda está bloqueada
-    while (lockedLetters[juegoActual.row - 1][col] && square) {
+    while (lockedLetters[juegoActual.row - 1][col] && square && intentos < longitud) {
       // Si la celda está vacía, la rellenamos automáticamente
-      if (square.textContent === '') {
+      if (square && square.textContent === '') {
         square.textContent = lockedLetters[juegoActual.row - 1][col].toUpperCase();
         square.classList.add('correcto', 'locked-correct');
         square.setAttribute('aria-disabled', 'true');
@@ -337,9 +351,18 @@ function keyPress(e: string, juego: Juego): Juego {
       movePosition();
       // Actualizar square y col
       square = document.getElementsByClassName('square')[juegoActual.position - 1] as HTMLElement;
-      col = (juegoActual.position - 1) % 5;
+      col = (juegoActual.position - 1) % longitud;
+      intentos += intentos;
       // Si nos salimos de la fila, salimos del bucle
       if (col === 0) break;
+      // Si la nueva celda es la última y está bloqueada, salir
+      if (
+        col === longitud - 1 &&
+        lockedLetters[juegoActual.row - 1][col] &&
+        square && square.classList.contains('locked-correct')
+      ) {
+        break;
+      }
     }
   }
 
@@ -384,9 +407,9 @@ function keyPress(e: string, juego: Juego): Juego {
       }
       movePosition(false);
       square = document.getElementsByClassName('square')[juegoActual.position - 1] as HTMLElement;
-      guard += guard;
+      guard += 1;
     }
-    if (square.textContent === '') {
+    if (square && square.textContent === '') {
       movePosition(false);
       square = document.getElementsByClassName('square')[juegoActual.position - 1] as HTMLElement;
       guard = 0;
@@ -399,18 +422,13 @@ function keyPress(e: string, juego: Juego): Juego {
         }
         movePosition(false);
         square = document.getElementsByClassName('square')[juegoActual.position - 1] as HTMLElement;
-        guard += guard;
+        guard += 1;
       }
     }
-    square.textContent = '';
-    // --- actualizar resaltado tras borrar ---
-    Array.from(document.getElementsByClassName('square')).forEach(sq => {
-      sq.classList.remove('active-cell');
-    });
     if (square) {
-      square.classList.add('active-cell');
+      square.textContent = '';
+      square.classList.remove('correcto', 'presente', 'locked-correct');
     }
-    // --- FIN ---
   } else if (e === 'Enter') {
     const existe = checkWord();
 
@@ -423,10 +441,36 @@ function keyPress(e: string, juego: Juego): Juego {
   square.textContent === '' &&
   /[a-zA-Z]/.test(e)
 ) {
+    // Solo permitir escribir en la fila actual
+    const longitud = juegoActual.longitud || 5;
+    const filaActual = juegoActual.row;
+    const index = juegoActual.position - 1;
+    const filaDeCelda = Math.floor(index / longitud) + 1;
+    // Si no es la fila actual, no permitir escribir
+    if (filaDeCelda !== filaActual) {
+      return juegoActual;
+    }
+    // Si la posición es la última de la fila, no permitir escribir más
+    if (juegoActual.position % longitud === 0 && square.textContent === '') {
+      // Solo permitir escribir en la última celda vacía, pero no avanzar ni permitir más
+      const span = document.createElement('span');
+      span.textContent = e.toUpperCase();
+      span.className = 'cell-letter';
+      square.appendChild(span);
+      square.classList.add('filled');
+      // No mover posición ni fila
+      return juegoActual;
+    }
+    // Si ya está llena la fila, no permitir escribir
+    if (juegoActual.position % longitud === 0 && square.textContent !== '') {
+      return juegoActual;
+    }
+    // Envolver la letra en un span para aplicar estilo
     const span = document.createElement('span');
-
-    span.textContent = e;
+    span.textContent = e.toUpperCase();
+    span.className = 'cell-letter';
     square.appendChild(span);
+    square.classList.add('filled');
     movePosition();
   }
 

@@ -10,7 +10,9 @@ import words from '../json/palabras_5.json';
 import { encriptarPalabra } from '../libs/crypto';
 import Ranking from './Ranking';
 import { guardarPartida } from '../utils/gamePersistence';
+import AgregarAmigo from './AgregarAmigo';
 
+// eslint-disable-next-line
 export interface HeaderProps {
   juego: Juego;
   setJuego: React.Dispatch<React.SetStateAction<Juego>>;
@@ -18,9 +20,10 @@ export interface HeaderProps {
   onProfileClick?: () => void;
 }
 
-export default function Header({ juego, setJuego, onLoginClick, onProfileClick }: HeaderProps) {
+export default function Header({ juego, setJuego, onLoginClick = undefined, onProfileClick = undefined }: HeaderProps) {
   const [showLogin, setShowLogin] = useState(false);
   const [showRanking, setShowRanking] = useState(false);
+  const [showAddFriend, setShowAddFriend] = useState(false);
   const authenticated = isAuthenticated();
   const navigate = useNavigate();
 
@@ -165,20 +168,39 @@ export default function Header({ juego, setJuego, onLoginClick, onProfileClick }
         justifyContent: 'center'
       }}>Wordle</h1>
       <div style={{display:'flex',alignItems:'center',gap:12,minWidth:140,justifyContent:'flex-end'}}>
+       {/* NUEVO: Botón de Amigos 👥 */}
+        <svg
+          className="icon icon-tabler icon-tabler-users"
+          fill="none"
+          height="24"
+          stroke="#1ed760"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.5"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+          onClick={() => navigate('/amistades')}
+          style={{ cursor: 'pointer' }}
+        >
+          <path d="M0 0h24v24H0z" fill="none" stroke="none" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M17 11v-1a4 4 0 0 0 -3 -3.85" />
+          <path d="M6 21v-2a4 4 0 0 1 4 -4h4" />
+          <path d="M15 19l2 2l4 -4" />
+        </svg>
         {authenticated ? (
           <button
             type="button"
             onClick={handleProfileClick}
-            style={{background:'#1ed760',color:'#181a1b',border:'none',borderRadius:8,padding:'7px 18px',fontWeight:700,fontSize:'1rem',cursor:'pointer',boxShadow:'0 2px 8px #1ed76033'}}
-          >
+            style={{background:'#1ed760',color:'#181a1b',border:'none',borderRadius:8,padding:'7px 18px',fontWeight:700,fontSize:'1rem',cursor:'pointer',boxShadow:'0 2px 8px #1ed76033'}}>
             Perfil
           </button>
         ) : (
           <button
             type="button"
             onClick={onLoginClick || (() => setShowLogin(true))}
-            style={{background:'#1ed760',color:'#181a1b',border:'none',borderRadius:8,padding:'7px 18px',fontWeight:700,fontSize:'1rem',cursor:'pointer',boxShadow:'0 2px 8px #1ed76033'}}
-          >
+            style={{background:'#1ed760',color:'#181a1b',border:'none',borderRadius:8,padding:'7px 18px',fontWeight:700,fontSize:'1rem',cursor:'pointer',boxShadow:'0 2px 8px #1ed76033'}}>
             Iniciar sesión
           </button>
         )}
@@ -191,6 +213,20 @@ export default function Header({ juego, setJuego, onLoginClick, onProfileClick }
       {showLogin && (
         <div className="login-modal">
           {React.createElement(LoginRegister, { onLogin: () => setShowLogin(false) })}
+        </div>
+      )}
+      {showAddFriend && (
+        <div style={{position:'fixed',top:0,left:0,width:'100vw',height:'100vh',background:'#000a',zIndex:1100,display:'flex',alignItems:'center',justifyContent:'center'}}>
+          <div style={{background:'#181a1b',padding:32,borderRadius:16,boxShadow:'0 2px 16px #1ed76033',minWidth:320,position:'relative'}}>
+            <button
+              type="button"
+              onClick={() => setShowAddFriend(false)}
+              style={{position:'absolute',top:10,right:14,background:'none',border:'none',color:'#aaa',fontSize:'1.5rem',cursor:'pointer'}}
+              aria-label="Cerrar"
+            >×</button>
+            <h3 style={{color:'#1ed760',marginBottom:18}}>Añadir amigo</h3>
+            <AgregarAmigo />
+          </div>
         </div>
       )}
     </header>

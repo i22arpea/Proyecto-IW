@@ -462,6 +462,19 @@ code {
   background-color: #3c89ee;
 }
 
+.cell-letter {
+  font-family: 'Fira Mono', 'Consolas', 'Menlo', 'Monaco', 'Courier New', monospace;
+  font-size: 2.2rem;
+  font-weight: 700;
+  display: inline-block;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  color: var(--color-texto);
+  text-transform: uppercase;
+  text-align: center;
+  width: 100%;
+}
+
 /* Media queries */
 
 @media (max-width: 900px) {

@@ -1,17 +1,19 @@
 import { Request, Response } from 'express';
 import User from '../models/user.model';
 import CompletedGame from '../models/completedGame.model';
+import UserStats from '../models/stats.model';
 
 // GET /api/usuarios/estadisticas
 export const getUserStats = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.id;
-
-    const user = await User.findById(userId).select('totalGames wins losses winStreak maxWinStreak winRate winsByAttempt');
-
-    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
-
-    res.json(user);
+    let stats = await UserStats.findOne({ userId });
+    if (!stats) {
+      // Si no existen estadísticas, crearlas con valores iniciales
+      stats = new UserStats({ userId });
+      await stats.save();
+    }
+    res.json(stats);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error al obtener estadísticas del usuario' });

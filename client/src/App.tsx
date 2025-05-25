@@ -15,12 +15,12 @@ import cargarSettings from './utils/cargarOpciones';
 import keyPress from './utils/presionarTecla';
 import llenarArray from './utils/llenarArray';
 import recuperarStats from './utils/recuperarStats';
-import words from './json/palabras_5.json';
+
 import Teclado from './components/Teclado';
 import Ayuda from './components/Ayuda';
 import AmistadesPanel from './components/AmistadesPanel';
 import LandingPage from './components/LandingPage';
-import { setupBeforeUnload, preguntarRestaurarPartida } from './utils/gamePersistence';
+
 
 function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<React.SetStateAction<Juego>> }) {
   const [showLogin, setShowLogin] = useState(false);
@@ -28,13 +28,101 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
   const [showForgot, setShowForgot] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotMessage, setForgotMessage] = useState<string|null>(null);
+  const [showSavePrompt, setShowSavePrompt] = useState(false);
+  const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
+
+  // Nuevo: Al montar HomePage, si la partida no está finalizada, forzar posición a la primera fila y columna
+  useEffect(() => {
+    if (!juego.juegoFinalizado) {
+      setJuego(j => ({ ...j, row: 1, position: 1 }));
+    }
+    // eslint-disable-next-line
+  }, []); // Solo al montar
+
+  // Nuevo: función para intentar ir al perfil
+  const handleProfileClick = () => {
+    if (!juego.juegoFinalizado && juego.estadoActual && juego.estadoActual.length > 0 && juego.estadoActual.some(x => x !== '')) {
+      setShowSavePrompt(true);
+    } else {
+      navigate('/profile');
+    }
+  };
+
+  // Nuevo: función para guardar la partida
+  const handleSaveGame = async () => {
+    setSaving(true);
+    try {
+      await fetch('/api/partidas/guardar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          secretWord: juego.dailyWord,
+          attempts: juego.estadoActual
+        })
+      });
+    } catch (err) {
+      // Silenciar errores
+    } finally {
+      setSaving(false);
+      setShowSavePrompt(false);
+      navigate('/profile');
+    }
+  };
+
+  // Nuevo: función para descartar y navegar
+  const handleDiscardAndGo = () => {
+    setShowSavePrompt(false);
+    navigate('/profile');
+  };
 
   return (
     <div className="game">
+      {/* Modal para guardar partida antes de ir al perfil */}
+      {showSavePrompt && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+          background: '#000a', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+          <div style={{
+            background: 'var(--color-fondo)', color: 'var(--color-texto)', borderRadius: 14, padding: 32, minWidth: 320,
+            boxShadow: '0 2px 16px #1ed76033', textAlign: 'center'
+          }}>
+            <h3 style={{ color: '#1ed760', marginBottom: 18 }}>¿Guardar partida?</h3>
+            <p style={{ marginBottom: 24 }}>Tienes una partida en curso. ¿Quieres guardarla antes de ir al perfil?</p>
+            <div style={{ display: 'flex', gap: 16, justifyContent: 'center' }}>
+              <button
+                type="button"
+                onClick={handleSaveGame}
+                disabled={saving}
+                style={{
+                  background: '#1ed760', color: '#181a1b', border: 'none', borderRadius: 8, padding: '8px 18px',
+                  fontWeight: 700, fontSize: '1rem', cursor: 'pointer', minWidth: 90
+                }}
+              >
+                {saving ? 'Guardando...' : 'Guardar y continuar'}
+              </button>
+              <button
+                type="button"
+                onClick={handleDiscardAndGo}
+                disabled={saving}
+                style={{
+                  background: '#ff5252', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 18px',
+                  fontWeight: 700, fontSize: '1rem', cursor: 'pointer', minWidth: 90
+                }}
+              >
+                Ir sin guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="game-main">
-        <Header juego={juego} setJuego={setJuego} onLoginClick={() => setShowLogin(true)} onProfileClick={() => navigate('/profile')} />
-        <Board />
+        <Header juego={juego} setJuego={setJuego} onLoginClick={() => setShowLogin(true)} onProfileClick={handleProfileClick} />
+        <Board juego={juego} />
         <Teclado juego={juego} setJuego={setJuego} />
       </div>
       <div className="game-help hidden scale-up-center">
@@ -44,7 +132,10 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
         <Stats juego={juego} />
       </div>
       <div className="game-settings hidden scale-up-center">
-        <Settings juego={juego} setJuego={setJuego} />
+        <Settings
+          juego={juego}
+          setJuego={setJuego}
+        />
       </div>
       {showLogin && (
         <div className="game-login-overlay">
@@ -107,6 +198,31 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('user', JSON.stringify(data.user));
                     setShowLogin(false);
+                    // --- NUEVO: reiniciar juego con nueva palabra al iniciar sesión ---
+                    try {
+                      const resWord = await fetch('/api/words/random', {
+                        headers: { Authorization: `Bearer ${data.token}` }
+                      });
+                      const wordData = await resWord.json();
+                      const nuevaPalabra = wordData.word || wordData.palabra || '';
+                      if (nuevaPalabra) {
+                        setJuego(j => ({
+                          ...j,
+                          dailyWord: nuevaPalabra,
+                          juegoFinalizado: false,
+                          row: 1,
+                          position: 1,
+                          estadoActual: Array(6 * (j.longitud || 5)).fill(''),
+                          hardModeMustContain: [],
+                          streak: 0,
+                          maxStreak: 0
+                        }));
+                      }
+                    } catch (err) {
+                      // Si falla, simplemente recarga
+                      window.location.reload();
+                    }
+                    // --- FIN NUEVO ---
                     window.location.reload(); // Opcional: recarga para reflejar login
                   } catch (err) {
                     console.error('Network/login error:', err);
@@ -392,7 +508,7 @@ function App() {
     dailyWord: ''     
   });
 
-  const palabra = juego.dailyWord;
+
 
 
   useEffect(() => {

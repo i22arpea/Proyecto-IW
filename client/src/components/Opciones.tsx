@@ -15,6 +15,7 @@ export default function Settings({ juego, setJuego, children }: SettingsProps) {
   const [language, setLanguage] = useState('es');
   const [category, setCategory] = useState('general');
   const [wordLength, setWordLength] = useState(5);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
 
   function cambiarModoDificil() {
@@ -44,6 +45,7 @@ export default function Settings({ juego, setJuego, children }: SettingsProps) {
   }
 
   async function aplicarPreferencias() {
+    setErrorMsg(null);
     const token = localStorage.getItem('token');
     if (!token) return;
 
@@ -77,13 +79,24 @@ export default function Settings({ juego, setJuego, children }: SettingsProps) {
     const data = await res.json();
     const palabra = data.word ?? data.palabra ?? '';
 
+    if (!palabra) {
+      setErrorMsg('No se encontró ninguna palabra para la combinación seleccionada.');
+      return;
+    }
+
+    // Adaptar estadoActual a la nueva longitud
+    const filas = 6; // o el número de filas que uses en tu juego
+    const nuevaLongitud = prefs.wordLength;
+    const estadoActual = Array(filas * nuevaLongitud).fill('');
+
     const newGameState = restartGame(juego);
     setJuego({
       ...newGameState,
       dailyWord: palabra,
       idioma: prefs.language,
       categoria: prefs.category,
-      longitud: prefs.wordLength
+      longitud: nuevaLongitud,
+      estadoActual
     });
   }
 
@@ -201,6 +214,12 @@ export default function Settings({ juego, setJuego, children }: SettingsProps) {
               </div>
             </div>
           </div>
+
+          {errorMsg && (
+            <div style={{ color: '#ff5252', margin: '12px 0', textAlign: 'center', fontWeight: 600 }}>
+              {errorMsg}
+            </div>
+          )}
 
           <div style={{ marginTop: '2rem', textAlign: 'center' }}>
             <button

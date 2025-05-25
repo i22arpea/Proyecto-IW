@@ -4,7 +4,7 @@ import { Juego } from '../types/types';
 
 const STORAGE_KEY = 'wordle-partida-guardada';
 
-export function guardarPartida(juego: Juego) {
+export async function guardarPartida(juego: Juego) {
   // Solo guardar si el usuario ha iniciado sesión
   const token = localStorage.getItem('token');
   if (!token) {
@@ -13,6 +13,21 @@ export function guardarPartida(juego: Juego) {
   }
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(juego));
+    // Guardar también en la base de datos
+    await fetch('/api/partidas/guardar-progreso', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        secretWord: juego.dailyWord,
+        attempts: juego.estadoActual,
+        idioma: juego.idioma,
+        categoria: juego.categoria,
+        longitud: juego.longitud
+      })
+    });
   } catch (e) {
     // Manejar error si es necesario
   }

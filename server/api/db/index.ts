@@ -2,50 +2,55 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import Word from '../models/word';
 
 dotenv.config();
 
 // File path for words JSON
-const wordsFile = join(process.cwd(), './api/json/palabras_5.json');
+// const wordsFile = join(process.cwd(), './api/json/palabras_5.json');
 
 // Functions for words
 export const getWord = async (): Promise<string> => {
   try {
-    const raw = readFileSync(wordsFile, 'utf-8');
-    const data = JSON.parse(raw);
-    // Devuelve la primera palabra como ejemplo
-    return data[0] || '';
+    // Buscar la primera palabra en la colección
+    const wordDoc = await Word.findOne();
+    return wordDoc?.text || '';
   } catch (error) {
-    console.error('Error fetching word from file:', error);
+    console.error('Error fetching word from DB:', error);
     throw error;
   }
 };
 
 export const setWord = async (_word: string) => {
-  // No implementado: aquí podrías guardar la palabra en MongoDB si lo deseas
-  console.warn('setWord no implementado sin Redis.');
+  // Puedes guardar la palabra en MongoDB si lo deseas
+  try {
+    await Word.create({ text: _word, language: 'es', category: 'general', length: _word.length });
+  } catch (error) {
+    console.error('Error saving word to DB:', error);
+  }
 };
 
 export const setRandomWord = async (): Promise<string> => {
   try {
-    const raw = readFileSync(wordsFile, 'utf-8');
-    const data = JSON.parse(raw);
-    const randomWord = data[Math.floor(Math.random() * data.length)];
-    // Aquí podrías guardar la palabra en MongoDB si lo deseas
-    return randomWord;
+    // Contar total de palabras
+    const count = await Word.countDocuments();
+    const random = Math.floor(Math.random() * count);
+    const wordDoc = await Word.findOne().skip(random);
+    return wordDoc?.text || '';
   } catch (error) {
-    console.error('Error setting random word:', error);
+    console.error('Error setting random word from DB:', error);
     throw error;
   }
 };
 
-export const getRandomWord = (): string => {
+export const getRandomWord = async (): Promise<string> => {
   try {
-    const raw = readFileSync(wordsFile, 'utf-8');
-    const data = JSON.parse(raw);
-    return data[Math.floor(Math.random() * data.length)];
+    const count = await Word.countDocuments();
+    const random = Math.floor(Math.random() * count);
+    const wordDoc = await Word.findOne().skip(random);
+    return wordDoc?.text || '';
   } catch (error) {
-    console.error('Error fetching random word:', error);
+    console.error('Error fetching random word from DB:', error);
     throw error;
   }
 };

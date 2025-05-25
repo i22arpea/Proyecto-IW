@@ -2,9 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 interface BoardProps {
   children?: React.ReactNode;
+  juego: any; // Debe ser tipo Juego, pero para evitar dependencias cruzadas
 }
 
-export default function Board({ children }: BoardProps) {
+export default function Board({ children, juego }: BoardProps) {
   const [gameEnded, setGameEnded] = useState(false);
   const [attemptsUsed, setAttemptsUsed] = useState(0);
   const [startTime] = useState(Date.now());
@@ -48,7 +49,12 @@ export default function Board({ children }: BoardProps) {
     // Add logic to detect win condition and call handleGameEnd('win')
   }, [attemptsUsed, gameEnded, handleGameEnd]);
 
-  function renderSquare(i: number) {
+  // Determinar filas y columnas dinámicamente
+  const filas = 6;
+  const columnas = juego?.longitud || 5;
+
+  function renderSquare(rowIdx: number, colIdx: number) {
+    const i = rowIdx * columnas + colIdx + 1;
     return (
       <button
         aria-label="square"
@@ -56,6 +62,7 @@ export default function Board({ children }: BoardProps) {
         type="button"
         value={i}
         onClick={() => setAttemptsUsed(attemptsUsed + 1)}
+        key={`square-${rowIdx}-${colIdx}`}
       />
     );
   }
@@ -64,48 +71,15 @@ export default function Board({ children }: BoardProps) {
     <main className="board-flex">
       <div className="board">
         {children}
-        <div className="fila">
-          {renderSquare(1)}
-          {renderSquare(2)}
-          {renderSquare(3)}
-          {renderSquare(4)}
-          {renderSquare(5)}
-        </div>
-        <div className="fila">
-          {renderSquare(6)}
-          {renderSquare(7)}
-          {renderSquare(8)}
-          {renderSquare(9)}
-          {renderSquare(10)}
-        </div>
-        <div className="fila">
-          {renderSquare(11)}
-          {renderSquare(12)}
-          {renderSquare(13)}
-          {renderSquare(14)}
-          {renderSquare(15)}
-        </div>
-        <div className="fila">
-          {renderSquare(16)}
-          {renderSquare(17)}
-          {renderSquare(18)}
-          {renderSquare(19)}
-          {renderSquare(20)}
-        </div>
-        <div className="fila">
-          {renderSquare(21)}
-          {renderSquare(22)}
-          {renderSquare(23)}
-          {renderSquare(24)}
-          {renderSquare(25)}
-        </div>
-        <div className="fila">
-          {renderSquare(26)}
-          {renderSquare(27)}
-          {renderSquare(28)}
-          {renderSquare(29)}
-          {renderSquare(30)}
-        </div>
+        {Array.from({ length: filas }).map((filaVoid, rowIdx) => (
+          <div
+            className="fila"
+            
+            style={{ display: 'grid', gridTemplateColumns: `repeat(${columnas}, 1fr)` }}
+          >
+            {Array.from({ length: columnas }).map((colVoid, colIdx) => renderSquare(rowIdx, colIdx))}
+          </div>
+        ))}
       </div>
     </main>
   );
