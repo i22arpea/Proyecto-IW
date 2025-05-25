@@ -145,7 +145,7 @@ export default function Header({ juego, setJuego, onLoginClick, onProfileClick }
               width="24"
               xmlns="http://www.w3.org/2000/svg"
               style={{ cursor: 'pointer' }}
-              onClick={onProfileClick}
+              onClick={() => navigate('/profile')}
             >
               <path d="M0 0h24v24H0z" fill="none" stroke="none" />
               <circle cx="12" cy="12" r="9" />

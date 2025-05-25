@@ -89,7 +89,7 @@ export default function ProfilePage() {
   };
 
   // Nuevo: control de edición por campo
-  const [editField, setEditField] = useState<'username' | 'password' | null>(null);
+  const [editField, setEditField] = useState<'username' | 'password' | 'name' | null>(null);
   const [editValue, setEditValue] = useState<string>('');
   const [currentPassword, setCurrentPassword] = useState('');
 
@@ -115,13 +115,21 @@ export default function ProfilePage() {
       </button>
       <h2 style={{textAlign:'center',color:'#1ed760',marginBottom:'1.5rem'}}>Perfil de usuario</h2>
       <div style={{marginTop:24,display:'flex',flexDirection:'column',gap:16}}>
-        {/* Usuario */}
-        <div style={{display:'flex',alignItems:'center',gap:12}}>
-          <span style={{color:'#fff',minWidth:90}}>Usuario:</span>
-          {user && (editField === 'username' ? (
+
+      {/* Usuario (solo lectura, no editable) */}
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
+        <span style={{color:'#fff',minWidth:90}}>Usuario:</span>
+        <span style={{color:'#aaa'}}>{user.username}</span>
+      </div>
+
+
+         {/* Sección de nombre editable */}
+        <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
+          <span style={{color:'#fff',minWidth:90}}>Nombre:</span>
+          {editField === 'name' ? (
             <>
               <input
-                name="username"
+                name="name"
                 value={editValue}
                 onChange={e => setEditValue(e.target.value)}
                 style={{padding:8,borderRadius:8,border:'1.5px solid #1ed760',background:'#181a1b',color:'#fff',flex:1}}
@@ -140,16 +148,16 @@ export default function ProfilePage() {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${token}`,
                       },
-                      body: JSON.stringify({ username: editValue }),
+                      body: JSON.stringify({ name: editValue }),
                     });
                     if (res.ok) {
-                      setMessage('Perfil actualizado');
-                      const data = await res.json();
-                      setUser(data);
+                      const updatedUser = await res.json();
+                      setUser(prev => ({ ...prev!, name: updatedUser.name }));
+                      setMessage('Nombre actualizado');
                       setEditField(null);
                     } else {
-                      const data = await res.json();
-                      setMessage(data.message || 'Error al actualizar');
+                      const errorData = await res.json();
+                      setMessage(errorData.message || 'Error al actualizar');
                     }
                   } finally {
                     setLoading(false);
@@ -170,22 +178,24 @@ export default function ProfilePage() {
             </>
           ) : (
             <>
-              <span style={{color:'#aaa'}}>{user.username}</span>
+              <span style={{color:'#aaa'}}>{user.name || '-'}</span>
               <button
                 style={{marginLeft:8,padding:'6px 14px',fontSize:'0.95rem',background:'#1ed760',color:'#181a1b',border:'none',borderRadius:6,cursor:'pointer'}}
-                onClick={() => { setEditField('username'); setEditValue(user.username || ''); }}
+                onClick={() => { setEditField('name'); setEditValue(user.name || ''); }}
                 type="button"
               >
                 Editar
               </button>
             </>
-          ))}
+          )}
         </div>
+
         {/* Email (solo lectura, sin botón) */}
-        <div style={{display:'flex',alignItems:'center',gap:12}}>
+        <div style={{display:'flex',flexWrap:'wrap',alignItems:'center',gap:12,wordBreak:'break-word',overflowWrap:'anywhere'}}>
           <span style={{color:'#fff',minWidth:90}}>Email:</span>
-          {user && <span style={{color:'#aaa'}}>{user.email}</span>}
+          {user && <span style={{color:'#aaa',wordBreak:'break-word'}}>{user.email}</span>}
         </div>
+
         {/* Contraseña */}
         <div style={{display:'flex',alignItems:'center',gap:12}}>
           <span style={{color:'#fff',minWidth:90}}>Contraseña:</span>
@@ -299,6 +309,48 @@ export default function ProfilePage() {
           </table>
         )}
       </div>
+
+        {/* Foto de perfil */}
+      <div style={{display:'flex',alignItems:'center',gap:12}}>
+        <span style={{color:'#fff',minWidth:90}}>Foto:</span>
+        <img
+          src={user.profileImage || '/default-avatar.png'}
+          alt="Avatar"
+          style={{width:48,height:48,borderRadius:'50%',border:'2px solid #1ed760'}}
+        />
+        <input
+          type="file"
+          accept="image/*"
+          onChange={async (e) => {
+            if (!e.target.files || e.target.files.length === 0) return;
+            const file = e.target.files[0];
+            const formData = new FormData();
+            formData.append('profileImage', file);
+
+            const token = localStorage.getItem('token');
+            setLoading(true);
+            try {
+              const res = await fetch('/api/usuarios/subirFoto', {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+                body: formData
+              });
+              if (res.ok) {
+                const data = await res.json();
+                setUser(prev => ({ ...prev!, profileImage: data.profileImage }));
+                setMessage('Foto actualizada');
+              } else {
+                const data = await res.json();
+                setMessage(data.message || 'Error al subir la imagen');
+              }
+            } finally {
+              setLoading(false);
+            }
+          }}
+          style={{marginLeft:12, color: '#fff'}}
+        />
+      </div>
+
       {/* Botón cerrar sesión abajo a la derecha */}
       <button
         type="button"
