@@ -41,7 +41,7 @@ export const getGlobalRanking = async (_req: Request, res: Response) => {
     const topPlayers = await User.find({ totalGames: { $gte: 5 } })
       .sort({ winRate: -1 })
       .limit(10)
-      .select('username winRate totalGames');
+      .select('username winRate totalGames profileImage');
 
     res.json(topPlayers);
   } catch (error) {

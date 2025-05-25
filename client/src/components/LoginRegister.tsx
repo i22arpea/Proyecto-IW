@@ -14,6 +14,7 @@ const LoginRegister = function LoginRegister({ onLogin, children, initialMode }:
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialMode === 'register') {
@@ -27,12 +28,14 @@ const LoginRegister = function LoginRegister({ onLogin, children, initialMode }:
     setLoading(true);
 
     const endpoint = isLogin ? 'login' : 'register';
+    const body: any = { ...form };
+    if (!isLogin && profileImage) body.profileImage = profileImage;
 
     try {
       const res = await fetch(`${API}/api/${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(body),
       });
 
       const data = await res.json();
@@ -46,6 +49,7 @@ const LoginRegister = function LoginRegister({ onLogin, children, initialMode }:
         } else {
           setMessage(data.message || 'Registro exitoso. Revisa tu correo para verificar la cuenta.');
           setForm({ username: '', email: '', password: '' });
+          setProfileImage(null);
         }
       } else {
         setMessage(data.error || data.message || 'Error al procesar la solicitud');
@@ -125,6 +129,41 @@ const LoginRegister = function LoginRegister({ onLogin, children, initialMode }:
               }}
             />
           )}
+
+          {!isLogin && (
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+    <label style={{ color: '#fff', fontWeight: 600, fontSize: '0.97rem' }}>Foto de perfil (opcional):</label>
+    <input
+      type="file"
+      accept="image/*"
+      onChange={async (e) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setProfileImage(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      }}
+      style={{ color: '#fff', fontSize: '0.97rem' }}
+    />
+    <img
+  src={
+    profileImage ||
+    "https://ui-avatars.com/api/?name=User&background=1ed760&color=181a1b&rounded=true"
+  }
+  alt="preview"
+  style={{
+    width: 60,
+    height: 60,
+    borderRadius: '50%',
+    objectFit: 'cover',
+    border: '2px solid #1ed760',
+    background: '#fff'
+  }}
+    />
+  </div>
+)}
 
           <input
             placeholder="Contraseña"

@@ -20,9 +20,12 @@ export default function restartGame(juego: Juego) {
     squares[i].classList.remove('active-cell'); // Quita el resaltado de celda activa
     squares[i].textContent = '';
   }
-  // --- NUEVO: resalta la primera celda como activa ---
+  // --- NUEVO: resalta la primera celda como activa siempre que se reinicie el tablero ---
   if (squares.length > 0) {
     squares[0].classList.add('active-cell');
+    if (squares[0] instanceof HTMLElement && typeof squares[0].focus === 'function') {
+      squares[0].focus();
+    }
   }
   // --- FIN NUEVO ---
   const keys = document.getElementsByClassName('key');

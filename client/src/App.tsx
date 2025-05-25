@@ -481,6 +481,24 @@ function App() {
     return () => window.removeEventListener('beforeunload', handleAutoSave);
   }, [juego]);
 
+  useEffect(() => {
+    // --- CORRECCIÓN: Siempre empezar en la primera fila editable si está vacía ---
+    const squares = document.getElementsByClassName('square');
+    if (squares.length >= 5) {
+      let allEmpty = true;
+      for (let i = 0; i < 5; i++) {
+        if (squares[i].textContent && squares[i].textContent !== '') {
+          allEmpty = false;
+          break;
+        }
+      }
+      if (allEmpty) {
+        // Si la primera fila está vacía, forzar posición y fila al inicio
+        setJuego(j => ({ ...j, row: 1, position: 1 }));
+      }
+    }
+  }, []);
+
   return (
     <Router>
       <Routes>

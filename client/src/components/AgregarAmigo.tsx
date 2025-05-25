@@ -22,7 +22,7 @@ export default function AgregarAmigo() {
       const userRes = await fetch(`/api/usuarios/por-nombre/${nombre}`);
       const userData = await userRes.json();
 
-      if (!userRes.ok || !userData._id) {
+      if (!userRes.ok || !userData.id) {
         setMensaje(userData.message || 'Usuario no encontrado');
         return;
       }
@@ -34,7 +34,7 @@ export default function AgregarAmigo() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ receiverId: userData._id }),
+        body: JSON.stringify({ receiverId: userData.id }),
       });
 
       const data = await res.json();

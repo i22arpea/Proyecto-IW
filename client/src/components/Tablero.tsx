@@ -1,18 +1,69 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 interface BoardProps {
-  children?: React.ReactNode; // Added children to props
+  children?: React.ReactNode;
 }
 
-export default function Board({ children }: BoardProps) { // Destructure children
+export default function Board({ children }: BoardProps) {
+  const [gameEnded, setGameEnded] = useState(false);
+  const [attemptsUsed, setAttemptsUsed] = useState(0);
+  const [startTime] = useState(Date.now());
+
+  const handleGameEnd = useCallback(
+    async (result: 'win' | 'lose') => {
+      setGameEnded(true);
+      const duration = Math.floor((Date.now() - startTime) / 1000);
+
+      try {
+        const response = await fetch('/api/save-game', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            secretWord: 'example', // Replace with actual word
+            attempts: ['example1', 'example2'], // Replace with actual attempts
+            result,
+            attemptsUsed,
+            duration,
+          }),
+        });
+
+        if (!response.ok) {
+          console.error('Error saving game:', await response.text());
+        }
+      } catch (error) {
+        console.error('Network error:', error);
+      }
+    },
+    [attemptsUsed, startTime]
+  );
+
+  useEffect(() => {
+    if (gameEnded) return;
+
+    // Example logic to detect game end (replace with actual game logic)
+    if (attemptsUsed >= 6) {
+      handleGameEnd('lose');
+    }
+
+    // Add logic to detect win condition and call handleGameEnd('win')
+  }, [attemptsUsed, gameEnded, handleGameEnd]);
+
   function renderSquare(i: number) {
-    return <button aria-label="square" className="square" type="button" value={i} />;
+    return (
+      <button
+        aria-label="square"
+        className="square"
+        type="button"
+        value={i}
+        onClick={() => setAttemptsUsed(attemptsUsed + 1)}
+      />
+    );
   }
 
   return (
     <main className="board-flex">
       <div className="board">
-        {children} {/* Render children if provided */}
+        {children}
         <div className="fila">
           {renderSquare(1)}
           {renderSquare(2)}

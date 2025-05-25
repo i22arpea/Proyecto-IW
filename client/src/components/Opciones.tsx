@@ -10,7 +10,7 @@ interface SettingsProps {
   children?: React.ReactNode; // Added children to props
 }
 
-export default function Settings({ juego, setJuego, children }: SettingsProps) { // Destructure children
+export default function Settings({ juego, setJuego, children }: SettingsProps) {
   function cambiarModoDificil() {
     const newState = restartGame(juego);
 
@@ -28,6 +28,21 @@ export default function Settings({ juego, setJuego, children }: SettingsProps) {
 
     setJuego(newState);
     cargarSettings(newState);
+
+    // Update the body class and localStorage for theme
+    if (newState.modoOscuro) {
+      document.body.classList.remove('light-mode');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.body.classList.add('light-mode');
+      localStorage.setItem('theme', 'light');
+    }
+
+    // Ensure settings page background updates
+    const settingsContainer = document.querySelector<HTMLElement>('.settings-container');
+    if (settingsContainer) {
+      settingsContainer.style.background = newState.modoOscuro ? 'var(--color-fondo)' : '#ffffff';
+    }
   }
 
   function cambiarModoDaltonico() {

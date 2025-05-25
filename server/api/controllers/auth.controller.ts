@@ -20,7 +20,7 @@ const transporter = nodemailer.createTransport({
  */
 export const register = async (req: Request, res: Response) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, profileImage } = req.body;
 
     // Validación básica
     if (!username || !email || !password) {
@@ -56,7 +56,8 @@ export const register = async (req: Request, res: Response) => {
       email,
       password: hashedPassword,
       isVerified: false,
-      verificationToken
+      verificationToken,
+      profileImage: profileImage || ''
     });
 
     await newUser.save();

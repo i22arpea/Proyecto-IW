@@ -5,6 +5,12 @@ import { Juego } from '../types/types';
 const STORAGE_KEY = 'wordle-partida-guardada';
 
 export function guardarPartida(juego: Juego) {
+  // Solo guardar si el usuario ha iniciado sesión
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert('Debes iniciar sesión para guardar la partida.');
+    return;
+  }
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(juego));
   } catch (e) {
@@ -28,6 +34,12 @@ export function borrarPartidaGuardada() {
 
 // Hook para interceptar recarga/cierre y preguntar al usuario
 export function setupBeforeUnload(juego: Juego) {
+  // Solo mostrar el mensaje si el usuario ha iniciado sesión
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.onbeforeunload = null;
+    return;
+  }
   window.onbeforeunload = (e: BeforeUnloadEvent) => {
     const mensaje = '¿Desea guardar la partida antes de salir?';
     e.preventDefault();

@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { desencriptarPalabra } from '../libs/crypto';
-
-// import UserStats from './UserStats'; // Asegúrate de que la ruta sea correcta
+import UserStats from './UserStats'; // Asegúrate de que la ruta sea correcta
 
 interface UserProfile {
   username: string;
@@ -12,11 +11,27 @@ interface UserProfile {
   profileImage?: string;
 }
 
+// Hook para detectar si está en modo claro
+function useIsLightMode() {
+  const [isLight, setIsLight] = useState(() =>
+    typeof document !== 'undefined' && document.documentElement.classList.contains('light-mode')
+  );
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsLight(document.documentElement.classList.contains('light-mode'));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+  return isLight;
+}
+
 export default function ProfilePage() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const navigate = useNavigate();
+  const isLightMode = useIsLightMode();
 
   // Estado para el historial de partidas
   const [history, setHistory] = useState<Array<{
@@ -28,16 +43,10 @@ export default function ProfilePage() {
   }>>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
 
-  // Cargar perfil y historial al montar el componente  
-  const [stats, setStats] = useState<{
-  totalGames: number;
-  wins: number;
-  losses: number;
-  winStreak: number;
-  maxWinStreak: number;
-  winRate: number;
-} | null>(null);
+  // Estado para estadísticas del usuario
+  const [userStats, setUserStats] = useState<any>(null);
 
+  // Cargar perfil, historial y estadísticas al montar el componente  
   useEffect(() => {
     async function fetchProfile() {
       setLoading(true);
@@ -72,21 +81,20 @@ export default function ProfilePage() {
     async function fetchStats() {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch('/api/usuarios/estadisticas', {
+        const res = await fetch('/api/stats/usuarios/estadisticas', {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
           const data = await res.json();
-          setStats(data);
+          setUserStats(data);
         }
-      } catch (err) {
-        console.error('Error al obtener estadísticas');
+      } catch (e) {
+        // Se ignora el error, pero el bloque no queda vacío
       }
     }
-    fetchStats();
-
     fetchProfile();
     fetchHistory();
+    fetchStats();
   }, []);
 
   // Botón de logout
@@ -126,14 +134,25 @@ export default function ProfilePage() {
 
   // Si user existe, renderizar los datos
   return (
-    <div className="profile-page" style={{maxWidth:500,margin:'2rem auto',background:'#23272f',borderRadius:20,padding:'2rem',boxShadow:'0 2px 16px #1ed76033',position:'relative'}}>
+    <div className="profile-page" style={{
+      maxWidth: 700,
+      margin: '2rem auto',
+      background: 'var(--color-fondo)',
+      color: isLightMode ? '#111' : 'var(--color-texto)', // Forzar color principal
+      borderRadius: 20,
+      padding: '2rem',
+      boxShadow: '0 2px 16px #1ed76033',
+      position: 'relative',
+      fontSize: '0.97rem',
+      transition: 'background 0.3s, color 0.3s'
+    }}>
       {/* Botón cerrar ventana arriba a la derecha */}
       <button
         type="button"
         onClick={handleClose}
         title="Cerrar ventana"
         aria-label="Cerrar ventana"
-        style={{position:'absolute',top:18,right:18,background:'none',border:'none',color:'#aaa',fontSize:'1.7rem',cursor:'pointer',transition:'color 0.2s',padding:0,zIndex:2}}
+        style={{position:'absolute',top:18,right:18,background:'none',border:'none',color:'#aaa',fontSize:'1.5rem',cursor:'pointer',transition:'color 0.2s',padding:0,zIndex:2}}
         onMouseOver={handleCloseMouseOver}
         onFocus={handleCloseMouseOver}
         onMouseOut={handleCloseMouseOut}
@@ -141,149 +160,120 @@ export default function ProfilePage() {
       >
         ×
       </button>
-      {/* Foto de perfil arriba a la derecha */}
-      <div style={{position:'absolute',top:18,right:54,display:'flex',alignItems:'center',gap:8,zIndex:2}}>
-        <img
-          src={user.profileImage || '/default-avatar.png'}
-          alt="Avatar"
-          style={{width:48,height:48,borderRadius:'50%',border:'2px solid #1ed760',background:'#181a1b'}}
-        />
-        <label htmlFor="profile-image-upload" style={{cursor:'pointer',color:'#1ed760',fontSize:18}} title="Cambiar foto">
-          <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M4.8 17.2V6.8A2 2 0 0 1 6.8 4.8h10.4a2 2 0 0 1 2 2v10.4a2 2 0 0 1-2 2H6.8a2 2 0 0 1-2-2z"/></svg>
-          <input
-            id="profile-image-upload"
-            type="file"
-            accept="image/*"
-            style={{display:'none'}}
-            onChange={async (e) => {
-              if (!e.target.files || e.target.files.length === 0) return;
-              const file = e.target.files[0];
-              const formData = new FormData();
-              formData.append('profileImage', file);
-              const token = localStorage.getItem('token');
-              setLoading(true);
-              try {
-                const res = await fetch('/api/usuarios/subirFoto', {
-                  method: 'POST',
-                  headers: { Authorization: `Bearer ${token}` },
-                  body: formData
-                });
-                if (res.ok) {
-                  const data = await res.json();
-                  setUser(prev => ({ ...prev!, profileImage: data.profileImage }));
-                  setMessage('Foto actualizada');
-                } else {
-                  const data = await res.json();
-                  setMessage(data.message || 'Error al subir la imagen');
-                }
-              } finally {
-                setLoading(false);
-              }
-            }}
-          />
-        </label>
-      </div>
-      <h2 style={{textAlign:'center',color:'#1ed760',marginBottom:'1.5rem'}}>Perfil de usuario</h2>
-      <div style={{marginTop:24,display:'flex',flexDirection:'column',gap:16}}>
-
-      {/* Usuario (solo lectura, no editable) */}
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
-        <span style={{color:'#fff',minWidth:90}}>Usuario:</span>
-        <span style={{color:'#aaa'}}>{user.username}</span>
-      </div>
-
-
-         {/* Sección de nombre editable */}
-        <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
-          <span style={{color:'#fff',minWidth:90}}>Nombre:</span>
-          {editField === 'name' ? (
-            <>
-              <input
-                name="name"
-                value={editValue}
-                onChange={e => setEditValue(e.target.value)}
-                style={{padding:8,borderRadius:8,border:'1.5px solid #1ed760',background:'#181a1b',color:'#fff',flex:1}}
-              />
-              <button
-                className="login-btn"
-                style={{marginLeft:8,padding:'6px 14px',fontSize:'0.95rem'}}
-                onClick={async () => {
-                  setLoading(true);
-                  setMessage(null);
-                  try {
-                    const token = localStorage.getItem('token');
-                    const res = await fetch('/api/usuarios/modificarPerfil', {
-                      method: 'PUT',
-                      headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`,
-                      },
-                      body: JSON.stringify({ name: editValue }),
-                    });
-                    if (res.ok) {
-                      const updatedUser = await res.json();
-                      setUser(prev => ({ ...prev!, name: updatedUser.name }));
-                      setMessage('Nombre actualizado');
-                      setEditField(null);
-                    } else {
-                      const errorData = await res.json();
-                      setMessage(errorData.message || 'Error al actualizar');
+      <h2 style={{textAlign:'center',color:'#1ed760',marginBottom:'2.5rem', fontSize:'1.25rem'}}>Perfil de usuario</h2>
+      {/* Datos personales y avatar alineados */}
+      <div style={{display:'flex',flexDirection:'row',alignItems:'flex-start',gap:32,marginBottom:24}}>
+        {/* Datos personales a la izquierda */}
+        <div style={{
+          flex: 1,
+          minWidth: 220,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 14,
+          alignItems: 'flex-start',
+          color: 'var(--color-texto)'
+        }}>
+          <div style={{display:'flex',alignItems:'center',gap:10}}>
+            <span style={{color:isLightMode ? '#111' : '#fff',minWidth:80, fontSize:'0.98rem'}}>Usuario:</span>
+            <span style={{color:isLightMode ? '#222' : '#aaa', fontSize:'0.98rem'}}>{user.username}</span>
+          </div>
+          <div style={{display:'flex',alignItems:'center',gap:10}}>
+            <span style={{color:isLightMode ? '#111' : '#fff',minWidth:80, fontSize:'0.98rem'}}>Nombre:</span>
+            {editField === 'name' ? (
+              <>
+                <input
+                  name="name"
+                  value={editValue}
+                  onChange={e => setEditValue(e.target.value)}
+                  style={{padding:7,borderRadius:8,border:'1.5px solid #1ed760',background:isLightMode ? '#fff' : '#181a1b',color:isLightMode ? '#111' : '#fff',flex:1,fontSize:'0.97rem'}}
+                />
+                <button
+                  className="login-btn"
+                  style={{marginLeft:8,padding:'6px 14px',fontSize:'0.95rem'}}
+                  onClick={async () => {
+                    setLoading(true);
+                    setMessage(null);
+                    try {
+                      const token = localStorage.getItem('token');
+                      const res = await fetch('/api/usuarios/modificarPerfil', {
+                        method: 'PUT',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          Authorization: `Bearer ${token}`,
+                        },
+                        body: JSON.stringify({ name: editValue }),
+                      });
+                      if (res.ok) {
+                        const updatedUser = await res.json();
+                        setUser(prev => ({ ...prev!, name: updatedUser.name }));
+                        setMessage('Nombre actualizado');
+                        setEditField(null);
+                      } else {
+                        const errorData = await res.json();
+                        setMessage(errorData.message || 'Error al actualizar');
+                      }
+                    } finally {
+                      setLoading(false);
                     }
-                  } finally {
-                    setLoading(false);
-                  }
-                }}
-                type="button"
-                disabled={loading}
-              >
-                Guardar
-              </button>
-              <button
-                style={{marginLeft:4,padding:'6px 10px',fontSize:'0.95rem',background:'#ff5252',color:'#fff',border:'none',borderRadius:6,cursor:'pointer'}}
-                onClick={() => setEditField(null)}
-                type="button"
-              >
-                Cancelar
-              </button>
-            </>
-          ) : (
-            <>
-              <span style={{color:'#aaa'}}>{user.name || '-'}</span>
-              <button
-                style={{marginLeft:8,padding:'6px 14px',fontSize:'0.95rem',background:'#1ed760',color:'#181a1b',border:'none',borderRadius:6,cursor:'pointer'}}
-                onClick={() => { setEditField('name'); setEditValue(user.name || ''); }}
-                type="button"
-              >
-                Editar
-              </button>
-            </>
-          )}
-        </div>
-
-        {/* Email (solo lectura, sin botón) */}
-        <div style={{display:'flex',flexWrap:'wrap',alignItems:'center',gap:12,wordBreak:'break-word',overflowWrap:'anywhere'}}>
-          <span style={{color:'#fff',minWidth:90}}>Email:</span>
-          {user && <span style={{color:'#aaa',wordBreak:'break-word'}}>{user.email}</span>}
-        </div>
-
-        {/* Contraseña */}
-        <div style={{display:'flex',flexDirection:'column',alignItems:'flex-start',gap:12,marginBottom:16}}>
-          <span style={{color:'#fff',minWidth:90}}>Contraseña:</span>
-          {editField === 'password' ? (
-            <div style={{width:'100%',display:'flex',flexDirection:'column',gap:8,marginTop:4}}>
+                  }}
+                  type="button"
+                  disabled={loading}
+                >
+                  Guardar
+                </button>
+                <button
+                  style={{marginLeft:4,padding:'6px 10px',fontSize:'0.95rem',background:'#ff5252',color:'#fff',border:'none',borderRadius:6,cursor:'pointer'}}
+                  onClick={() => setEditField(null)}
+                  type="button"
+                >
+                  Cancelar
+                </button>
+              </>
+            ) : (
+              <>
+                <span style={{color:isLightMode ? '#222' : '#aaa', fontSize:'0.98rem'}}>{user.name || '-'}</span>
+                <button
+                  style={{marginLeft:8,padding:'6px 14px',fontSize:'0.95rem',background:'#1ed760',color:'#181a1b',border:'none',borderRadius:6,cursor:'pointer'}}
+                  onClick={() => { setEditField('name'); setEditValue(user.name || ''); }}
+                  type="button"
+                >
+                  Editar
+                </button>
+              </>
+            )}
+          </div>
+          <div style={{display:'flex',flexWrap:'wrap',alignItems:'center',gap:10,wordBreak:'break-word',overflowWrap:'anywhere'}}>
+            <span style={{color:isLightMode ? '#111' : '#fff',minWidth:80, fontSize:'0.98rem'}}>Email:</span>
+            {user && <span style={{color:isLightMode ? '#222' : '#aaa',wordBreak:'break-word', fontSize:'0.98rem'}}>{user.email}</span>}
+          </div>
+          {/* Contraseña y botón cambiar al lado */}
+          <div style={{display:'flex',alignItems:'center',gap:10,position:'relative'}}>
+            <span style={{color:isLightMode ? '#111' : '#fff',minWidth:80, fontSize:'0.98rem'}}>Contraseña:</span>
+            <span style={{color:isLightMode ? '#222' : '#aaa', fontSize:'0.98rem'}}>********</span>
+            <button
+              style={{marginLeft:8,padding:'6px 14px',fontSize:'0.95rem',background:'#1ed760',color:'#181a1b',border:'none',borderRadius:6,cursor:'pointer'}}
+              onClick={() => setEditField(editField === 'password' ? null : 'password')}
+              type="button"
+            >
+              Cambiar
+            </button>
+          </div>
+          {/* Formulario de cambio de contraseña debajo */}
+          {editField === 'password' && (
+            <div style={{width:'100%',display:'flex',flexDirection:'column',gap:8,marginTop:8,marginLeft:0}}>
               <input
                 type="password"
                 placeholder="Contraseña actual"
                 value={currentPassword}
                 onChange={e => setCurrentPassword(e.target.value)}
-                style={{padding:'8px',borderRadius:6,border:'1px solid #333',background:'#181a1b',color:'#fff',width:'100%'}}
+                style={{padding:'8px',borderRadius:6,border:'1px solid #333',background:isLightMode ? '#fff' : '#181a1b',color:isLightMode ? '#111' : '#fff',width:'100%',fontSize:'0.97rem'}}
               />
               <input
                 type="password"
                 placeholder="Nueva contraseña"
                 value={editValue}
                 onChange={e => setEditValue(e.target.value)}
-                style={{padding:'8px',borderRadius:6,border:'1px solid #333',background:'#181a1b',color:'#fff',width:'100%'}}
+                style={{padding:'8px',borderRadius:6,border:'1px solid #333',background:isLightMode ? '#fff' : '#181a1b',color:isLightMode ? '#111' : '#fff',width:'100%',fontSize:'0.97rem'}}
               />
               <div style={{display:'flex',gap:8,marginTop:4}}>
                 <button
@@ -326,95 +316,234 @@ export default function ProfilePage() {
                 </button>
               </div>
             </div>
-          ) : (
-            <>
-              <span style={{color:'#aaa'}}>********</span>
-              <button
-                style={{marginLeft:8,padding:'6px 14px',fontSize:'0.95rem',background:'#1ed760',color:'#181a1b',border:'none',borderRadius:6,cursor:'pointer'}}
-                onClick={() => { setEditField('password'); setEditValue(''); setCurrentPassword(''); }}
-                type="button"
-              >
-                Cambiar
-              </button>
-            </>
           )}
         </div>
+        {/* Avatar a la derecha */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          minWidth: 120
+        }}>
+          <img
+            src={user.profileImage && user.profileImage !== '' ? user.profileImage : '/default-avatar.png'}
+            alt="Avatar"
+            style={{
+              width: 90,
+              height: 90,
+              borderRadius: '50%',
+              border: '3px solid #1ed760',
+              background: 'var(--color-fondo)',
+              objectFit: 'cover',
+              marginBottom: 8
+            }}
+            id="profile-avatar-img"
+          />
+          <label htmlFor="profile-image-upload" style={{cursor:'pointer',color:'#1ed760',fontSize:16}} title="Cambiar foto">
+            <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M4.8 17.2V6.8A2 2 0 0 1 6.8 4.8h10.4a2 2 0 0 1 2 2v10.4a2 2 0 0 1-2 2H6.8a2 2 0 0 1-2-2z"/></svg>
+            <input
+              id="profile-image-upload"
+              type="file"
+              accept="image/*"
+              style={{display:'none'}} 
+              onChange={async (e) => {
+                if (!e.target.files || e.target.files.length === 0) return;
+                const file = e.target.files[0];
+                // Mostrar preview inmediata
+                const previewUrl = URL.createObjectURL(file);
+                setUser(prev => prev ? { ...prev, profileImage: previewUrl } : prev);
+                const formData = new FormData();
+                formData.append('profileImage', file);
+                const token = localStorage.getItem('token');
+                setLoading(true);
+                try {
+                  const res = await fetch('/api/usuarios/subirFoto', {
+                    method: 'POST',
+                    headers: { Authorization: `Bearer ${token}` },
+                    body: formData
+                  });
+                  if (res.ok) {
+                    // Recargar el perfil desde el backend para obtener la URL definitiva
+                    const profileRes = await fetch('/api/usuarios/verPerfil', {
+                      headers: { Authorization: `Bearer ${token}` }
+                    });
+                    if (profileRes.ok) {
+                      const data = await profileRes.json();
+                      setUser(data);
+                      setMessage('Foto actualizada');
+                    }
+                  } else {
+                    const data = await res.json();
+                    setMessage(data.message || 'Error al subir la imagen');
+                  }
+                } finally {
+                  setLoading(false);
+                  setTimeout(() => URL.revokeObjectURL(previewUrl), 2000);
+                }
+              }}
+            />
+          </label>
+        </div>
       </div>
-      {message && <div style={{marginTop:12,textAlign:'center',color:message.includes('actualizada')||message.includes('actualizado')?'#1ed760':'#ff5252'}}>{message}</div>}
-      <hr style={{margin:'2rem 0',borderColor:'#1ed76033'}}/>
-      <h3 style={{color:'#1ed760',marginBottom:8}}>Estadísticas</h3>
-      <div style={{color:'#fff',marginBottom:24}}>
-        {/* Estadísticas del usuario */}
-        {stats ? (
-          <ul style={{listStyle: 'none', paddingLeft: 0}}>
-            <li>Total partidas: {stats.totalGames}</li>
-            <li>Victorias: {stats.wins}</li>
-            <li>Derrotas: {stats.losses}</li>
-            <li>Racha actual: {stats.winStreak}</li>
-            <li>Máx. racha: {stats.maxWinStreak}</li>
-            <li>% Victorias: {typeof stats.winRate === 'number' ? stats.winRate.toFixed(2) : '0.00'}%</li>
-          </ul>
-        ) : (
-          <em>No hay estadísticas disponibles.</em>
-        )}
-
+      {/* Separador visual entre datos personales y estadísticas */}
+      <div style={{
+        width: '100%',
+        height: 32,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: '18px 0',
+        color: 'var(--color-texto)'
+      }}>
+        <div style={{height:2,background:'#1ed76033',borderRadius:2,flex:1}}></div>
+        <span style={{margin:'0 18px',color:'#1ed760',fontWeight:600,letterSpacing:1,fontSize:'1.01rem'}}>Resumen</span>
+        <div style={{height:2,background:'#1ed76033',borderRadius:2,flex:1}}></div>
       </div>
-      <h3 style={{color:'#1ed760',marginBottom:8}}>Historial de partidas</h3>
-      <div style={{color:'#fff',marginBottom:24}}>
-        {historyLoading && <div style={{color:'#1ed760'}}>Cargando historial...</div>}
+      {/* Estadísticas y gráfico */}
+      <div style={{
+        marginBottom: 32,
+        marginTop: 36,
+        color: 'var(--color-texto)'
+      }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginBottom: 18
+        }}>
+          <h3 style={{ color: '#1ed760', fontSize: '1.18rem', margin: 0, letterSpacing: 1 }}>Estadísticas</h3>
+        </div>
+        <div style={{ marginBottom: 18, marginTop: 10 }}>
+          <UserStats stats={userStats} />
+        </div>
+      </div>
+      <hr style={{ margin: '1.5rem 0', borderColor: '#1ed76033' }} />
+      {/* Historial de partidas */}
+      <div style={{ marginBottom: 18, color: 'var(--color-texto)' }}>
+        <h3 style={{ color: '#1ed760', marginBottom: 8, fontSize: '1.08rem' }}>Historial de partidas</h3>
+        {historyLoading && <div style={{ color: '#1ed760' }}>Cargando historial...</div>}
         {!historyLoading && history.length === 0 && <em>No hay partidas registradas.</em>}
         {!historyLoading && history.length > 0 && (
-          <table style={{width:'100%',background:'#181a1b',borderRadius:8,overflow:'hidden',fontSize:'0.98rem'}}>
+          <table style={{
+            width: '100%',
+            background: 'var(--color-fondo)',
+            borderRadius: 8,
+            overflow: 'hidden',
+            fontSize: '0.97rem',
+            color: isLightMode ? '#111' : 'var(--color-texto)'
+          }}>
             <thead>
-              <tr style={{color:'#1ed760',background:'#23272f'}}>
-                <th style={{padding:'6px 4px'}}>Fecha</th>
-                <th style={{padding:'6px 4px'}}>Palabra</th>
-                <th style={{padding:'6px 4px'}}>Intentos</th>
-                <th style={{padding:'6px 4px'}}>Resultado</th>
+              <tr style={{ color: '#1ed760', background: 'var(--color-fondo)' }}>
+                <th style={{ padding: '6px 4px' }}>Fecha</th>
+                <th style={{ padding: '6px 4px' }}>Palabra</th>
+                <th style={{ padding: '6px 4px' }}>Intentos</th>
+                <th style={{ padding: '6px 4px' }}>Resultado</th>
               </tr>
             </thead>
             <tbody>
               {history.map(({ _id: id, secretWord, won, attemptsUsed, createdAt }) => (
-                <tr key={id} style={{textAlign:'center',borderBottom:'1px solid #1ed76022'}}>
-                  <td style={{padding:'6px 4px'}}>{new Date(createdAt).toLocaleString()}</td>
-                  <td style={{padding:'6px 4px',fontFamily:'monospace',fontWeight:600}}>{desencriptarPalabra(secretWord).toUpperCase()}</td>
-                  <td style={{padding:'6px 4px'}}>{attemptsUsed}</td>
-                  <td style={{padding:'6px 4px',color:won?'#1ed760':'#ff5252',fontWeight:700}}>{won ? 'Victoria' : 'Derrota'}</td>
+                <tr key={id} style={{ textAlign: 'center', borderBottom: '1px solid #1ed76022' }}>
+                  <td style={{ padding: '6px 4px' }}>{new Date(createdAt).toLocaleString()}</td>
+                  <td style={{ padding: '6px 4px', fontFamily: 'monospace', fontWeight: 600 }}>{desencriptarPalabra(secretWord).toUpperCase()}</td>
+                  <td style={{ padding: '6px 4px' }}>{attemptsUsed}</td>
+                  <td style={{ padding: '6px 4px', color: won ? '#1ed760' : '#ff5252', fontWeight: 700 }}>{won ? 'Victoria' : 'Derrota'}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
       </div>
+      {/* Historial de palabras jugadas */}
+      {history.length > 0 && (
+        <div style={{ marginBottom: 18 }}>
+          <h4 style={{ color: '#1ed760', margin: '16px 0 8px', fontSize: '1.01rem' }}>Historial de palabras jugadas</h4>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {history.map(({ secretWord, _id }) => (
+              <span key={_id} style={{
+                background: 'var(--color-fondo)',
+                color: isLightMode ? '#111' : 'var(--color-texto)',
+                border: '1px solid #1ed76055',
+                borderRadius: 6,
+                padding: '4px 10px',
+                fontFamily: 'monospace',
+                fontWeight: 600,
+                fontSize: '0.97rem'
+              }}>
+                {desencriptarPalabra(secretWord).toUpperCase()}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+      {message && <div style={{marginTop:12,textAlign:'center',color:message.includes('actualizada')||message.includes('actualizado')?'#1ed760':'#ff5252', fontSize:'0.97rem'}}>{message}</div>}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+        <button
+          type="button"
+          onClick={handleLogout}
+          title="Cerrar sesión"
+          aria-label="Cerrar sesión"
+          style={{
+            marginTop: '2rem',
+            background: '#1ed760',
+            border: 'none',
+            color: '#181a1b',
+            fontWeight: 700,
+            borderRadius: 8,
+            padding: '10px 22px',
+            fontSize: '0.97rem',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px #1ed76033',
+            transition: 'background 0.2s',
+            alignSelf: 'flex-end'
+          }}
+          onMouseOver={handleLogoutMouseOver}
+          onFocus={handleLogoutMouseOver}
+          onMouseOut={handleLogoutMouseOut}
+          onBlur={handleLogoutMouseOut}
+        >
+          Cerrar sesión
+        </button>
+      </div>
 
-      {/* Botón cerrar sesión abajo a la derecha */}
+      {/* Botón eliminar cuenta abajo a la izquierda */}
       <button
         type="button"
-        onClick={handleLogout}
-        title="Cerrar sesión"
-        aria-label="Cerrar sesión"
-        style={{
-          marginTop: '2rem',
-          background: '#1ed760',
-          border: 'none',
-          color: '#181a1b',
-          fontWeight: 700,
-          borderRadius: 8,
-          padding: '10px 22px',
-          fontSize: '1rem',
-          cursor: 'pointer',
-          boxShadow: '0 2px 8px #1ed76033',
-          transition: 'background 0.2s',
-          alignSelf: 'flex-end'
+        onClick={async () => {
+          if (window.confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.')) {
+            const token = localStorage.getItem('token');
+            const res = await fetch('/api/usuarios', {
+              method: 'DELETE',
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            if (res.ok) {
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              window.location.href = '/';
+            } else {
+              alert('No se pudo eliminar la cuenta.');
+            }
+          }
         }}
-        onMouseOver={handleLogoutMouseOver}
-        onFocus={handleLogoutMouseOver}
-        onMouseOut={handleLogoutMouseOut}
-        onBlur={handleLogoutMouseOut}
+        style={{
+          position: 'absolute',
+          left: 32,
+          bottom: 32,
+          background: '#ff5252',
+          color: '#fff',
+          border: 'none',
+          borderRadius: 8,
+          padding: '9px 18px',
+          fontWeight: 700,
+          fontSize: '0.97rem',
+          cursor: 'pointer',
+          boxShadow: '0 2px 8px #ff525233',
+          transition: 'background 0.2s',
+          zIndex: 10
+        }}
       >
-        Cerrar sesión
+        Eliminar cuenta
       </button>
-
     </div>
   );
 }

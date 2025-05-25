@@ -8,16 +8,19 @@ import Word from '../models/word'; // importa tu modelo Word correctamente
 export const saveGame = async (req: Request, res: Response) => {
   try {
     const userId = (req.user as { id: string }).id;
-    const { secretWord, attempts } = req.body;
+    const { secretWord, attempts, result, duration, attemptsUsed } = req.body;
 
     const existing = await Game.findOne({ userId });
 
     if (existing) {
       existing.secretWord = secretWord;
       existing.attempts = attempts;
+      existing.result = result;
+      existing.duration = duration;
+      existing.attemptsUsed = attemptsUsed;
       await existing.save();
     } else {
-      const newGame = new Game({ userId, secretWord, attempts });
+      const newGame = new Game({ userId, secretWord, attempts, result, duration, attemptsUsed });
       await newGame.save();
     }
 
@@ -152,5 +155,31 @@ export const getRandomWord = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('❌ Error al obtener palabra aleatoria:', error);
     return res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};
+
+// Obtener historial de partidas del usuario autenticado
+export const getUserGameHistory = async (req: Request, res: Response) => {
+  try {
+    const userId = (req.user as { id: string }).id;
+    const games = await Game.find({ userId }).sort({ createdAt: -1 });
+    res.status(200).json(games);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener el historial de partidas', error });
+  }
+};
+
+// Obtener estadísticas de partidas del usuario autenticado
+export const getUserGameStats = async (req: Request, res: Response) => {
+  try {
+    const userId = (req.user as { id: string }).id;
+    const games = await Game.find({ userId });
+    const total = games.length;
+    const wins = games.filter(g => g.result === 'win').length;
+    const loses = games.filter(g => g.result === 'lose').length;
+    const winRate = total > 0 ? (wins / total) * 100 : 0;
+    res.status(200).json({ total, wins, loses, winRate });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener estadísticas', error });
   }
 };

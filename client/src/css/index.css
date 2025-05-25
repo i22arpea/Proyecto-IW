@@ -9,6 +9,11 @@
   --color-presente: #c9b360;
 }
 
+:root.light-mode {
+  --color-texto: #000; /* Texto principal en modo claro */
+  --color-fondo: #fefefe; /* Fondo en modo claro */
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -665,4 +670,59 @@ code {
 
 .login-btn:hover {
   background: #4e9a5e;
+}
+
+/* Menu styling */
+.menu {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  padding: 0.5rem 1rem;
+  max-width: 100%;
+  margin: 0 auto;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.menu-item {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.menu-item:hover {
+  background-color: var(--color-correcto);
+  color: #fff;
+}
+
+/* Responsive adjustments for single-line menu */
+@media (max-width: 768px) {
+  .menu {
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0.5rem;
+  }
+
+  .menu-item {
+    font-size: 0.9rem;
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .menu {
+    padding: 0.25rem;
+  }
+
+  .menu-item {
+    font-size: 0.8rem;
+    padding: 0.4rem;
+  }
 }
