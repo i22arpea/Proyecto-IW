@@ -125,6 +125,87 @@ function App() {
     localStorage.setItem('juego', JSON.stringify(juego));
   }, [juego]);
 
+  useEffect(() => {
+    const handleAutoSave = async () => {
+      // Solo guardar si la partida no está finalizada
+      if (!juego.juegoFinalizado && localStorage.getItem('token')) {
+        try {
+          await fetch('/api/partidas/guardar', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({
+              secretWord: juego.dailyWord,
+              attempts: juego.estadoActual
+            })
+          });
+        } catch (err) {
+          // Silenciar errores de guardado automático
+        }
+      }
+    };
+    window.addEventListener('beforeunload', handleAutoSave);
+    return () => window.removeEventListener('beforeunload', handleAutoSave);
+  }, [juego]);
+
+  useEffect(() => {
+    async function fetchPendingGame() {
+      if (!localStorage.getItem('token')) return;
+      try {
+        const res = await fetch('/api/partidas/pendiente', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.secretWord && data.attempts && !juego.juegoFinalizado) {
+            // Reconstruir el estado del juego con la partida pendiente
+            let newState: Juego = {
+              ...juego,
+              dailyWord: data.secretWord,
+              estadoActual: data.attempts,
+              row: 1,
+              position: 1,
+              juegoFinalizado: false,
+            };
+            if (data.attempts[0] && data.attempts[0] !== '') {
+              for (let i = 0; i < data.attempts.length; i++) {
+                if (data.attempts[i] !== '') {
+                  newState = keyPress(data.attempts[i], newState);
+                  if ((i + 1) % 5 === 0) {
+                    newState = llenarArray(newState);
+                    newState = keyPress('Enter', newState);
+                  }
+                }
+              }
+            }
+            setJuego(newState);
+            // Mostrar notificación al usuario con el tema visual correcto
+            if (window && window.document) {
+              import('react-toastify').then(({ toast }) => {
+                toast.info('Se ha recuperado una partida pendiente automáticamente.', {
+                  position: 'top-center',
+                  autoClose: 2500,
+                  hideProgressBar: false,
+                  closeOnClick: true,
+                  pauseOnHover: true,
+                  draggable: true,
+                  theme: newState.modoOscuro ? 'dark' : 'light',
+                });
+              });
+            }
+          }
+        }
+      } catch (err) {
+        // Silenciar errores de recuperación automática
+      }
+    }
+    fetchPendingGame();
+  }, []);
+
   return (
     <Router>
       <Routes>
