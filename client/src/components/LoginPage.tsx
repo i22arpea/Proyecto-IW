@@ -4,6 +4,7 @@ export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isHovered, setIsHovered] = useState(false); // nuevo estado para hover
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,9 +31,32 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="login-page">
-      <form className="login-form" onSubmit={handleLogin}>
-        <h2>Iniciar Sesión</h2>
+    <div
+      className="login-page"
+      style={{
+        minHeight: '100vh',
+        backgroundColor: '#0f0f0f',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <form
+        className="login-form"
+        onSubmit={handleLogin}
+        style={{
+          background: '#181a1b',
+          padding: '2rem',
+          borderRadius: '16px',
+          boxShadow: '0 4px 12px rgba(30, 215, 96, 0.3)',
+          width: '100%',
+          maxWidth: '340px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <h2 style={{ color: '#1ed760', marginBottom: '1.5rem' }}>Iniciar Sesión</h2>
 
         <input
           autoComplete="username"
@@ -42,6 +66,15 @@ export default function LoginPage() {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
+          style={{
+            width: '100%',
+            padding: '10px',
+            marginBottom: '1rem',
+            border: '1px solid #1ed760',
+            background: '#23272f',
+            color: '#fff',
+            borderRadius: '8px',
+          }}
         />
 
         <input
@@ -52,11 +85,49 @@ export default function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          style={{
+            width: '100%',
+            padding: '10px',
+            marginBottom: '1rem',
+            border: '1px solid #1ed760',
+            background: '#23272f',
+            color: '#fff',
+            borderRadius: '8px',
+          }}
         />
 
-        {error && <div className="error">{error}</div>}
+        {error && (
+          <div
+            className="error"
+            style={{
+              color: '#ff5252',
+              marginBottom: '1rem',
+              fontSize: '0.9rem',
+            }}
+          >
+            {error}
+          </div>
+        )}
 
-        <button className="login-button" type="submit">
+        <button
+          className="login-button"
+          type="submit"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          onFocus={() => setIsHovered(true)}
+          onBlur={() => setIsHovered(false)}
+          style={{
+            backgroundColor: isHovered ? '#16b34a' : '#1ed760',
+            color: '#181a1b',
+            border: 'none',
+            padding: '10px 20px',
+            fontWeight: 'bold',
+            fontSize: '1rem',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            transition: 'background 0.3s',
+          }}
+        >
           Entrar
         </button>
       </form>
