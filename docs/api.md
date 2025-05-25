@@ -12,6 +12,8 @@ Base URL: `http://localhost:5000`
 - `DELETE /api/usuarios` → Eliminar cuenta
 - `GET  /api/usuarios/verPerfil` → Ver perfil
 - `POST /api/usuarios/recover-password` → Recuperar contraseña
+- `PUT /api/usuarios/preferences` → Añadir preferencias de palabra generada
+- `GET /api/usuarios/preferences` → Ver preferencias del usuario
 
 ## 👥 Amigos
 - `POST /api/amigos/solicitar` -> Solicitar amistad
@@ -23,6 +25,7 @@ Base URL: `http://localhost:5000`
 - `POST /api/partidas/guardar` –> Guardar progreso
 - `GET /api/partidas/pendiente` –> Obtener partida pendiente
 - `POST /api/partidas/finalizar` –> Finalizar partida
+- `POST /api/partidas/nueva` –> Nueva palabra
 
 ## 📊 Estadísticas
 - `GET /api/stats/usuarios/estadisticas` –> Tus estadísticas
