@@ -21,6 +21,7 @@ import Teclado from './components/Teclado';
 import Ayuda from './components/Ayuda';
 import AmistadesPanel from './components/AmistadesPanel';
 import LandingPage from './components/LandingPage';
+import { setupBeforeUnload, preguntarRestaurarPartida } from './utils/gamePersistence';
 
 function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<React.SetStateAction<Juego>> }) {
   const [showLogin, setShowLogin] = useState(false);
@@ -363,30 +364,42 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
 }
 
 function App() {
-  const [juego, setJuego] = useState<Juego>({
-    position: 1,
-    row: 1,
-    dificil: false,
-    modoOscuro: true,
-    modoDaltonico: false,
-    dailyWord: encriptarPalabra(words[Math.floor(Math.random() * words.length)]),
-    juegoFinalizado: false,
-    jugadas: 0,
-    victorias: 0,
-    distribucion: {
-      1: 0,
-      2: 0,
-      3: 0,
-      4: 0,
-      5: 0,
-      6: 0,
-      X: 0,
-    },
-    estadoActual: [],
-    streak: 0,
-    maxStreak: 0,
-    hardModeMustContain: [],
-  });
+  // --- Restaurar partida guardada si existe ---
+  const partidaGuardada = preguntarRestaurarPartida();
+  const [juego, setJuego] = useState<Juego>(
+    partidaGuardada || {
+      position: 1,
+      row: 1,
+      dificil: false,
+      modoOscuro: true,
+      modoDaltonico: false,
+      dailyWord: encriptarPalabra(words[Math.floor(Math.random() * words.length)]),
+      juegoFinalizado: false,
+      jugadas: 0,
+      victorias: 0,
+      distribucion: {
+        1: 0,
+        2: 0,
+        3: 0,
+        4: 0,
+        5: 0,
+        6: 0,
+        X: 0,
+      },
+      estadoActual: [],
+      streak: 0,
+      maxStreak: 0,
+      hardModeMustContain: [],
+    }
+  );
+
+  // Interceptar recarga/cierre para preguntar si guardar
+  useEffect(() => {
+    setupBeforeUnload(juego);
+    return () => {
+      window.onbeforeunload = null;
+    };
+  }, [juego]);
 
   useEffect(() => {
     const rawData = localStorage.getItem('juego');
@@ -467,30 +480,6 @@ function App() {
     window.addEventListener('beforeunload', handleAutoSave);
     return () => window.removeEventListener('beforeunload', handleAutoSave);
   }, [juego]);
-
-  useEffect(() => {
-  const handleAutoSave = async () => {
-    if (!juego.juegoFinalizado && localStorage.getItem('token')) {
-      try {
-        await fetch('/api/partidas/guardar', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          },
-          body: JSON.stringify({
-            secretWord: juego.dailyWord,
-            attempts: juego.estadoActual
-          })
-        });
-      } catch (err) {
-        // Silenciar errores de guardado automático
-      }
-    }
-  };
-  window.addEventListener('beforeunload', handleAutoSave);
-  return () => window.removeEventListener('beforeunload', handleAutoSave);
-}, [juego]);
 
   return (
     <Router>

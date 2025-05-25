@@ -17,8 +17,14 @@ export default function restartGame(juego: Juego) {
     squares[i].classList.remove('scale-up-center');
     squares[i].classList.remove('locked-correct'); // Quita el bloqueo visual de celdas fijas
     squares[i].removeAttribute('aria-disabled'); // Quita el atributo de accesibilidad
+    squares[i].classList.remove('active-cell'); // Quita el resaltado de celda activa
     squares[i].textContent = '';
   }
+  // --- NUEVO: resalta la primera celda como activa ---
+  if (squares.length > 0) {
+    squares[0].classList.add('active-cell');
+  }
+  // --- FIN NUEVO ---
   const keys = document.getElementsByClassName('key');
 
   for (let i = 0; i < keys.length; i++) {

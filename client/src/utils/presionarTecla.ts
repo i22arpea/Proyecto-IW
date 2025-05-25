@@ -38,6 +38,28 @@ function indexOfChars(str: string, char: string): number[] {
   return indexes;
 }
 
+// Envía la partida finalizada al backend si el usuario está logueado
+async function registrarPartidaFinalizada({ won }: { won: boolean }) {
+  const token = localStorage.getItem('token');
+  if (!token) return;
+  try {
+    await fetch('/api/partidas/finalizar', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        secretWord: juegoActual.dailyWord,
+        won,
+        attemptsUsed: juegoActual.row <= 6 ? juegoActual.row : 6,
+      }),
+    });
+  } catch (err) {
+    // Silenciar errores
+  }
+}
+
 function checkWord() {
   let word = '';
 
@@ -224,6 +246,7 @@ function checkWord() {
       streak: nuevaRacha,
       maxStreak: nuevaMayorRacha,
     };
+    registrarPartidaFinalizada({ won: true });
   }
 
   return true;
@@ -269,6 +292,7 @@ function fallaste() {
       distribucion: nuevaDistribucion,
       streak: 0,
     };
+    registrarPartidaFinalizada({ won: false });
   }
 }
 
@@ -276,6 +300,17 @@ function fallaste() {
 function keyPress(e: string, juego: Juego): Juego {
   juegoActual = juego;
   let square = document.getElementsByClassName('square')[juegoActual.position - 1] as HTMLElement;
+
+  // --- NUEVO: resaltar celda activa ---
+  // Elimina la clase de resaltado de todas las celdas
+  Array.from(document.getElementsByClassName('square')).forEach(sq => {
+    sq.classList.remove('active-cell');
+  });
+  // Añade la clase a la celda activa si existe
+  if (square) {
+    square.classList.add('active-cell');
+  }
+  // --- FIN NUEVO ---
 
   // Si la posición está bloqueada por una letra correcta de la fila anterior, saltar automáticamente a la siguiente celda editable
   if (
@@ -332,12 +367,44 @@ function keyPress(e: string, juego: Juego): Juego {
   }
 
   if (e === 'Backspace') {
+    // Si la celda es locked-correct, mover a la anterior hasta encontrar una editable
+    let guard = 0; // Evita bucles infinitos
+    while (square && square.classList.contains('locked-correct') && guard < 10) {
+      const currentSquare = square;
+      currentSquare.classList.add('shake');
+      setTimeout(() => currentSquare.classList.remove('shake'), 300);
+      if (juegoActual.position === 1) {
+        return juegoActual;
+      }
+      movePosition(false);
+      square = document.getElementsByClassName('square')[juegoActual.position - 1] as HTMLElement;
+      guard += guard;
+    }
     if (square.textContent === '') {
       movePosition(false);
+      square = document.getElementsByClassName('square')[juegoActual.position - 1] as HTMLElement;
+      guard = 0;
+      while (square && square.classList.contains('locked-correct') && guard < 10) {
+        const currentSquare = square;
+        currentSquare.classList.add('shake');
+        setTimeout(() => currentSquare.classList.remove('shake'), 300);
+        if (juegoActual.position === 1) {
+          return juegoActual;
+        }
+        movePosition(false);
+        square = document.getElementsByClassName('square')[juegoActual.position - 1] as HTMLElement;
+        guard += guard;
+      }
     }
-
-    square = document.getElementsByClassName('square')[juegoActual.position - 1] as HTMLElement;
     square.textContent = '';
+    // --- actualizar resaltado tras borrar ---
+    Array.from(document.getElementsByClassName('square')).forEach(sq => {
+      sq.classList.remove('active-cell');
+    });
+    if (square) {
+      square.classList.add('active-cell');
+    }
+    // --- FIN ---
   } else if (e === 'Enter') {
     const existe = checkWord();
 

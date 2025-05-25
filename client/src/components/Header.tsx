@@ -8,6 +8,7 @@ import LoginRegister from './LoginRegister';
 import { isAuthenticated } from '../utils/authUtils';
 import words from '../json/palabras_5.json';
 import { encriptarPalabra } from '../libs/crypto';
+import Ranking from './Ranking';
 
 export interface HeaderProps {
   juego: Juego;
@@ -18,8 +19,21 @@ export interface HeaderProps {
 
 export default function Header({ juego, setJuego, onLoginClick, onProfileClick }: HeaderProps) {
   const [showLogin, setShowLogin] = useState(false);
+  const [showRanking, setShowRanking] = useState(false);
   const authenticated = isAuthenticated();
   const navigate = useNavigate();
+
+  // Implementación por defecto para onProfileClick
+  const handleProfileClick = onProfileClick || (() => navigate('/profile'));
+
+  // Handler para botones protegidos
+  function requireLogin(action: () => void) {
+    if (!authenticated) {
+      alert('Debes iniciar sesión para acceder a esta funcionalidad.');
+      return;
+    }
+    action();
+  }
 
   return (
     <header className="header">
@@ -53,7 +67,7 @@ export default function Header({ juego, setJuego, onLoginClick, onProfileClick }
           viewBox="0 0 24 24"
           width="24"
           xmlns="http://www.w3.org/2000/svg"
-          onClick={() => {
+          onClick={() => requireLogin(() => {
             const nuevaPalabra = words[Math.floor(Math.random() * words.length)];
             const newState = {
               ...restartGame(juego),
@@ -61,7 +75,7 @@ export default function Header({ juego, setJuego, onLoginClick, onProfileClick }
             };
             llenarArray(newState);
             setJuego(newState);
-          }}
+          })}
         >
           <path d="M0 0h24v24H0z" fill="none" stroke="none" />
           <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
@@ -82,7 +96,7 @@ export default function Header({ juego, setJuego, onLoginClick, onProfileClick }
           viewBox="0 0 24 24"
           width="24"
           xmlns="http://www.w3.org/2000/svg"
-          onClick={() => displayMenu('.game-stats')}
+          onClick={() => setShowRanking(true)}
         >
           <path d="M0 0h24v24H0z" fill="none" stroke="none" />
           <rect height="8" rx="1" width="6" x="3" y="12" />
@@ -90,6 +104,11 @@ export default function Header({ juego, setJuego, onLoginClick, onProfileClick }
           <rect height="16" rx="1" width="6" x="15" y="4" />
           <line x1="4" x2="18" y1="20" y2="20" />
         </svg>
+        {showRanking && (
+          <div style={{position:'fixed',top:0,left:0,width:'100vw',height:'100vh',background:'#000a',zIndex:1000,display:'flex',alignItems:'center',justifyContent:'center'}}>
+            <Ranking onClose={() => setShowRanking(false)} />
+          </div>
+        )}
         <svg
           className="icon icon-tabler icon-tabler-settings"
           fill="none"
@@ -101,7 +120,7 @@ export default function Header({ juego, setJuego, onLoginClick, onProfileClick }
           viewBox="0 0 24 24"
           width="24"
           xmlns="http://www.w3.org/2000/svg"
-          onClick={() => displayMenu('.game-settings')}
+          onClick={() => requireLogin(() => displayMenu('.game-settings'))}
         >
           <path d="M0 0h24v24H0z" fill="none" stroke="none" />
           <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z" />
@@ -120,7 +139,7 @@ export default function Header({ juego, setJuego, onLoginClick, onProfileClick }
           viewBox="0 0 24 24"
           width="24"
           xmlns="http://www.w3.org/2000/svg"
-          onClick={() => navigate('/amistades')}
+          onClick={() => requireLogin(() => navigate('/amistades'))}
           style={{ cursor: 'pointer' }}
         >
           <path d="M0 0h24v24H0z" fill="none" stroke="none" />
@@ -145,7 +164,7 @@ export default function Header({ juego, setJuego, onLoginClick, onProfileClick }
               width="24"
               xmlns="http://www.w3.org/2000/svg"
               style={{ cursor: 'pointer' }}
-              onClick={() => navigate('/profile')}
+              onClick={handleProfileClick}
             >
               <path d="M0 0h24v24H0z" fill="none" stroke="none" />
               <circle cx="12" cy="12" r="9" />

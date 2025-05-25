@@ -147,6 +147,13 @@ code {
   font-weight: bold;
 }
 
+.square.active-cell {
+  box-shadow: 0 0 0 3px #1ed760, 0 0 8px #1ed76099;
+  border-color: #1ed760;
+  z-index: 1;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+
 .keyboard {
   display: flex;
   flex-direction: column;
@@ -226,6 +233,37 @@ code {
   opacity: 1;
   font-weight: bold;
   font-size: 2rem;
+}
+
+.square.locked-correct {
+  background: var(--color-correcto) !important;
+  color: #fff !important;
+  border: 2px solid var(--color-correcto) !important;
+  pointer-events: none;
+  opacity: 1;
+  font-weight: bold;
+  font-size: 2rem;
+}
+
+/* Modo claro: letras verdes legibles */
+@media (prefers-color-scheme: light) {
+  .square.locked-correct {
+    background: #6ca969 !important;
+    color: #fff !important;
+    border: 2px solid #6ca969 !important;
+  }
+}
+
+/* Animación shake para feedback al intentar borrar bloqueadas */
+.square.shake {
+  animation: shake 0.2s;
+}
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-4px); }
+  100% { transform: translateX(0); }
 }
 
 .Toastify__toast-container--top-center {

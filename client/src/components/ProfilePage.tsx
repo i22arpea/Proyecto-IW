@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { desencriptarPalabra } from '../libs/crypto';
+
 // import UserStats from './UserStats'; // Asegúrate de que la ruta sea correcta
 
 interface UserProfile {
@@ -97,7 +99,7 @@ export default function ProfilePage() {
 
   // Botón cerrar ventana (volver al juego)
   const handleClose = () => {
-    navigate('/');
+    navigate('/jugar');
   };
 
   // Handlers para hover/focus accesibles
@@ -139,6 +141,48 @@ export default function ProfilePage() {
       >
         ×
       </button>
+      {/* Foto de perfil arriba a la derecha */}
+      <div style={{position:'absolute',top:18,right:54,display:'flex',alignItems:'center',gap:8,zIndex:2}}>
+        <img
+          src={user.profileImage || '/default-avatar.png'}
+          alt="Avatar"
+          style={{width:48,height:48,borderRadius:'50%',border:'2px solid #1ed760',background:'#181a1b'}}
+        />
+        <label htmlFor="profile-image-upload" style={{cursor:'pointer',color:'#1ed760',fontSize:18}} title="Cambiar foto">
+          <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M4.8 17.2V6.8A2 2 0 0 1 6.8 4.8h10.4a2 2 0 0 1 2 2v10.4a2 2 0 0 1-2 2H6.8a2 2 0 0 1-2-2z"/></svg>
+          <input
+            id="profile-image-upload"
+            type="file"
+            accept="image/*"
+            style={{display:'none'}}
+            onChange={async (e) => {
+              if (!e.target.files || e.target.files.length === 0) return;
+              const file = e.target.files[0];
+              const formData = new FormData();
+              formData.append('profileImage', file);
+              const token = localStorage.getItem('token');
+              setLoading(true);
+              try {
+                const res = await fetch('/api/usuarios/subirFoto', {
+                  method: 'POST',
+                  headers: { Authorization: `Bearer ${token}` },
+                  body: formData
+                });
+                if (res.ok) {
+                  const data = await res.json();
+                  setUser(prev => ({ ...prev!, profileImage: data.profileImage }));
+                  setMessage('Foto actualizada');
+                } else {
+                  const data = await res.json();
+                  setMessage(data.message || 'Error al subir la imagen');
+                }
+              } finally {
+                setLoading(false);
+              }
+            }}
+          />
+        </label>
+      </div>
       <h2 style={{textAlign:'center',color:'#1ed760',marginBottom:'1.5rem'}}>Perfil de usuario</h2>
       <div style={{marginTop:24,display:'flex',flexDirection:'column',gap:16}}>
 
@@ -223,70 +267,65 @@ export default function ProfilePage() {
         </div>
 
         {/* Contraseña */}
-        <div style={{display:'flex',alignItems:'center',gap:12}}>
+        <div style={{display:'flex',flexDirection:'column',alignItems:'flex-start',gap:12,marginBottom:16}}>
           <span style={{color:'#fff',minWidth:90}}>Contraseña:</span>
           {editField === 'password' ? (
-            <>
+            <div style={{width:'100%',display:'flex',flexDirection:'column',gap:8,marginTop:4}}>
               <input
-                name="currentPassword"
                 type="password"
+                placeholder="Contraseña actual"
                 value={currentPassword}
                 onChange={e => setCurrentPassword(e.target.value)}
-                placeholder="Contraseña actual"
-                style={{padding:8,borderRadius:8,border:'1.5px solid #1ed760',background:'#181a1b',color:'#fff',flex:1}}
+                style={{padding:'8px',borderRadius:6,border:'1px solid #333',background:'#181a1b',color:'#fff',width:'100%'}}
               />
               <input
-                name="newPassword"
                 type="password"
+                placeholder="Nueva contraseña"
                 value={editValue}
                 onChange={e => setEditValue(e.target.value)}
-                placeholder="Nueva contraseña"
-                style={{padding:8,borderRadius:8,border:'1.5px solid #1ed760',background:'#181a1b',color:'#fff',flex:1,marginLeft:8}}
+                style={{padding:'8px',borderRadius:6,border:'1px solid #333',background:'#181a1b',color:'#fff',width:'100%'}}
               />
-              <button
-                className="login-btn"
-                style={{marginLeft:8,padding:'6px 14px',fontSize:'0.95rem'}}
-                onClick={async () => {
-                  setLoading(true);
-                  setMessage(null);
-                  try {
-                    const token = localStorage.getItem('token');
-                    const res = await fetch('/api/usuarios/modificarPerfil', {
-                      method: 'PUT',
-                      headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`,
-                      },
-                      body: JSON.stringify({ currentPassword, newPassword: editValue }),
-                    });
-                    if (res.ok) {
-                      setMessage('Contraseña actualizada');
-                      const data = await res.json();
-                      setUser(data);
-                      setEditField(null);
-                      setCurrentPassword('');
-                      setEditValue('');
-                    } else {
-                      const data = await res.json();
-                      setMessage(data.message || 'Error al actualizar');
+              <div style={{display:'flex',gap:8,marginTop:4}}>
+                <button
+                  style={{padding:'6px 14px',fontSize:'0.95rem',background:'#1ed760',color:'#181a1b',border:'none',borderRadius:6,cursor:'pointer'}}
+                  onClick={async () => {
+                    setLoading(true);
+                    try {
+                      const token = localStorage.getItem('token');
+                      const res = await fetch('/api/usuarios/cambiarPassword', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                        body: JSON.stringify({ currentPassword, newPassword: editValue }),
+                      });
+                      if (res.ok) {
+                        setMessage('Contraseña actualizada');
+                        const data = await res.json();
+                        setUser(data);
+                        setEditField(null);
+                        setCurrentPassword('');
+                        setEditValue('');
+                      } else {
+                        const data = await res.json();
+                        setMessage(data.message || 'Error al actualizar');
+                      }
+                    } finally {
+                      setLoading(false);
                     }
-                  } finally {
-                    setLoading(false);
-                  }
-                }}
-                type="button"
-                disabled={loading}
-              >
-                Guardar
-              </button>
-              <button
-                style={{marginLeft:4,padding:'6px 10px',fontSize:'0.95rem',background:'#ff5252',color:'#fff',border:'none',borderRadius:6,cursor:'pointer'}}
-                onClick={() => { setEditField(null); setCurrentPassword(''); setEditValue(''); }}
-                type="button"
-              >
-                Cancelar
-              </button>
-            </>
+                  }}
+                  type="button"
+                  disabled={loading}
+                >
+                  Guardar
+                </button>
+                <button
+                  style={{padding:'6px 10px',fontSize:'0.95rem',background:'#ff5252',color:'#fff',border:'none',borderRadius:6,cursor:'pointer'}}
+                  onClick={() => { setEditField(null); setCurrentPassword(''); setEditValue(''); }}
+                  type="button"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
           ) : (
             <>
               <span style={{color:'#aaa'}}>********</span>
@@ -338,7 +377,7 @@ export default function ProfilePage() {
               {history.map(({ _id: id, secretWord, won, attemptsUsed, createdAt }) => (
                 <tr key={id} style={{textAlign:'center',borderBottom:'1px solid #1ed76022'}}>
                   <td style={{padding:'6px 4px'}}>{new Date(createdAt).toLocaleString()}</td>
-                  <td style={{padding:'6px 4px',fontFamily:'monospace',fontWeight:600}}>{secretWord.toUpperCase()}</td>
+                  <td style={{padding:'6px 4px',fontFamily:'monospace',fontWeight:600}}>{desencriptarPalabra(secretWord).toUpperCase()}</td>
                   <td style={{padding:'6px 4px'}}>{attemptsUsed}</td>
                   <td style={{padding:'6px 4px',color:won?'#1ed760':'#ff5252',fontWeight:700}}>{won ? 'Victoria' : 'Derrota'}</td>
                 </tr>
@@ -346,47 +385,6 @@ export default function ProfilePage() {
             </tbody>
           </table>
         )}
-      </div>
-
-        {/* Foto de perfil */}
-      <div style={{display:'flex',alignItems:'center',gap:12}}>
-        <span style={{color:'#fff',minWidth:90}}>Foto:</span>
-        <img
-          src={user.profileImage || '/default-avatar.png'}
-          alt="Avatar"
-          style={{width:48,height:48,borderRadius:'50%',border:'2px solid #1ed760'}}
-        />
-        <input
-          type="file"
-          accept="image/*"
-          onChange={async (e) => {
-            if (!e.target.files || e.target.files.length === 0) return;
-            const file = e.target.files[0];
-            const formData = new FormData();
-            formData.append('profileImage', file);
-
-            const token = localStorage.getItem('token');
-            setLoading(true);
-            try {
-              const res = await fetch('/api/usuarios/subirFoto', {
-                method: 'POST',
-                headers: { Authorization: `Bearer ${token}` },
-                body: formData
-              });
-              if (res.ok) {
-                const data = await res.json();
-                setUser(prev => ({ ...prev!, profileImage: data.profileImage }));
-                setMessage('Foto actualizada');
-              } else {
-                const data = await res.json();
-                setMessage(data.message || 'Error al subir la imagen');
-              }
-            } finally {
-              setLoading(false);
-            }
-          }}
-          style={{marginLeft:12, color: '#fff'}}
-        />
       </div>
 
       {/* Botón cerrar sesión abajo a la derecha */}

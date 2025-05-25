@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Juego } from "../types/types.d"; // Fixed import path
 import displayMenu from "../utils/desplegarMenu";
 
@@ -7,7 +7,44 @@ interface StatsProps {
   children?: React.ReactNode; // Added children to props
 }
 
-export default function Stats({ juego, children }: StatsProps) { // Destructure children
+interface GameHistory {
+  _id: string;
+  secretWord: string;
+  won: boolean;
+  attemptsUsed: number;
+  createdAt: string;
+}
+
+export default function Stats({ juego, children }: StatsProps) {
+  const [history, setHistory] = useState<GameHistory[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string|null>(null);
+
+  useEffect(() => {
+    async function fetchHistory() {
+      setLoading(true);
+      setError(null);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const res = await fetch('/api/stats/usuarios/historial', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error('No se pudo cargar el historial');
+        const data = await res.json();
+        setHistory(Array.isArray(data) ? data : []);
+      } catch (err) {
+        setError('Error al cargar el historial de partidas');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchHistory();
+  }, []);
+
   function renderDistribution(index: string) {
     const porcentaje: number = (juego.distribucion[index] * 100) / juego.jugadas;
     const chart = document.getElementById(`d-${index}`);
@@ -85,6 +122,37 @@ export default function Stats({ juego, children }: StatsProps) { // Destructure 
               {renderDistribution('6')}
               {renderDistribution('X')}
             </div>
+          </div>
+          <h3 className="stats-titulo" style={{marginTop:32}}>Historial de partidas</h3>
+          <div style={{color:'#fff',marginBottom:24}}>
+            {loading && <div style={{color:'#1ed760'}}>Cargando historial...</div>}
+            {error && <div style={{color:'#ff5252'}}>{error}</div>}
+            {!loading && !error && history.length === 0 && <em>No hay partidas registradas.</em>}
+            {!loading && !error && history.length > 0 && (
+              <table style={{width:'100%',background:'#181a1b',borderRadius:8,overflow:'hidden',fontSize:'0.98rem'}}>
+                <thead>
+                  <tr style={{color:'#1ed760',background:'#23272f'}}>
+                    <th style={{padding:'6px 4px'}}>Fecha</th>
+                    <th style={{padding:'6px 4px'}}>Palabra</th>
+                    <th style={{padding:'6px 4px'}}>Intentos</th>
+                    <th style={{padding:'6px 4px'}}>Resultado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {history.map((g) => {
+                    const { _id: id, secretWord, won, attemptsUsed, createdAt } = g;
+                    return (
+                      <tr key={id}>
+                        <td style={{padding:'6px 4px'}}>{new Date(createdAt).toLocaleString()}</td>
+                        <td style={{padding:'6px 4px'}}>{secretWord.toUpperCase()}</td>
+                        <td style={{padding:'6px 4px',textAlign:'center'}}>{attemptsUsed}</td>
+                        <td style={{padding:'6px 4px',color: won ? '#1ed760' : '#ff5252',fontWeight:600}}>{won ? 'Victoria' : 'Derrota'}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
       </div>
