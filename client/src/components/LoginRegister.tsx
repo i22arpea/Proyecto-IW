@@ -123,7 +123,7 @@ const LoginRegister = function LoginRegister({ onLogin, children, initialMode }:
 
 LoginRegister.defaultProps = {
   children: undefined,
-  initialMode: 'login' as 'login',
+  initialMode: 'login' as const,
 };
 
 export default LoginRegister;
