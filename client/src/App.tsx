@@ -19,6 +19,7 @@ import recuperarStats from './utils/recuperarStats';
 import words from './json/palabras_5.json';
 import Teclado from './components/Teclado';
 import Ayuda from './components/Ayuda';
+import AmistadesPanel from './components/AmistadesPanel';
 
 function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<React.SetStateAction<Juego>> }) {
   const [showLogin, setShowLogin] = useState(false);
@@ -523,6 +524,7 @@ function App() {
         <Route element={<ProfilePage />} path="/profile" />
         <Route element={<ResetPasswordPage />} path="/reset-password" />
         <Route element={<VerifyEmailPage />} path="/verify-email" />
+        <Route element={<AmistadesPanel />} path="/amistades" />
       </Routes>
     </Router>
   );

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Juego } from '../types/types.d';
 import displayMenu from '../utils/desplegarMenu';
 import llenarArray from '../utils/llenarArray';
@@ -18,10 +19,10 @@ export interface HeaderProps {
 export default function Header({ juego, setJuego, onLoginClick, onProfileClick }: HeaderProps) {
   const [showLogin, setShowLogin] = useState(false);
   const authenticated = isAuthenticated();
+  const navigate = useNavigate();
 
   return (
     <header className="header">
-      
       <div>
         <svg
           className="icon icon-tabler icon-tabler-help"
@@ -53,7 +54,6 @@ export default function Header({ juego, setJuego, onLoginClick, onProfileClick }
           width="24"
           xmlns="http://www.w3.org/2000/svg"
           onClick={() => {
-            // Resetear el juego y la palabra del día
             const nuevaPalabra = words[Math.floor(Math.random() * words.length)];
             const newState = {
               ...restartGame(juego),
@@ -107,7 +107,30 @@ export default function Header({ juego, setJuego, onLoginClick, onProfileClick }
           <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z" />
           <circle cx="12" cy="12" r="3" />
         </svg>
-        {/* Icono de perfil/login, separado visualmente */}
+
+        {/* NUEVO: Botón de Amigos 👥 */}
+        <svg
+          className="icon icon-tabler icon-tabler-users"
+          fill="none"
+          height="24"
+          stroke="#1ed760"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.5"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+          onClick={() => navigate('/amistades')}
+          style={{ cursor: 'pointer' }}
+        >
+          <path d="M0 0h24v24H0z" fill="none" stroke="none" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M17 11v-1a4 4 0 0 0 -3 -3.85" />
+          <path d="M6 21v-2a4 4 0 0 1 4 -4h4" />
+          <path d="M15 19l2 2l4 -4" />
+        </svg>
+
+        {/* Icono de perfil/login */}
         <div style={{ marginLeft: 2, display: 'flex', alignItems: 'center' }}>
           {authenticated ? (
             <svg
