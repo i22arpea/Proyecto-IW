@@ -93,7 +93,13 @@ function checkWord() {
 
   const cantidadRepetidos: Record<string, number> = {};
 
-  const palabra = desencriptarPalabra(juegoActual.dailyWord);
+    if (!juegoActual.dailyWord || typeof juegoActual.dailyWord !== 'string') {
+      console.error('Error: dailyWord no está definida correctamente.');
+      return false;
+    }
+
+    const palabra = desencriptarPalabra(juegoActual.dailyWord);
+
 
   // console.log('Palabra diaria:', palabra); // <-- Mostrar palabra diaria por consola
   

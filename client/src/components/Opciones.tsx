@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Juego } from '../types/types';
 import cargarSettings from '../utils/cargarOpciones';
 import displayMenu from '../utils/desplegarMenu';
@@ -7,25 +7,23 @@ import restartGame from '../utils/resetearJuego';
 interface SettingsProps {
   juego: Juego;
   setJuego: React.Dispatch<React.SetStateAction<Juego>>;
-  children?: React.ReactNode; // Added children to props
+  children?: React.ReactNode;
 }
 
 export default function Settings({ juego, setJuego, children }: SettingsProps) {
+
+  const [language, setLanguage] = useState('es');
+  const [category, setCategory] = useState('general');
+  const [wordLength, setWordLength] = useState(5);
+
+
   function cambiarModoDificil() {
     const newState = restartGame(juego);
-
-    setJuego({
-      ...newState,
-      dificil: !juego.dificil,
-    });
+    setJuego({ ...newState, dificil: !juego.dificil });
   }
 
   function cambiarModoOscuro() {
-    const newState = {
-      ...juego,
-      modoOscuro: !juego.modoOscuro,
-    };
-
+    const newState = { ...juego, modoOscuro: !juego.modoOscuro };
     setJuego(newState);
     cargarSettings(newState);
 
@@ -45,19 +43,53 @@ export default function Settings({ juego, setJuego, children }: SettingsProps) {
     }
   }
 
-  function cambiarModoDaltonico() {
-    const newState = {
-      ...juego,
-      modoDaltonico: !juego.modoDaltonico,
+  async function aplicarPreferencias() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const prefs = {
+      language,
+      category: language === 'en' ? 'general' : category,
+      wordLength: language === 'en' ? 5 : wordLength
     };
 
-    setJuego(newState);
-    cargarSettings(newState);
+    // Guardar en el backend
+    await fetch('/api/usuarios/preferences', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        ...prefs,
+        customColors: {
+          backgroundColor: juego.modoOscuro ? '#0f0f0f' : '#ffffff',
+          letterColor: '#eeeeee'
+        }
+      }),
+    });
+
+    // Obtener nueva palabra y actualizar el estado del juego
+    const res = await fetch('/api/partidas/nueva', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    const data = await res.json();
+    const palabra = data.word ?? data.palabra ?? '';
+
+    const newGameState = restartGame(juego);
+    setJuego({
+      ...newGameState,
+      dailyWord: palabra,
+      idioma: prefs.language,
+      categoria: prefs.category,
+      longitud: prefs.wordLength
+    });
   }
 
   return (
     <div className="settings">
-      {children} {/* Render children if provided */}
+      {children}
       <div className="settings-container">
         <h3 className="settings-titulo">
           Ajustes
@@ -81,7 +113,51 @@ export default function Settings({ juego, setJuego, children }: SettingsProps) {
             </svg>
           </button>
         </h3>
+
         <div className="settings-opciones">
+          <div className="settings-opcion">
+            <label className="settings-opcion__texto">Idioma</label>
+            <select
+              className="settings-select"
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              style={{ backgroundColor: '#181a1b', color: '#fff', borderRadius: '8px', border: '1px solid #1ed760', padding: '6px' }}
+            >
+              <option value="es">Español</option>
+              <option value="en">Inglés</option>
+            </select>
+          </div>
+
+          <div className="settings-opcion">
+            <label className="settings-opcion__texto">Temática</label>
+            <select
+              className="settings-select"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              disabled={language === 'en'}
+              style={{ backgroundColor: '#181a1b', color: '#fff', borderRadius: '8px', border: '1px solid #1ed760', padding: '6px' }}
+            >
+              <option value="general">General</option>
+              <option value="paises">Países</option>
+              <option value="animales">Animales</option>
+            </select>
+          </div>
+
+          <div className="settings-opcion">
+            <label className="settings-opcion__texto">Longitud de palabra</label>
+            <select
+              className="settings-select"
+              value={wordLength}
+              onChange={(e) => setWordLength(Number(e.target.value))}
+              disabled={language === 'en'}
+              style={{ backgroundColor: '#181a1b', color: '#fff', borderRadius: '8px', border: '1px solid #1ed760', padding: '6px' }}
+            >
+              {[5, 6, 7, 8, 9, 10].map(num => (
+                <option key={num} value={num}>{num}</option>
+              ))}
+            </select>
+          </div>
+
           <div className="settings-opcion">
             <div>
               <p className="settings-opcion__texto">Modo Oscuro</p>
@@ -95,18 +171,19 @@ export default function Settings({ juego, setJuego, children }: SettingsProps) {
                   name="onoffswitch"
                   tabIndex={-3}
                   type="checkbox"
-                  onChange={() => cambiarModoOscuro()}
+                  onChange={cambiarModoOscuro}
                 />
                 <label className="onoffswitch-label" htmlFor="myonoffswitch-3" />
               </div>
             </div>
           </div>
+
           <div className="settings-opcion">
-            <div>
-              <p className="settings-opcion__texto">Modo Dificil</p>
+            <div style={{ flex: 1 }}>
+              <p className="settings-opcion__texto">Modo Difícil</p>
               <p className="settings-opcion__subtexto">
-                Mas palabras pero sin ser verificadas. <br />
-                Todas las pistas reveladas deberan ser utilizadas en los intentos siguientes.
+                Más palabras pero sin ser verificadas. <br />
+                Todas las pistas reveladas deberán ser utilizadas en los intentos siguientes.
               </p>
             </div>
             <div>
@@ -118,33 +195,35 @@ export default function Settings({ juego, setJuego, children }: SettingsProps) {
                   name="onoffswitch"
                   tabIndex={-1}
                   type="checkbox"
-                  onChange={() => cambiarModoDificil()}
+                  onChange={cambiarModoDificil}
                 />
                 <label className="onoffswitch-label" htmlFor="myonoffswitch-1" />
               </div>
             </div>
           </div>
-          <div className="settings-opcion">
-            <div>
-              <p className="settings-opcion__texto">Modo para Daltonicos</p>
-            </div>
-            <div>
-              <div className="onoffswitch">
-                <input
-                  checked={juego.modoDaltonico}
-                  className="onoffswitch-checkbox"
-                  id="myonoffswitch-2"
-                  name="onoffswitch-2"
-                  tabIndex={-2}
-                  type="checkbox"
-                  onChange={() => cambiarModoDaltonico()}
-                />
-                <label className="onoffswitch-label" htmlFor="myonoffswitch-2" />
-              </div>
-            </div>
+
+          <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+            <button
+              type="button"
+              onClick={aplicarPreferencias}
+              style={{
+                backgroundColor: '#1ed760',
+                color: '#181a1b',
+                border: 'none',
+                padding: '10px 20px',
+                fontWeight: 'bold',
+                fontSize: '1rem',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'background 0.3s'
+              }}
+            >
+              Aplicar cambios
+            </button>
           </div>
         </div>
       </div>
+
       <footer className="footer-ayuda">
         <svg
           className="icon icon-tabler icon-tabler-brand-github"

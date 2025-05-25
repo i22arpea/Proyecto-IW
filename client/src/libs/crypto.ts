@@ -1,4 +1,4 @@
-import CryptoJS from 'crypto-js';
+
 
 // Extiende la interfaz Window para incluir REACT_APP_SECRET_KEY
 declare global {
@@ -15,17 +15,13 @@ function getSecretKey(): string {
   );
 }
 
+
 export function encriptarPalabra(palabra: string): string {
-  const clave = getSecretKey();
-  const textoCifrado = CryptoJS.AES.encrypt(palabra, clave).toString();
-
-  return textoCifrado;
+  return palabra; // ya no se encripta
 }
 
-export function desencriptarPalabra(textoCifrado: string): string {
-  const clave = getSecretKey();
-  const bytes = CryptoJS.AES.decrypt(textoCifrado, clave);
-  const textoPlano = bytes.toString(CryptoJS.enc.Utf8);
-
-  return textoPlano;
+export function desencriptarPalabra(palabra: string): string {
+  return palabra; // tampoco se desencripta
 }
+
+

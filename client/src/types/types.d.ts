@@ -28,6 +28,9 @@ export interface Juego {
   streak: number;
   maxStreak: number;
   hardModeMustContain: Array<Letters>;
+  idioma: string;
+  categoria: string;
+  longitud: number;
 }
 
 import { JwtPayload } from 'jsonwebtoken';
