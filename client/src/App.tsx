@@ -10,7 +10,6 @@ import LoginPage from './components/LoginPage';
 import ProfilePage from './components/ProfilePage';
 import ResetPasswordPage from './components/ResetPasswordPage';
 import VerifyEmailPage from './components/VerifyEmailPage';
-import { encriptarPalabra } from './libs/crypto';
 import { Juego } from './types/types.d';
 import cargarSettings from './utils/cargarOpciones';
 import keyPress from './utils/presionarTecla';
