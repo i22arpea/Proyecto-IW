@@ -619,4 +619,57 @@ function App() {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({
+              secretWord: juego.dailyWord,
+              attempts: juego.estadoActual
+            })
+          });
+        } catch (err) {
+          // Silenciar errores de guardado automático
+        }
+      }
+    };
+    window.addEventListener('beforeunload', handleAutoSave);
+    return () => window.removeEventListener('beforeunload', handleAutoSave);
+  }, [juego]);
 
+  useEffect(() => {
+    // --- CORRECCIÓN: Siempre empezar en la primera fila editable si está vacía ---
+    const squares = document.getElementsByClassName('square');
+    if (squares.length >= 5) {
+      let allEmpty = true;
+      for (let i = 0; i < 5; i++) {
+        if (squares[i].textContent && squares[i].textContent !== '') {
+          allEmpty = false;
+          break;
+        }
+      }
+      if (allEmpty) {
+        // Si la primera fila está vacía, forzar posición y fila al inicio
+        setJuego(j => ({ ...j, row: 1, position: 1 }));
+      }
+    }
+  }, []);
+
+  return (
+      <Router basename="/Proyecto-IW">
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/jugar" element={<HomePage juego={juego} setJuego={setJuego} />} />
+          <Route path="/register" element={<LoginRegister initialMode="register" onLogin={() => toast.info('Registrado')} />} />
+          <Route path="/help" element={<Ayuda />} />
+          <Route path="/stats" element={<Stats juego={juego} />} />
+          <Route path="/settings" element={<Settings juego={juego} setJuego={setJuego} />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/amistades" element={<AmistadesPanel />} />
+        </Routes>
+      </Router>
+  );
+}
+
+export default App;
