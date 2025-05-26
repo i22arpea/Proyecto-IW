@@ -58,7 +58,7 @@ export default function Settings({ juego, setJuego, children }: SettingsProps) {
     };
 
     // Guardar en el backend
-    await fetch('/api/usuarios/preferences', {
+    await fetch('/Proyecto-IW/api/usuarios/preferences', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

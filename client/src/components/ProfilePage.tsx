@@ -74,7 +74,7 @@ export default function ProfilePage() {
 
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch('/api/usuarios/verPerfil', {
+        const res = await fetch('/Proyecto-IW/api/usuarios/verPerfil', {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -91,7 +91,7 @@ export default function ProfilePage() {
 
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch('/api/usuarios/historial', {
+        const res = await fetch('/Proyecto-IW/api/usuarios/historial', {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -121,7 +121,7 @@ export default function ProfilePage() {
     async function fetchInProgressGames() {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch('/api/partidas/guardadas', {
+        const res = await fetch('/Proyecto-IW/api/partidas/guardadas', {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -256,7 +256,7 @@ export default function ProfilePage() {
                     setMessage(null);
                     try {
                       const token = localStorage.getItem('token');
-                      const res = await fetch('/api/usuarios/modificarPerfil', {
+                      const res = await fetch('/Proyecto-IW/api/usuarios/modificarPerfil', {
                         method: 'PUT',
                         headers: {
                           'Content-Type': 'application/json',
@@ -343,7 +343,7 @@ export default function ProfilePage() {
                     setLoading(true);
                     try {
                       const token = localStorage.getItem('token');
-                      const res = await fetch('/api/usuarios/cambiarPassword', {
+                      const res = await fetch('/Proyecto-IW/api/usuarios/cambiarPassword', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                         body: JSON.stringify({ currentPassword, newPassword: editValue }),
@@ -419,14 +419,14 @@ export default function ProfilePage() {
                 const token = localStorage.getItem('token');
                 setLoading(true);
                 try {
-                  const res = await fetch('/api/usuarios/subirFoto', {
+                  const res = await fetch('/Proyecto-IW/api/usuarios/subirFoto', {
                     method: 'POST',
                     headers: { Authorization: `Bearer ${token}` },
                     body: formData
                   });
                   if (res.ok) {
                     // Recargar el perfil desde el backend para obtener la URL definitiva
-                    const profileRes = await fetch('/api/usuarios/verPerfil', {
+                    const profileRes = await fetch('/Proyecto-IW/api/usuarios/verPerfil', {
                       headers: { Authorization: `Bearer ${token}` }
                     });
                     if (profileRes.ok) {
@@ -621,7 +621,7 @@ export default function ProfilePage() {
           setMessage('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer. Haz clic en "Eliminar cuenta" nuevamente para confirmar.');
           if (message === '¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer. Haz clic en "Eliminar cuenta" nuevamente para confirmar.') {
             const token = localStorage.getItem('token');
-            const res = await fetch('/api/usuarios', {
+            const res = await fetch('/Proyecto-IW/api/usuarios', {
               method: 'DELETE',
               headers: { Authorization: `Bearer ${token}` },
             });
