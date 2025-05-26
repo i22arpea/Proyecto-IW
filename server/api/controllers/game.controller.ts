@@ -90,10 +90,11 @@ export const finishGame = async (req: Request, res: Response) => {
       if (stats.winStreak > stats.maxWinStreak) {
         stats.maxWinStreak = stats.winStreak;
       }
-      const attemptKey = attemptsUsed.toString();
-      if (['1', '2', '3', '4', '5', '6'].includes(attemptKey)) {
-        stats.winsByAttempt[attemptKey] = (stats.winsByAttempt[attemptKey] || 0) + 1;
-      }
+      const attemptKey = String(attemptsUsed);
+      stats.winsByAttempt = {
+        ...stats.winsByAttempt,
+        [attemptKey]: (stats.winsByAttempt?.[attemptKey] || 0) + 1,
+      };
     } else {
       stats.losses += 1;
       stats.winStreak = 0;
