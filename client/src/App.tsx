@@ -54,7 +54,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
   const handleSaveGame = async () => {
     setSaving(true);
     try {
-      await fetch('Proyecto-IW/api/partidas/guardar', {
+      await fetch('/api/partidas/guardar', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -195,7 +195,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                   const username = form.username.value;
                   const password = form.password.value;
                   try {
-                    const res = await fetch('Proyecto-IW/api/login', {
+                    const res = await fetch('/api/login', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ username, password })
@@ -216,7 +216,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                     setShowLogin(false);
                     // --- NUEVO: reiniciar juego con nueva palabra al iniciar sesión ---
                     try {
-                      const resWord = await fetch('Proyecto-IW/api/words/random', {
+                      const resWord = await fetch('/api/words/random', {
                         headers: { Authorization: `Bearer ${data.token}` }
                       });
                       const wordData = await resWord.json();
@@ -325,7 +325,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                 const form = e.currentTarget;
                 const email = form.email.value;
                 try {
-                  const res = await fetch('Proyecto-IW/api/forgot-password', {
+                  const res = await fetch('/api/forgot-password', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email })
@@ -426,10 +426,10 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                     return;
                   }
                   try {
-                    const res = await fetch('Proyecto-IW/api/register', {
+                    const res = await fetch('/api/register', {
                       method: 'POST',
-                      headers: {'Content-Type': 'application/json'},
-                      body: JSON.stringify({username, email, password})
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ username, email, password })
                     });
                     if (!res.ok) {
                       const errorText = await res.text();
@@ -450,58 +450,33 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                 }}
               >
                 <div className="login-field">
-                  <label htmlFor="reg-username"
-                         style={{fontWeight: 600, color: '#fff', alignSelf: 'flex-start'}}>Usuario</label>
-                  <input id="reg-username" name="username" type="text" placeholder="Elige un usuario" required/>
+                  <label htmlFor="reg-username" style={{ fontWeight: 600, color: '#fff', alignSelf: 'flex-start' }}>Usuario</label>
+                  <input id="reg-username" name="username" type="text" placeholder="Elige un usuario" required />
                 </div>
                 <div className="login-field">
-                  <label htmlFor="reg-email"
-                         style={{fontWeight: 600, color: '#fff', alignSelf: 'flex-start'}}>Email</label>
-                  <input id="reg-email" name="email" type="email" placeholder="Tu correo electrónico" required/>
+                  <label htmlFor="reg-email" style={{ fontWeight: 600, color: '#fff', alignSelf: 'flex-start' }}>Email</label>
+                  <input id="reg-email" name="email" type="email" placeholder="Tu correo electrónico" required />
                 </div>
                 <div className="login-field">
-                  <label htmlFor="reg-password"
-                         style={{fontWeight: 600, color: '#fff', alignSelf: 'flex-start'}}>Contraseña</label>
-                  <input id="reg-password" name="password" type="password" placeholder="Crea una contraseña" required/>
+                  <label htmlFor="reg-password" style={{ fontWeight: 600, color: '#fff', alignSelf: 'flex-start' }}>Contraseña</label>
+                  <input id="reg-password" name="password" type="password" placeholder="Crea una contraseña" required />
                 </div>
                 <div className="login-field">
-                  <label htmlFor="reg-password2" style={{fontWeight: 600, color: '#fff', alignSelf: 'flex-start'}}>Repite
-                    la contraseña</label>
-                  <input id="reg-password2" name="password2" type="password" placeholder="Repite la contraseña"
-                         required/>
+                  <label htmlFor="reg-password2" style={{ fontWeight: 600, color: '#fff', alignSelf: 'flex-start' }}>Repite la contraseña</label>
+                  <input id="reg-password2" name="password2" type="password" placeholder="Repite la contraseña" required />
                 </div>
                 <button className="login-btn" type="submit">
                   Registrarse
                 </button>
-                <div style={{
-                  textAlign: 'center',
-                  marginTop: '0.7rem',
-                  color: '#aaa',
-                  fontSize: '0.95rem',
-                  width: '100%'
-                }}>
+                <div style={{ textAlign: 'center', marginTop: '0.7rem', color: '#aaa', fontSize: '0.95rem', width: '100%' }}>
                   ¿Ya tienes cuenta? <span
-                    style={{
-                      color: '#1ed760',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      textDecoration: 'underline',
-                      textUnderlineOffset: '2px'
-                    }}
+                    style={{ color: '#1ed760', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '2px' }}
                     role="button"
                     tabIndex={0}
-                    onClick={() => {
-                      setShowRegister(false);
-                      setShowLogin(true);
-                    }}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        setShowRegister(false);
-                        setShowLogin(true);
-                      }
-                    }}
+                    onClick={() => { setShowRegister(false); setShowLogin(true); }}
+                    onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { setShowRegister(false); setShowLogin(true); } }}
                     aria-label="Inicia sesión"
-                >
+                  >
                     Inicia sesión
                   </span>
                 </div>
@@ -510,7 +485,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
           </div>
         </div>
       )}
-      <ToastContainer limit={3}/>
+      <ToastContainer limit={3} />
     </div>
   );
 }
@@ -615,7 +590,7 @@ function App() {
       // Solo guardar si la partida no está finalizada
       if (!juego.juegoFinalizado && localStorage.getItem('token')) {
         try {
-          await fetch('Proyecto-IW/api/partidas/guardar', {
+          await fetch('/api/partidas/guardar', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
