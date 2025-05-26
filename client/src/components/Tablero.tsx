@@ -57,13 +57,14 @@ export default function Board({ children, juego }: BoardProps) {
   function renderSquare(rowIdx: number, colIdx: number) {
     const i = rowIdx * columnas + colIdx + 1;
     // Usar un identificador único para la key del botón
+
     return (
       <button
+        onClick={() => setAttemptsUsed(attemptsUsed + 1)}
         aria-label="square"
         className="square"
         type="button"
         value={i}
-        onClick={() => setAttemptsUsed(attemptsUsed + 1)}
         key={`square-${i}`}
       />
     );

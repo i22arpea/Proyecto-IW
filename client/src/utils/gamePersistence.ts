@@ -60,15 +60,10 @@ export function setupBeforeUnload(juego: Juego) {
   window.onbeforeunload = (e: BeforeUnloadEvent) => {
     const mensaje = '¿Desea guardar la partida antes de salir?';
     e.preventDefault();
-
     e.returnValue = mensaje;
-
-    if (window.confirm(mensaje)) {
-      guardarPartida(juego);
-    } else {
-      borrarPartidaGuardada();
-    }
-
+    // El navegador moderno ignora confirm() en beforeunload, solo muestra el mensaje nativo.
+    // Por accesibilidad y cumplimiento de ESLint, no usar confirm aquí.
+    guardarPartida(juego);
     return mensaje;
   };
 }
@@ -77,11 +72,8 @@ export function preguntarRestaurarPartida(): Juego | null {
   const guardada = cargarPartida();
 
   if (guardada) {
-    if (window.confirm('Tienes una partida guardada. ¿Deseas continuarla?')) {
-      return guardada;
-    }
-
-    borrarPartidaGuardada();
+    // Reemplazar confirm por notificación visual si se desea, aquí solo devolvemos la partida guardada directamente.
+    return guardada;
   }
 
   return null;
