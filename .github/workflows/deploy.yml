@@ -33,7 +33,6 @@ jobs:
       - name: Build
         run: |
           cd client
-          export ESLINT_NO_DEV_ERRORS=true
           npm run build
 
       - name: Deploy to GitHub Pages
