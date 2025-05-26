@@ -11,10 +11,10 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const response = await fetch('/Proyecto-IW/api/login', {
+      const response = await fetch('/api/login', {
         body: JSON.stringify({ username, password }),
         headers: { 'Content-Type': 'application/json' },
-        method: 'POST',
+        body: JSON.stringify({ username, password }),
       });
 
       if (response.ok) {
@@ -43,6 +43,7 @@ export default function LoginPage() {
     >
       <form
         className="login-form"
+        onSubmit={handleLogin}
         style={{
           background: '#181a1b',
           padding: '2rem',
@@ -54,46 +55,45 @@ export default function LoginPage() {
           flexDirection: 'column',
           alignItems: 'center',
         }}
-        onSubmit={handleLogin}
       >
         <h2 style={{ color: '#1ed760', marginBottom: '1.5rem' }}>Iniciar Sesión</h2>
 
         <input
-          className="login-input"
-          style={{
-            background: '#23272f',
-            border: '1px solid #1ed760',
-            borderRadius: '8px',
-            color: '#fff',
-            marginBottom: '1rem',
-            padding: '10px',
-            width: '100%',
-          }}
-          type="text"
-          placeholder="Usuario"
           autoComplete="username"
-          required
+          className="login-input"
+          placeholder="Usuario"
+          type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
+          required
+          style={{
+            width: '100%',
+            padding: '10px',
+            marginBottom: '1rem',
+            border: '1px solid #1ed760',
+            background: '#23272f',
+            color: '#fff',
+            borderRadius: '8px',
+          }}
         />
 
         <input
-          className="login-input"
-          style={{
-            background: '#23272f',
-            border: '1px solid #1ed760',
-            borderRadius: '8px',
-            color: '#fff',
-            marginBottom: '1rem',
-            padding: '10px',
-            width: '100%',
-          }}
-          type="password"
-          placeholder="Contraseña"
           autoComplete="current-password"
-          required
+          className="login-input"
+          placeholder="Contraseña"
+          type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          required
+          style={{
+            width: '100%',
+            padding: '10px',
+            marginBottom: '1rem',
+            border: '1px solid #1ed760',
+            background: '#23272f',
+            color: '#fff',
+            borderRadius: '8px',
+          }}
         />
 
         {error && (
@@ -101,8 +101,8 @@ export default function LoginPage() {
             className="error"
             style={{
               color: '#ff5252',
-              fontSize: '0.9rem',
               marginBottom: '1rem',
+              fontSize: '0.9rem',
             }}
           >
             {error}
@@ -111,22 +111,22 @@ export default function LoginPage() {
 
         <button
           className="login-button"
-          style={{
-            backgroundColor: isHovered ? '#16b34a' : '#1ed760',
-            border: 'none',
-            borderRadius: '8px',
-            color: '#181a1b',
-            cursor: 'pointer',
-            fontSize: '1rem',
-            fontWeight: 'bold',
-            padding: '10px 20px',
-            transition: 'background 0.3s',
-          }}
           type="submit"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           onFocus={() => setIsHovered(true)}
           onBlur={() => setIsHovered(false)}
+          style={{
+            backgroundColor: isHovered ? '#16b34a' : '#1ed760',
+            color: '#181a1b',
+            border: 'none',
+            padding: '10px 20px',
+            fontWeight: 'bold',
+            fontSize: '1rem',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            transition: 'background 0.3s',
+          }}
         >
           Entrar
         </button>

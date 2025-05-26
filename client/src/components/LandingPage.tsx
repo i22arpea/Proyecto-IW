@@ -139,17 +139,17 @@ export default function LandingPage() {
                   const password = form.password.value;
                   try {
                     const res = await fetch('/api/login', {
-                      body: JSON.stringify({ username, password }),
-                      headers: { 'Content-Type': 'application/json' },
                       method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ username, password }),
                     });
                     if (!res.ok) {
                       const errorText = await res.text();
                       try {
                         const data = JSON.parse(errorText);
-                        setForgotMessage(data.message || data.error || 'Error al iniciar sesión');
+                        alert(data.message || data.error || 'Error al iniciar sesión');
                       } catch (parseErr) {
-                        setForgotMessage(`Error al iniciar sesión: ${errorText}`);
+                        alert(`Error al iniciar sesión: ${errorText}`);
                       }
                       return;
                     }
@@ -159,7 +159,7 @@ export default function LandingPage() {
                     setShowLogin(false);
                     window.location.reload();
                   } catch (err) {
-                    setForgotMessage('Error de red al iniciar sesión');
+                    alert('Error de red al iniciar sesión');
                   }
                 }}
               >
@@ -222,18 +222,6 @@ export default function LandingPage() {
                 <button className="login-btn" type="submit">
                   Iniciar sesión
                 </button>
-                {forgotMessage && (
-                  <div
-                    style={{
-                      color: forgotMessage.includes('Error') ? '#ff5252' : '#1ed760',
-                      marginTop: 10,
-                      textAlign: 'center',
-                      fontWeight: 500,
-                    }}
-                  >
-                    {forgotMessage}
-                  </div>
-                )}
                 <div
                   style={{
                     textAlign: 'center',
@@ -512,53 +500,48 @@ export default function LandingPage() {
                   const email = form.email.value;
                   const password = form.password.value;
                   const password2 = form.password2.value;
-
+                  // Validación de contraseñas
                   if (password !== password2) {
-                    setForgotMessage('Las contraseñas no coinciden');
+                    alert('Las contraseñas no coinciden');
                     return;
                   }
-
                   if (password.length < 6) {
-                    setForgotMessage('La contraseña debe tener al menos 6 caracteres.');
+                    alert('La contraseña debe tener al menos 6 caracteres.');
                     return;
                   }
-
                   if (!/[A-Z]/.test(password)) {
-                    setForgotMessage('La contraseña debe contener al menos una letra mayúscula.');
+                    alert('La contraseña debe contener al menos una letra mayúscula.');
                     return;
                   }
-
                   if (!/[a-z]/.test(password)) {
-                    setForgotMessage('La contraseña debe contener al menos una letra minúscula.');
+                    alert('La contraseña debe contener al menos una letra minúscula.');
                     return;
                   }
-
                   if (!/[0-9]/.test(password)) {
-                    setForgotMessage('La contraseña debe contener al menos un número.');
+                    alert('La contraseña debe contener al menos un número.');
                     return;
                   }
-
                   try {
                     const res = await fetch('/api/register', {
-                      body: JSON.stringify({ username, email, password }),
-                      headers: { 'Content-Type': 'application/json' },
                       method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ username, email, password }),
                     });
                     if (!res.ok) {
                       const errorText = await res.text();
                       try {
                         const data = JSON.parse(errorText);
-                        setForgotMessage(data.message || data.error || 'Error al registrarse');
+                        alert(data.message || data.error || 'Error al registrarse');
                       } catch (parseErr) {
-                        setForgotMessage(`Error al registrarse: ${errorText}`);
+                        alert(`Error al registrarse: ${errorText}`);
                       }
                       return;
                     }
-                    setForgotMessage('Registro exitoso. Ahora puedes iniciar sesión.');
+                    alert('Registro exitoso. Ahora puedes iniciar sesión.');
                     setShowRegister(false);
                     setShowLogin(true);
                   } catch (err) {
-                    setForgotMessage('Error de red al registrarse');
+                    alert('Error de red al registrarse');
                   }
                 }}
               >
@@ -641,18 +624,6 @@ export default function LandingPage() {
                 <button className="login-btn" type="submit">
                   Registrarse
                 </button>
-                {forgotMessage && (
-                  <div
-                    style={{
-                      color: forgotMessage.includes('Error') ? '#ff5252' : '#1ed760',
-                      marginTop: 10,
-                      textAlign: 'center',
-                      fontWeight: 500,
-                    }}
-                  >
-                    {forgotMessage}
-                  </div>
-                )}
                 <div
                   style={{
                     textAlign: 'center',

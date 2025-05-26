@@ -24,20 +24,17 @@ export default function Stats({ juego, children }: StatsProps) {
     async function fetchHistory() {
       setLoading(true);
       setError(null);
-
       const token = localStorage.getItem('token');
       if (!token) {
         setLoading(false);
         return;
       }
-
       try {
         const res = await fetch('/Proyecto-IW/api/stats/usuarios/historial', {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (!res.ok) throw new Error('No se pudo cargar el historial');
         const data = await res.json();
-
         setHistory(Array.isArray(data) ? data : []);
       } catch (err) {
         setError('Error al cargar el historial de partidas');

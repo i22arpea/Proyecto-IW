@@ -77,9 +77,9 @@ export default function VerifyEmailPage() {
 
       <button
         className="login-btn"
-        onClick={() => navigate('/')}
-        style={{ margin: '2rem auto 0', display: 'block' }}
         type="button"
+        style={{ margin: '2rem auto 0', display: 'block' }}
+        onClick={() => navigate('/')}
       >
         Volver al inicio
       </button>

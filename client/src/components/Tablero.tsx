@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Juego } from '../types/types';
 
 interface BoardProps {
   children?: React.ReactNode;
-  juego: Juego;
+  juego: any; // Debe ser tipo Juego, pero para evitar dependencias cruzadas
 }
 
 export default function Board({ children, juego }: BoardProps) {
@@ -30,11 +29,11 @@ export default function Board({ children, juego }: BoardProps) {
           }),
         });
 
-          if (!response.ok) {
-              // TODO: manejar error de guardado
-          }
+        if (!response.ok) {
+          // TODO: manejar error de guardado
+        }
       } catch (error) {
-          // TODO: manejar error de red
+        // TODO: manejar error de red
       }
     },
       [attemptsUsed, startTime]
@@ -58,7 +57,6 @@ export default function Board({ children, juego }: BoardProps) {
   function renderSquare(rowIdx: number, colIdx: number) {
     const i = rowIdx * columnas + colIdx + 1;
     // Usar un identificador único para la key del botón
-
     return (
       <button
         onClick={() => setAttemptsUsed(attemptsUsed + 1)}
@@ -66,27 +64,28 @@ export default function Board({ children, juego }: BoardProps) {
         className="square"
         type="button"
         value={i}
+        onClick={() => setAttemptsUsed(attemptsUsed + 1)}
         key={`square-${i}`}
       />
     );
   }
 
-    return (
-        <main className="board-flex">
-            <div className="board">
-                {children}
-                {Array.from({ length: filas }).map((filaVoid, rowIdx) => (
-                    <div
+  return (
+    <main className="board-flex">
+      <div className="board">
+        {children}
+        {Array.from({ length: filas }).map((filaVoid, rowIdx) => (
+          <div
 
-                        className="fila"
-                        style={{ display: 'grid', gridTemplateColumns: `repeat(${columnas}, 1fr)` }}
-                    >
-                        {Array.from({ length: columnas }).map((colVoid, colIdx) => renderSquare(rowIdx, colIdx))}
-                    </div>
-                ))}
-            </div>
-        </main>
-    );
+            className="fila"
+            style={{ display: 'grid', gridTemplateColumns: `repeat(${columnas}, 1fr)` }}
+          >
+            {Array.from({ length: columnas }).map((colVoid, colIdx) => renderSquare(rowIdx, colIdx))}
+          </div>
+        ))}
+      </div>
+    </main>
+  );
 }
 
 Board.defaultProps = {

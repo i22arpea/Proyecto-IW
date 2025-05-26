@@ -24,7 +24,6 @@ export default function Header({ juego, setJuego, onLoginClick = undefined, onPr
   const [showLogin, setShowLogin] = useState(false);
   const [showRanking, setShowRanking] = useState(false);
   const [showAddFriend, setShowAddFriend] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
   const authenticated = isAuthenticated();
   const navigate = useNavigate();
   const location = useLocation();
@@ -49,7 +48,7 @@ export default function Header({ juego, setJuego, onLoginClick = undefined, onPr
   // Handler para botones protegidos
   function requireLogin(action: () => void) {
     if (!authenticated) {
-      setMessage('Debes iniciar sesión para acceder a esta funcionalidad.');
+      alert('Debes iniciar sesión para acceder a esta funcionalidad.');
       return;
     }
     action();
@@ -106,7 +105,6 @@ export default function Header({ juego, setJuego, onLoginClick = undefined, onPr
           <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
         </svg>
         <svg
-          aria-label="Guardar partida"
           className="icon icon-tabler icon-tabler-download"
           fill="none"
           height="24"
@@ -114,14 +112,15 @@ export default function Header({ juego, setJuego, onLoginClick = undefined, onPr
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth="1.5"
-          style={{cursor:'pointer'}}
           viewBox="0 0 24 24"
           width="24"
           xmlns="http://www.w3.org/2000/svg"
+          style={{cursor:'pointer'}}
           onClick={() => {
             guardarPartida(juego);
-            setMessage('¡Partida guardada! Puedes recuperarla al volver a entrar.');
+            alert('¡Partida guardada! Puedes recuperarla al volver a entrar.');
           }}
+          aria-label="Guardar partida"
         >
           <title>Guardar partida</title>
           <path d="M0 0h24v24H0z" fill="none" stroke="none" />
@@ -221,12 +220,6 @@ export default function Header({ juego, setJuego, onLoginClick = undefined, onPr
           </button>
         )}
       </div>
-      {message && (
-        <div style={{position:'fixed',top:20,left:'50%',transform:'translateX(-50%)',background:'#1ed760',color:'#181a1b',padding:'10px 24px',borderRadius:8,boxShadow:'0 2px 8px #1ed76033',zIndex:2000,fontWeight:600}}>
-          {message}
-          <button type="button" style={{marginLeft:16,background:'none',border:'none',color:'#181a1b',fontWeight:700,cursor:'pointer'}} onClick={() => setMessage(null)}>X</button>
-        </div>
-      )}
       {showRanking && (
         <div style={{position:'fixed',top:0,left:0,width:'100vw',height:'100vh',background:'#000a',zIndex:1000,display:'flex',alignItems:'center',justifyContent:'center'}}>
           <Ranking onClose={() => setShowRanking(false)} />

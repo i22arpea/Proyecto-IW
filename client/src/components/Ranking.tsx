@@ -16,9 +16,7 @@ export default function Ranking({ onClose }: { onClose?: () => void }) {
   useEffect(() => {
     async function fetchRanking() {
       setLoading(true);
-
       setError(null);
-
       try {
         const res = await fetch('/Proyecto-IW/api/stats/ranking/global');
         if (!res.ok) throw new Error('No se pudo cargar el ranking');
@@ -30,7 +28,6 @@ export default function Ranking({ onClose }: { onClose?: () => void }) {
         setLoading(false);
       }
     }
-
     fetchRanking();
   }, []);
 
@@ -49,14 +46,7 @@ export default function Ranking({ onClose }: { onClose?: () => void }) {
       }}
     >
       {onClose && (
-        <button
-          aria-label="Cerrar"
-          style={{position:'absolute',top:12,right:12,background:'none',border:'none',color:'var(--color-texto-secundario)',fontSize:'1.7rem',cursor:'pointer',textAlign:'right'}}
-          type="button"
-          onClick={onClose}
-        >
-          ×
-        </button>
+        <button onClick={onClose} type="button" style={{position:'absolute',top:12,right:12,background:'none',border:'none',color:'var(--color-texto-secundario)',fontSize:'1.7rem',cursor:'pointer',textAlign:'right'}} aria-label="Cerrar">×</button>
       )}
       <h2 style={{color:'#1ed760',textAlign:'center',marginBottom:16}}>Clasificación General</h2>
       {loading && <div style={{color:'#1ed760'}}>Cargando ranking...</div>}
@@ -89,8 +79,8 @@ export default function Ranking({ onClose }: { onClose?: () => void }) {
                 <td style={{padding:'6px 4px'}}>{i+1}</td>
                 <td style={{padding:'6px 4px',fontWeight:600,display:'flex',alignItems:'center',gap:10, color: 'var(--color-texto)'}}>
                   <img
-                    alt="avatar"
                     src={player.profileImage && player.profileImage !== '' ? player.profileImage : '/default-avatar.png'}
+                    alt="avatar"
                     style={{width:32,height:32,borderRadius:'50%',border:'2px solid #1ed760',objectFit:'cover',background:'#23272f'}}
                   />
                   <span>{player.username}</span>

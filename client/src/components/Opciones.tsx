@@ -13,12 +13,10 @@ interface SettingsProps {
 export default function Settings({ juego, setJuego, children }: SettingsProps) {
 
   const [language, setLanguage] = useState('es');
-
   const [category, setCategory] = useState('general');
-
   const [wordLength, setWordLength] = useState(5);
-
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
 
   function cambiarModoDificil() {
     const newState = restartGame(juego);
@@ -180,8 +178,8 @@ export default function Settings({ juego, setJuego, children }: SettingsProps) {
             <div>
               <div className="onoffswitch">
                 <input
-                  className="onoffswitch-checkbox"
                   checked={juego.modoOscuro}
+                  className="onoffswitch-checkbox"
                   id="myonoffswitch-3"
                   name="onoffswitch"
                   tabIndex={-3}
@@ -204,8 +202,8 @@ export default function Settings({ juego, setJuego, children }: SettingsProps) {
             <div>
               <div className="onoffswitch">
                 <input
-                  className="onoffswitch-checkbox"
                   checked={juego.dificil}
+                  className="onoffswitch-checkbox"
                   id="myonoffswitch-1"
                   name="onoffswitch"
                   tabIndex={-1}
@@ -225,6 +223,8 @@ export default function Settings({ juego, setJuego, children }: SettingsProps) {
 
           <div style={{ marginTop: '2rem', textAlign: 'center' }}>
             <button
+              type="button"
+              onClick={aplicarPreferencias}
               style={{
                 backgroundColor: '#1ed760',
                 color: '#181a1b',
@@ -236,8 +236,6 @@ export default function Settings({ juego, setJuego, children }: SettingsProps) {
                 cursor: 'pointer',
                 transition: 'background 0.3s'
               }}
-              type="button"
-              onClick={aplicarPreferencias}
             >
               Aplicar cambios
             </button>

@@ -10,7 +10,7 @@ import LoginPage from './components/LoginPage';
 import ProfilePage from './components/ProfilePage';
 import ResetPasswordPage from './components/ResetPasswordPage';
 import VerifyEmailPage from './components/VerifyEmailPage';
-import type { Juego } from './types/types';
+import { Juego } from './types/types.d';
 import cargarSettings from './utils/cargarOpciones';
 import keyPress from './utils/presionarTecla';
 import llenarArray from './utils/llenarArray';
@@ -250,14 +250,14 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                   <label htmlFor="password">Contraseña</label>
                   <input id="password" name="password" type="password" placeholder="Contraseña" required />
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '0.5rem', maxWidth: 340, textAlign: 'left', width: '100%' }}>
+                <div style={{ width: '100%', maxWidth: 340, textAlign: 'left', marginBottom: '0.5rem', display: 'flex', justifyContent: 'flex-start' }}>
                   <span
-                    aria-label="Recuperar contraseña"
+                    style={{ color: '#1ed760', fontWeight: 500, fontSize: '0.98rem', cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '2px' }}
                     role="button"
-                    style={{ color: '#1ed760', cursor: 'pointer', fontSize: '0.98rem', fontWeight: 500, textDecoration: 'underline', textUnderlineOffset: '2px' }}
                     tabIndex={0}
                     onClick={() => { setShowLogin(false); setShowForgot(true); }}
                     onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { setShowLogin(false); setShowForgot(true); } }}
+                    aria-label="Recuperar contraseña"
                   >
                     ¿Olvidaste tu contraseña?
                   </span>
@@ -265,14 +265,14 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                 <button className="login-btn" type="submit">
                   Iniciar sesión
                 </button>
-                <div style={{ color: '#aaa', fontSize: '0.95rem', marginTop: '0.7rem', textAlign: 'center' }}>
+                <div style={{ textAlign: 'center', marginTop: '0.7rem', color: '#aaa', fontSize: '0.95rem' }}>
                   ¿No tienes cuenta? <span
-                    aria-label="Registrarse"
+                    style={{ color: '#1ed760', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '2px' }}
                     role="button"
-                    style={{ color: '#1ed760', cursor: 'pointer', fontWeight: 600, textDecoration: 'underline', textUnderlineOffset: '2px' }}
                     tabIndex={0}
                     onClick={() => { setShowLogin(false); setShowRegister(true); }}
                     onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { setShowLogin(false); setShowRegister(true); } }}
+                    aria-label="Registrarse"
                   >
                     Regístrate
                   </span>
