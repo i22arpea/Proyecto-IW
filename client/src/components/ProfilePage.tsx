@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { desencriptarPalabra } from '../libs/crypto';
-import UserStats from './UserStats'; // Asegúrate de que la ruta sea correcta
+import UserStats from './UserStats'; 
+import { fetchUserStats } from '../utils/fetchUserStats';
+
 
 interface UserProfile {
   username: string;
@@ -94,17 +96,16 @@ export default function ProfilePage() {
       setStatsLoading(true);
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch('/api/stats/usuarios/estadisticas', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setUserStats(data);
-        }
+        if (!token) throw new Error('Token no disponible');
+        const data = await fetchUserStats(token);
+        setUserStats(data);
+      } catch (err) {
+        console.error('Error al cargar estadísticas:', err);
       } finally {
         setStatsLoading(false);
       }
     }
+
     async function fetchInProgressGames() {
       try {
         const token = localStorage.getItem('token');
