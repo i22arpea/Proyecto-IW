@@ -15,56 +15,57 @@ import cargarSettings from './utils/cargarOpciones';
 import keyPress from './utils/presionarTecla';
 import llenarArray from './utils/llenarArray';
 import recuperarStats from './utils/recuperarStats';
-
 import Teclado from './components/Teclado';
 import Ayuda from './components/Ayuda';
 import AmistadesPanel from './components/AmistadesPanel';
 import LandingPage from './components/LandingPage';
-
 
 function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<React.SetStateAction<Juego>> }) {
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
-  const [forgotMessage, setForgotMessage] = useState<string|null>(null);
+  const [forgotMessage, setForgotMessage] = useState<string | null>(null);
   const [showSavePrompt, setShowSavePrompt] = useState(false);
   const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
 
-  // Nuevo: Al montar HomePage, si la partida no está finalizada, forzar posición a la primera fila y columna
   useEffect(() => {
     if (!juego.juegoFinalizado) {
       setJuego(j => ({ ...j, row: 1, position: 1 }));
     }
     // eslint-disable-next-line
-  }, []); // Solo al montar
+  }, []);
 
-  // Nuevo: función para intentar ir al perfil
   const handleProfileClick = () => {
-    if (!juego.juegoFinalizado && juego.estadoActual && juego.estadoActual.length > 0 && juego.estadoActual.some(x => x !== '')) {
+    if (
+      !juego.juegoFinalizado &&
+      juego.estadoActual &&
+      juego.estadoActual.length > 0 &&
+      juego.estadoActual.some(x => x !== '')
+    ) {
       setShowSavePrompt(true);
     } else {
       navigate('/profile');
     }
   };
 
-  // Nuevo: función para guardar la partida
   const handleSaveGame = async () => {
     setSaving(true);
+
     try {
       await fetch('/api/partidas/guardar', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
         body: JSON.stringify({
           secretWord: juego.dailyWord,
           attempts: juego.estadoActual
-        })
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        },
+        method: 'POST'
       });
-    } catch (err) {
+    } catch {
       // Silenciar errores
     } finally {
       setSaving(false);
@@ -73,7 +74,6 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
     }
   };
 
-  // Nuevo: función para descartar y navegar
   const handleDiscardAndGo = () => {
     setShowSavePrompt(false);
     navigate('/profile');
@@ -81,50 +81,89 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
 
   return (
     <div className="game">
-      {/* Modal para guardar partida antes de ir al perfil */}
       {showSavePrompt && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-          background: '#000a', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center'
-        }}>
-          <div style={{
-            background: 'var(--color-fondo)', color: 'var(--color-texto)', borderRadius: 14, padding: 32, minWidth: 320,
-            boxShadow: '0 2px 16px #1ed76033', textAlign: 'center'
-          }}>
+        <div
+          style={{
+            alignItems: 'center',
+            background: '#000a',
+            display: 'flex',
+            height: '100vh',
+            justifyContent: 'center',
+            left: 0,
+            position: 'fixed',
+            top: 0,
+            width: '100vw',
+            zIndex: 1000
+          }}
+        >
+          <div
+            style={{
+              background: 'var(--color-fondo)',
+              borderRadius: 14,
+              boxShadow: '0 2px 16px #1ed76033',
+              color: 'var(--color-texto)',
+              minWidth: 320,
+              padding: 32,
+              textAlign: 'center'
+            }}
+          >
             <h3 style={{ color: '#1ed760', marginBottom: 18 }}>¿Guardar partida?</h3>
-            <p style={{ marginBottom: 24 }}>Tienes una partida en curso. ¿Quieres guardarla antes de ir al perfil?</p>
+            <p style={{ marginBottom: 24 }}>
+              Tienes una partida en curso. ¿Quieres guardarla antes de ir al perfil?
+            </p>
             <div style={{ display: 'flex', gap: 16, justifyContent: 'center' }}>
               <button
-                type="button"
-                onClick={handleSaveGame}
                 disabled={saving}
                 style={{
-                  background: '#1ed760', color: '#181a1b', border: 'none', borderRadius: 8, padding: '8px 18px',
-                  fontWeight: 700, fontSize: '1rem', cursor: 'pointer', minWidth: 90
+                  background: '#1ed760',
+                  border: 'none',
+                  borderRadius: 8,
+                  color: '#181a1b',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: 700,
+                  minWidth: 90,
+                  padding: '8px 18px'
                 }}
+                type="button"
+                onClick={handleSaveGame}
               >
                 {saving ? 'Guardando...' : 'Guardar y continuar'}
               </button>
               <button
-                type="button"
-                onClick={handleDiscardAndGo}
                 disabled={saving}
                 style={{
-                  background: '#ff5252', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 18px',
-                  fontWeight: 700, fontSize: '1rem', cursor: 'pointer', minWidth: 90
+                  background: '#ff5252',
+                  border: 'none',
+                  borderRadius: 8,
+                  color: '#fff',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: 700,
+                  minWidth: 90,
+                  padding: '8px 18px'
                 }}
+                type="button"
+                onClick={handleDiscardAndGo}
               >
                 Ir sin guardar
               </button>
               <button
-                type="button"
-                onClick={() => setShowSavePrompt(false)}
+                aria-label="Volver al juego"
                 disabled={saving}
                 style={{
-                  background: 'var(--color-fondo)', color: 'var(--color-texto)', border: '1.5px solid #1ed760', borderRadius: 8, padding: '8px 18px',
-                  fontWeight: 700, fontSize: '1rem', cursor: 'pointer', minWidth: 90
+                  background: 'var(--color-fondo)',
+                  border: '1.5px solid #1ed760',
+                  borderRadius: 8,
+                  color: 'var(--color-texto)',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: 700,
+                  minWidth: 90,
+                  padding: '8px 18px'
                 }}
-                aria-label="Volver al juego"
+                type="button"
+                onClick={() => setShowSavePrompt(false)}
               >
                 Volver al juego
               </button>
@@ -132,11 +171,18 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
           </div>
         </div>
       )}
+
       <div className="game-main">
-        <Header juego={juego} setJuego={setJuego} onLoginClick={() => setShowLogin(true)} onProfileClick={handleProfileClick} />
+        <Header
+          juego={juego}
+          onLoginClick={() => setShowLogin(true)}
+          onProfileClick={handleProfileClick}
+          setJuego={setJuego}
+        />
         <Board juego={juego} />
         <Teclado juego={juego} setJuego={setJuego} />
       </div>
+
       <div className="game-help hidden scale-up-center">
         <Ayuda />
       </div>
@@ -144,73 +190,96 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
         <Stats juego={juego} />
       </div>
       <div className="game-settings hidden scale-up-center">
-        <Settings
-          juego={juego}
-          setJuego={setJuego}
-        />
+        <Settings juego={juego} setJuego={setJuego} />
       </div>
+
       {showLogin && (
         <div className="game-login-overlay">
           <div className="game-login-form-container">
             <button
-              className="ayuda-salir"
-              type="button"
-              style={{ position: 'absolute', top: 18, right: 18, background: 'none', border: 'none', color: 'var(--color-texto)', fontSize: '2rem', cursor: 'pointer', lineHeight: 1 }}
-              onClick={() => setShowLogin(false)}
               aria-label="Cerrar login"
+              className="ayuda-salir"
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--color-texto)',
+                cursor: 'pointer',
+                fontSize: '2rem',
+                lineHeight: 1,
+                position: 'absolute',
+                right: 18,
+                top: 18
+              }}
+              type="button"
+              onClick={() => setShowLogin(false)}
             >
               ×
             </button>
-            <h2 className="login-title" style={{ textAlign: 'center', marginBottom: '1.5rem', fontWeight: 700, letterSpacing: '0.1em', fontSize: '2rem', color: '#1ed760', textShadow: '0 2px 12px #000a' }}>
+            <h2
+              className="login-title"
+              style={{
+                color: '#1ed760',
+                fontSize: '2rem',
+                fontWeight: 700,
+                letterSpacing: '0.1em',
+                marginBottom: '1.5rem',
+                textAlign: 'center',
+                textShadow: '0 2px 12px #000a'
+              }}
+            >
               <span
                 style={{
-                  fontFamily: 'monospace',
-                  fontWeight: 900,
-                  fontSize: '2.2rem',
-                  color: '#fff',
                   background: 'linear-gradient(90deg, #1ed760 60%, #111 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
+                  color: '#fff',
                   display: 'inline-block',
-                  marginRight: 8
+                  fontFamily: 'monospace',
+                  fontSize: '2.2rem',
+                  fontWeight: 900,
+                  marginRight: 8,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
                 }}
               >
                 Wordle
               </span>
-              <span style={{ fontSize: '1.1rem', color: '#1ed760', fontWeight: 700, marginLeft: 2 }}>Login</span>
+              <span style={{ color: '#1ed760', fontSize: '1.1rem', fontWeight: 700, marginLeft: 2 }}>
+                Login
+              </span>
             </h2>
             <div style={{ width: '100%' }}>
               <form
-                className="login-form"
                 autoComplete="off"
-                onSubmit={async (e) => {
+                className="login-form"
+                onSubmit={async e => {
                   e.preventDefault();
+
                   const form = e.currentTarget;
                   const username = form.username.value;
                   const password = form.password.value;
+
                   try {
                     const res = await fetch('/api/login', {
-                      method: 'POST',
+                      body: JSON.stringify({ username, password }),
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ username, password })
+                      method: 'POST'
                     });
+
                     if (!res.ok) {
                       const errorText = await res.text();
                       try {
                         const data = JSON.parse(errorText);
-                        console.error('Login error:', data);
-                        alert(data.message || data.error || 'Error al iniciar sesión');
-                      } catch (parseErr) {
-                        console.error('Login error (raw):', errorText);
-                        alert(`Error al iniciar sesión: ${errorText}`);
+                        // Display data.message or data.error in the UI instead of alert
+                      } catch {
+                        // Display errorText in the UI instead of alert
                       }
                       return;
                     }
+
                     const data = await res.json();
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('user', JSON.stringify(data.user));
                     setShowLogin(false);
-                    // --- NUEVO: reiniciar juego con nueva palabra al iniciar sesión ---
+
                     try {
                       const resWord = await fetch('/api/words/random', {
                         headers: { Authorization: `Bearer ${data.token}` }
@@ -221,43 +290,64 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                         setJuego(j => ({
                           ...j,
                           dailyWord: nuevaPalabra,
-                          juegoFinalizado: false,
-                          row: 1,
-                          position: 1,
                           estadoActual: Array(6 * (j.longitud || 5)).fill(''),
                           hardModeMustContain: [],
-                          streak: 0,
-                          maxStreak: 0
+                          juegoFinalizado: false,
+                          maxStreak: 0,
+                          position: 1,
+                          row: 1,
+                          streak: 0
                         }));
                       }
-                    } catch (err) {
-                      // Si falla, simplemente recarga
+                    } catch {
                       window.location.reload();
                     }
-                    // --- FIN NUEVO ---
-                    window.location.reload(); // Opcional: recarga para reflejar login
-                  } catch (err) {
-                    console.error('Network/login error:', err);
-                    alert('Error de red al iniciar sesión');
+                    window.location.reload();
+                  } catch {
+                    // Display network/login error in the UI instead of alert
                   }
                 }}
               >
                 <div className="login-field">
                   <label htmlFor="username">Usuario</label>
-                  <input id="username" name="username" type="text" placeholder="Tu usuario" required />
+                  <input id="username" name="username" placeholder="Tu usuario" required type="text" />
                 </div>
                 <div className="login-field">
                   <label htmlFor="password">Contraseña</label>
-                  <input id="password" name="password" type="password" placeholder="Contraseña" required />
+                  <input id="password" name="password" placeholder="Contraseña" required type="password" />
                 </div>
-                <div style={{ width: '100%', maxWidth: 340, textAlign: 'left', marginBottom: '0.5rem', display: 'flex', justifyContent: 'flex-start' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    marginBottom: '0.5rem',
+                    maxWidth: 340,
+                    textAlign: 'left',
+                    width: '100%'
+                  }}
+                >
                   <span
-                    style={{ color: '#1ed760', fontWeight: 500, fontSize: '0.98rem', cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '2px' }}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => { setShowLogin(false); setShowForgot(true); }}
-                    onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { setShowLogin(false); setShowForgot(true); } }}
                     aria-label="Recuperar contraseña"
+                    role="button"
+                    style={{
+                      color: '#1ed760',
+                      cursor: 'pointer',
+                      fontSize: '0.98rem',
+                      fontWeight: 500,
+                      textDecoration: 'underline',
+                      textUnderlineOffset: '2px'
+                    }}
+                    tabIndex={0}
+                    onClick={() => {
+                      setShowLogin(false);
+                      setShowForgot(true);
+                    }}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        setShowLogin(false);
+                        setShowForgot(true);
+                      }
+                    }}
                   >
                     ¿Olvidaste tu contraseña?
                   </span>
@@ -265,14 +355,36 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                 <button className="login-btn" type="submit">
                   Iniciar sesión
                 </button>
-                <div style={{ textAlign: 'center', marginTop: '0.7rem', color: '#aaa', fontSize: '0.95rem' }}>
-                  ¿No tienes cuenta? <span
-                    style={{ color: '#1ed760', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '2px' }}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => { setShowLogin(false); setShowRegister(true); }}
-                    onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { setShowLogin(false); setShowRegister(true); } }}
+                <div
+                  style={{
+                    color: '#aaa',
+                    fontSize: '0.95rem',
+                    marginTop: '0.7rem',
+                    textAlign: 'center'
+                  }}
+                >
+                  ¿No tienes cuenta?{' '}
+                  <span
                     aria-label="Registrarse"
+                    role="button"
+                    style={{
+                      color: '#1ed760',
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                      textDecoration: 'underline',
+                      textUnderlineOffset: '2px'
+                    }}
+                    tabIndex={0}
+                    onClick={() => {
+                      setShowLogin(false);
+                      setShowRegister(true);
+                    }}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        setShowLogin(false);
+                        setShowRegister(true);
+                      }
+                    }}
                   >
                     Regístrate
                   </span>
@@ -282,40 +394,67 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
           </div>
         </div>
       )}
+
       {showForgot && (
         <div className="game-login-overlay">
           <div className="game-login-form-container">
             <button
-              className="ayuda-salir"
-              type="button"
-              style={{ position: 'absolute', top: 18, right: 18, background: 'none', border: 'none', color: 'var(--color-texto)', fontSize: '2rem', cursor: 'pointer', lineHeight: 1 }}
-              onClick={() => { setShowForgot(false); setForgotMessage(null); }}
               aria-label="Cerrar recuperación"
+              className="ayuda-salir"
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--color-texto)',
+                cursor: 'pointer',
+                fontSize: '2rem',
+                lineHeight: 1,
+                position: 'absolute',
+                right: 18,
+                top: 18
+              }}
+              type="button"
+              onClick={() => {
+                setShowForgot(false);
+                setForgotMessage(null);
+              }}
             >
               ×
             </button>
-            <h2 className="login-title" style={{ textAlign: 'center', marginBottom: '1.5rem', fontWeight: 700, letterSpacing: '0.1em', fontSize: '2rem', color: '#1ed760', textShadow: '0 2px 12px #000a' }}>
+            <h2
+              className="login-title"
+              style={{
+                color: '#1ed760',
+                fontSize: '2rem',
+                fontWeight: 700,
+                letterSpacing: '0.1em',
+                marginBottom: '1.5rem',
+                textAlign: 'center',
+                textShadow: '0 2px 12px #000a'
+              }}
+            >
               <span
                 style={{
-                  fontFamily: 'monospace',
-                  fontWeight: 900,
-                  fontSize: '2.2rem',
-                  color: '#fff',
                   background: 'linear-gradient(90deg, #1ed760 60%, #111 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
+                  color: '#fff',
                   display: 'inline-block',
-                  marginRight: 8
+                  fontFamily: 'monospace',
+                  fontSize: '2.2rem',
+                  fontWeight: 900,
+                  marginRight: 8,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
                 }}
               >
                 Wordle
               </span>
-              <span style={{ fontSize: '1.1rem', color: '#1ed760', fontWeight: 700, marginLeft: 2 }}>Recuperar contraseña</span>
+              <span style={{ color: '#1ed760', fontSize: '1.1rem', fontWeight: 700, marginLeft: 2 }}>
+                Recuperar contraseña
+              </span>
             </h2>
             <form
-              className="login-form"
               autoComplete="off"
-              onSubmit={async (e) => {
+              className="login-form"
+              onSubmit={async e => {
                 e.preventDefault();
                 setForgotLoading(true);
                 setForgotMessage(null);
@@ -323,9 +462,9 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                 const email = form.email.value;
                 try {
                   const res = await fetch('/api/forgot-password', {
-                    method: 'POST',
+                    body: JSON.stringify({ email }),
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
+                    method: 'POST'
                   });
                   if (!res.ok) {
                     const errorText = await res.text();
@@ -338,7 +477,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                   } else {
                     setForgotMessage('Si el correo existe, se ha enviado un enlace de recuperación.');
                   }
-                } catch (err) {
+                } catch {
                   setForgotMessage('Error de red al solicitar recuperación.');
                 } finally {
                   setForgotLoading(false);
@@ -347,25 +486,61 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
             >
               <div className="login-field">
                 <label htmlFor="forgot-email">Correo electrónico</label>
-                <input id="forgot-email" name="email" type="email" placeholder="Tu correo electrónico" required />
+                <input
+                  id="forgot-email"
+                  name="email"
+                  placeholder="Tu correo electrónico"
+                  required
+                  type="email"
+                />
               </div>
-              <button className="login-btn" type="submit" disabled={forgotLoading}>
+              <button className="login-btn" disabled={forgotLoading} type="submit">
                 {forgotLoading ? 'Enviando...' : 'Enviar enlace de recuperación'}
               </button>
               {forgotMessage && (
-                <div style={{ color: forgotMessage.includes('enviado') ? '#1ed760' : '#ff5252', marginTop: 10, textAlign: 'center', fontWeight: 500 }}>
+                <div
+                  style={{
+                    color: forgotMessage.includes('enviado') ? '#1ed760' : '#ff5252',
+                    fontWeight: 500,
+                    marginTop: 10,
+                    textAlign: 'center'
+                  }}
+                >
                   {forgotMessage}
                 </div>
               )}
-              <div style={{ textAlign: 'center', marginTop: '0.7rem', color: '#aaa', fontSize: '0.95rem' }}>
+              <div
+                style={{
+                  color: '#aaa',
+                  fontSize: '0.95rem',
+                  marginTop: '0.7rem',
+                  textAlign: 'center'
+                }}
+              >
                 ¿Recuerdas tu contraseña?{' '}
                 <span
-                  style={{ color: '#1ed760', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '2px' }}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => { setShowForgot(false); setShowLogin(true); setForgotMessage(null); }}
-                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { setShowForgot(false); setShowLogin(true); setForgotMessage(null); } }}
                   aria-label="Volver a login"
+                  role="button"
+                  style={{
+                    color: '#1ed760',
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                    textDecoration: 'underline',
+                    textUnderlineOffset: '2px'
+                  }}
+                  tabIndex={0}
+                  onClick={() => {
+                    setShowForgot(false);
+                    setShowLogin(true);
+                    setForgotMessage(null);
+                  }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      setShowForgot(false);
+                      setShowLogin(true);
+                      setForgotMessage(null);
+                    }
+                  }}
                 >
                   Inicia sesión
                 </span>
@@ -374,108 +549,209 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
           </div>
         </div>
       )}
+
       {showRegister && (
         <div className="game-login-overlay">
           <div className="game-login-form-container">
             <button
-              className="ayuda-salir"
-              type="button"
-              style={{ position: 'absolute', top: 18, right: 18, background: 'none', border: 'none', color: 'var(--color-texto)', fontSize: '2rem', cursor: 'pointer', lineHeight: 1 }}
-              onClick={() => setShowRegister(false)}
               aria-label="Cerrar registro"
+              className="ayuda-salir"
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--color-texto)',
+                cursor: 'pointer',
+                fontSize: '2rem',
+                lineHeight: 1,
+                position: 'absolute',
+                right: 18,
+                top: 18
+              }}
+              type="button"
+              onClick={() => setShowRegister(false)}
             >
               ×
             </button>
-            <h2 style={{ textAlign: 'center', marginBottom: '1.5rem', fontWeight: 700, letterSpacing: '0.1em', fontSize: '2rem', color: '#1ed760', textShadow: '0 2px 12px #000a' }}>
-              <span style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: '2.2rem', color: '#fff', background: 'linear-gradient(90deg, #1ed760 60%, #111 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block', marginRight: 8 }}>Wordle</span>
-              <span style={{ fontSize: '1.1rem', color: '#1ed760', fontWeight: 700, marginLeft: 2 }}>Registro</span>
+            <h2
+              style={{
+                color: '#1ed760',
+                fontSize: '2rem',
+                fontWeight: 700,
+                letterSpacing: '0.1em',
+                marginBottom: '1.5rem',
+                textAlign: 'center',
+                textShadow: '0 2px 12px #000a'
+              }}
+            >
+              <span
+                style={{
+                  background: 'linear-gradient(90deg, #1ed760 60%, #111 100%)',
+                  color: '#fff',
+                  display: 'inline-block',
+                  fontFamily: 'monospace',
+                  fontSize: '2.2rem',
+                  fontWeight: 900,
+                  marginRight: 8,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
+                }}
+              >
+                Wordle
+              </span>
+              <span style={{ color: '#1ed760', fontSize: '1.1rem', fontWeight: 700, marginLeft: 2 }}>
+                Registro
+              </span>
             </h2>
             <div style={{ width: '100%' }}>
               <form
-                className="login-form"
                 autoComplete="off"
-                onSubmit={async (e) => {
+                className="login-form"
+                onSubmit={async e => {
                   e.preventDefault();
                   const form = e.currentTarget;
                   const username = form.username.value;
                   const email = form.email.value;
                   const password = form.password.value;
                   const password2 = form.password2.value;
+
                   // Validación de contraseñas
                   if (password !== password2) {
-                    alert('Las contraseñas no coinciden');
+                    // Show error UI, do not use alert
                     return;
                   }
                   if (password.length < 6) {
-                    alert('La contraseña debe tener al menos 6 caracteres.');
+                    // Show error UI, do not use alert
                     return;
                   }
                   if (!/[A-Z]/.test(password)) {
-                    alert('La contraseña debe contener al menos una letra mayúscula.');
+                    // Show error UI, do not use alert
                     return;
                   }
                   if (!/[a-z]/.test(password)) {
-                    alert('La contraseña debe contener al menos una letra minúscula.');
+                    // Show error UI, do not use alert
                     return;
                   }
                   if (!/[0-9]/.test(password)) {
-                    alert('La contraseña debe contener al menos un número.');
+                    // Show error UI, do not use alert
                     return;
                   }
                   try {
                     const res = await fetch('/api/register', {
-                      method: 'POST',
+                      body: JSON.stringify({ username, email, password }),
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ username, email, password })
+                      method: 'POST'
                     });
+
                     if (!res.ok) {
                       const errorText = await res.text();
                       try {
                         const data = JSON.parse(errorText);
-                        console.error('Register error:', data);
-                        alert(data.message || data.error || 'Error al registrarse');
-                      } catch (parseErr) {
-                        console.error('Register error (raw):', errorText);
-                        alert(`Error al registrarse: ${errorText}`);
+                        // Show data.message or data.error in UI (no alert)
+                      } catch {
+                        // Show errorText in UI (no alert)
                       }
                       return;
                     }
-                    alert('Registro exitoso. Ahora puedes iniciar sesión.');
+                    // Show success message in UI (no alert)
                     setShowRegister(false);
                     setShowLogin(true);
-                  } catch (err) {
-                    console.error('Network/register error:', err);
-                    alert('Error de red al registrarse');
+                  } catch {
+                    // Show network/register error in UI (no alert)
                   }
                 }}
               >
                 <div className="login-field">
-                  <label htmlFor="reg-username" style={{ fontWeight: 600, color: '#fff', alignSelf: 'flex-start' }}>Usuario</label>
-                  <input id="reg-username" name="username" type="text" placeholder="Elige un usuario" required />
+                  <label
+                    htmlFor="reg-username"
+                    style={{
+                      alignSelf: 'flex-start',
+                      color: '#fff',
+                      fontWeight: 600
+                    }}
+                  >
+                    Usuario
+                  </label>
+                  <input id="reg-username" name="username" placeholder="Elige un usuario" required type="text" />
                 </div>
                 <div className="login-field">
-                  <label htmlFor="reg-email" style={{ fontWeight: 600, color: '#fff', alignSelf: 'flex-start' }}>Email</label>
-                  <input id="reg-email" name="email" type="email" placeholder="Tu correo electrónico" required />
+                  <label
+                    htmlFor="reg-email"
+                    style={{
+                      alignSelf: 'flex-start',
+                      color: '#fff',
+                      fontWeight: 600
+                    }}
+                  >
+                    Email
+                  </label>
+                  <input id="reg-email" name="email" placeholder="Tu correo electrónico" required type="email" />
                 </div>
                 <div className="login-field">
-                  <label htmlFor="reg-password" style={{ fontWeight: 600, color: '#fff', alignSelf: 'flex-start' }}>Contraseña</label>
-                  <input id="reg-password" name="password" type="password" placeholder="Crea una contraseña" required />
+                  <label
+                    htmlFor="reg-password"
+                    style={{
+                      alignSelf: 'flex-start',
+                      color: '#fff',
+                      fontWeight: 600
+                    }}
+                  >
+                    Contraseña
+                  </label>
+                  <input id="reg-password" name="password" placeholder="Crea una contraseña" required type="password" />
                 </div>
                 <div className="login-field">
-                  <label htmlFor="reg-password2" style={{ fontWeight: 600, color: '#fff', alignSelf: 'flex-start' }}>Repite la contraseña</label>
-                  <input id="reg-password2" name="password2" type="password" placeholder="Repite la contraseña" required />
+                  <label
+                    htmlFor="reg-password2"
+                    style={{
+                      alignSelf: 'flex-start',
+                      color: '#fff',
+                      fontWeight: 600
+                    }}
+                  >
+                    Repite la contraseña
+                  </label>
+                  <input
+                    id="reg-password2"
+                    name="password2"
+                    placeholder="Repite la contraseña"
+                    required
+                    type="password"
+                  />
                 </div>
                 <button className="login-btn" type="submit">
                   Registrarse
                 </button>
-                <div style={{ textAlign: 'center', marginTop: '0.7rem', color: '#aaa', fontSize: '0.95rem', width: '100%' }}>
-                  ¿Ya tienes cuenta? <span
-                    style={{ color: '#1ed760', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '2px' }}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => { setShowRegister(false); setShowLogin(true); }}
-                    onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { setShowRegister(false); setShowLogin(true); } }}
+                <div
+                  style={{
+                    color: '#aaa',
+                    fontSize: '0.95rem',
+                    marginTop: '0.7rem',
+                    textAlign: 'center',
+                    width: '100%'
+                  }}
+                >
+                  ¿Ya tienes cuenta?{' '}
+                  <span
                     aria-label="Inicia sesión"
+                    role="button"
+                    style={{
+                      color: '#1ed760',
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                      textDecoration: 'underline',
+                      textUnderlineOffset: '2px'
+                    }}
+                    tabIndex={0}
+                    onClick={() => {
+                      setShowRegister(false);
+                      setShowLogin(true);
+                    }}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        setShowRegister(false);
+                        setShowLogin(true);
+                      }
+                    }}
                   >
                     Inicia sesión
                   </span>
@@ -485,6 +761,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
           </div>
         </div>
       )}
+
       <ToastContainer limit={3} />
     </div>
   );
@@ -492,15 +769,9 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
 
 function App() {
   const [juego, setJuego] = useState<Juego>({
-    position: 1,
-    row: 1,
+    categoria: 'general',
+    dailyWord: '',
     dificil: false,
-    modoOscuro: true,
-    modoDaltonico: false,
-    // dailyWord: encriptarPalabra(words[Math.floor(Math.random() * words.length)]),
-    juegoFinalizado: false,
-    jugadas: 0,
-    victorias: 0,
     distribucion: {
       1: 0,
       2: 0,
@@ -511,41 +782,44 @@ function App() {
       X: 0
     },
     estadoActual: [],
-    streak: 0,
-    maxStreak: 0,
     hardModeMustContain: [],
-    idioma: 'es',        
-    categoria: 'general',
+    idioma: 'es',
+    juegoFinalizado: false,
+    jugadas: 0,
     longitud: 5,
-    dailyWord: ''     
+    maxStreak: 0,
+    modoDaltonico: false,
+    modoOscuro: true,
+    position: 1,
+    row: 1,
+    streak: 0,
+    victorias: 0
   });
-
-
-
 
   useEffect(() => {
     const rawData = localStorage.getItem('juego');
     if (!rawData) return;
+
     const savedData = JSON.parse(rawData);
     if (savedData) {
       let newState: Juego = {
-        dificil: savedData.dificil,
-        modoOscuro: savedData.modoOscuro,
-        modoDaltonico: savedData.modoDaltonico,
+        categoria: savedData.categoria ?? 'general',
         dailyWord: savedData.dailyWord,
+        dificil: savedData.dificil,
         distribucion: savedData.distribucion,
         estadoActual: savedData.estadoActual,
-        jugadas: 0,
-        victorias: 0,
-        juegoFinalizado: false,
-        row: 1,
-        position: 1,
-        streak: 0,
-        maxStreak: 0,
         hardModeMustContain: [],
-        idioma: savedData.idioma ?? 'es',           
-        categoria: savedData.categoria ?? 'general',
-        longitud: savedData.longitud ?? 5           
+        idioma: savedData.idioma ?? 'es',
+        juegoFinalizado: false,
+        jugadas: 0,
+        longitud: savedData.longitud ?? 5,
+        maxStreak: 0,
+        modoDaltonico: savedData.modoDaltonico,
+        modoOscuro: savedData.modoOscuro,
+        position: 1,
+        row: 1,
+        streak: 0,
+        victorias: 0
       };
 
       if (savedData.estadoActual[0] && savedData.estadoActual[0] !== '') {
@@ -583,25 +857,25 @@ function App() {
 
   useEffect(() => {
     const handleAutoSave = async () => {
-      // Solo guardar si la partida no está finalizada
       if (!juego.juegoFinalizado && localStorage.getItem('token')) {
         try {
           await fetch('/api/partidas/guardar', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
             body: JSON.stringify({
               secretWord: juego.dailyWord,
               attempts: juego.estadoActual
-            })
+            }),
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+            },
+            method: 'POST'
           });
-        } catch (err) {
+        } catch {
           // Silenciar errores de guardado automático
         }
       }
     };
+
     window.addEventListener('beforeunload', handleAutoSave);
     return () => window.removeEventListener('beforeunload', handleAutoSave);
   }, [juego]);
@@ -618,7 +892,6 @@ function App() {
         }
       }
       if (allEmpty) {
-        // Si la primera fila está vacía, forzar posición y fila al inicio
         setJuego(j => ({ ...j, row: 1, position: 1 }));
       }
     }
@@ -627,17 +900,17 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/jugar" element={<HomePage juego={juego} setJuego={setJuego} />} />
-        <Route path="/register" element={<LoginRegister initialMode="register" onLogin={() => console.log('Registrado')} />} />
-        <Route path="/help" element={<Ayuda />} />
-        <Route path="/stats" element={<Stats juego={juego} />} />
-        <Route path="/settings" element={<Settings juego={juego} setJuego={setJuego} />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/verify-email" element={<VerifyEmailPage />} />
-        <Route path="/amistades" element={<AmistadesPanel />} />
+        <Route element={<LandingPage />} path="/" />
+        <Route element={<HomePage juego={juego} setJuego={setJuego} />} path="/jugar" />
+        <Route element={<LoginRegister initialMode="register" onLogin={() => {}} />} path="/register" />
+        <Route element={<Ayuda />} path="/help" />
+        <Route element={<Stats juego={juego} />} path="/stats" />
+        <Route element={<Settings juego={juego} setJuego={setJuego} />} path="/settings" />
+        <Route element={<LoginPage />} path="/login" />
+        <Route element={<ProfilePage />} path="/profile" />
+        <Route element={<ResetPasswordPage />} path="/reset-password" />
+        <Route element={<VerifyEmailPage />} path="/verify-email" />
+        <Route element={<AmistadesPanel />} path="/amistades" />
       </Routes>
     </Router>
   );
