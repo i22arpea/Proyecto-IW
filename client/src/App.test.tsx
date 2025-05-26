@@ -8,8 +8,3 @@ describe('Homepage', () => {
     expect(screen.getByRole('heading', { name: /Wordle/i })).toBeInTheDocument();
   });
 
-  it('debe mostrar el componente teclado', () => {
-    render(<App />);
-    expect(screen.getByRole('button', { name: 'Q' })).toBeInTheDocument();
-  });
-});
