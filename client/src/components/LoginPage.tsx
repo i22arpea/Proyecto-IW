@@ -11,7 +11,7 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const response = await fetch('/Proyecto-IW/api/login', {
+      const response = await fetch('/api/login', {
         body: JSON.stringify({ username, password }),
         headers: { 'Content-Type': 'application/json' },
         method: 'POST',
