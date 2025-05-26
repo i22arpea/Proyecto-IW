@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { desencriptarPalabra } from '../libs/crypto';
 import UserStats from './UserStats'; 
-import { fetchUserStats } from '../utils/fetchUserStats';
+import fetchUserStats from '../utils/fetchUserStats';
 
 
 interface UserProfile {
