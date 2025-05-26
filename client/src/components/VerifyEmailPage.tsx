@@ -13,7 +13,7 @@ export default function VerifyEmailPage() {
     if (!token || token === 'null' || token === 'undefined') {
       setMessage('Token de verificación inválido o faltante.');
       setLoading(false);
-
+      
       return;
     }
 
@@ -76,8 +76,8 @@ export default function VerifyEmailPage() {
       )}
 
       <button
-        onClick={() => navigate('/')}
         className="login-btn"
+        onClick={() => navigate('/')}
         style={{ margin: '2rem auto 0', display: 'block' }}
         type="button"
       >

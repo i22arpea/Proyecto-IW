@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import Board from './components/Tablero';
 import Header from './components/Header';
 import Settings from './components/Opciones';
@@ -15,7 +15,6 @@ import cargarSettings from './utils/cargarOpciones';
 import keyPress from './utils/presionarTecla';
 import llenarArray from './utils/llenarArray';
 import recuperarStats from './utils/recuperarStats';
-import { preguntarRestaurarPartida } from './utils/gamePersistence';
 
 import Teclado from './components/Teclado';
 import Ayuda from './components/Ayuda';
@@ -134,12 +133,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
         </div>
       )}
       <div className="game-main">
-        <Header
-          juego={juego}
-          onLoginClick={() => setShowLogin(true)}
-          onProfileClick={handleProfileClick}
-          setJuego={setJuego}
-        />
+        <Header juego={juego} setJuego={setJuego} onLoginClick={() => setShowLogin(true)} onProfileClick={handleProfileClick} />
         <Board juego={juego} />
         <Teclado juego={juego} setJuego={setJuego} />
       </div>
@@ -204,9 +198,11 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                       const errorText = await res.text();
                       try {
                         const data = JSON.parse(errorText);
-                        toast.error(data.message || data.error || 'Error al iniciar sesión');
+                        console.error('Login error:', data);
+                        alert(data.message || data.error || 'Error al iniciar sesión');
                       } catch (parseErr) {
-                        toast.error(`Error al iniciar sesión: ${errorText}`);
+                        console.error('Login error (raw):', errorText);
+                        alert(`Error al iniciar sesión: ${errorText}`);
                       }
                       return;
                     }
@@ -241,7 +237,8 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                     // --- FIN NUEVO ---
                     window.location.reload(); // Opcional: recarga para reflejar login
                   } catch (err) {
-                    toast.error('Error de red al iniciar sesión');
+                    console.error('Network/login error:', err);
+                    alert('Error de red al iniciar sesión');
                   }
                 }}
               >
@@ -406,23 +403,23 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                   const password2 = form.password2.value;
                   // Validación de contraseñas
                   if (password !== password2) {
-                    toast.error('Las contraseñas no coinciden');
+                    alert('Las contraseñas no coinciden');
                     return;
                   }
                   if (password.length < 6) {
-                    toast.error('La contraseña debe tener al menos 6 caracteres.');
+                    alert('La contraseña debe tener al menos 6 caracteres.');
                     return;
                   }
                   if (!/[A-Z]/.test(password)) {
-                    toast.error('La contraseña debe contener al menos una letra mayúscula.');
+                    alert('La contraseña debe contener al menos una letra mayúscula.');
                     return;
                   }
                   if (!/[a-z]/.test(password)) {
-                    toast.error('La contraseña debe contener al menos una letra minúscula.');
+                    alert('La contraseña debe contener al menos una letra minúscula.');
                     return;
                   }
                   if (!/[0-9]/.test(password)) {
-                    toast.error('La contraseña debe contener al menos un número.');
+                    alert('La contraseña debe contener al menos un número.');
                     return;
                   }
                   try {
@@ -435,17 +432,20 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                       const errorText = await res.text();
                       try {
                         const data = JSON.parse(errorText);
-                        toast.error(data.message || data.error || 'Error al registrarse');
+                        console.error('Register error:', data);
+                        alert(data.message || data.error || 'Error al registrarse');
                       } catch (parseErr) {
-                        toast.error(`Error al registrarse: ${errorText}`);
+                        console.error('Register error (raw):', errorText);
+                        alert(`Error al registrarse: ${errorText}`);
                       }
                       return;
                     }
-                    toast.success('Registro exitoso. Ahora puedes iniciar sesión.');
+                    alert('Registro exitoso. Ahora puedes iniciar sesión.');
                     setShowRegister(false);
                     setShowLogin(true);
                   } catch (err) {
-                    toast.error('Error de red al registrarse');
+                    console.error('Network/register error:', err);
+                    alert('Error de red al registrarse');
                   }
                 }}
               >
@@ -491,41 +491,37 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
 }
 
 function App() {
-  const [juego, setJuego] = useState<Juego>(() => {
-    const restaurada = preguntarRestaurarPartida();
-    if (restaurada) {
-      toast.info('Se ha restaurado una partida guardada.');
-      return restaurada;
-    }
-    return {
-      position: 1,
-      row: 1,
-      dificil: false,
-      modoOscuro: true,
-      modoDaltonico: false,
-      // dailyWord: encriptarPalabra(words[Math.floor(Math.random() * words.length)]),
-      juegoFinalizado: false,
-      jugadas: 0,
-      victorias: 0,
-      distribucion: {
-        1: 0,
-        2: 0,
-        3: 0,
-        4: 0,
-        5: 0,
-        6: 0,
-        X: 0
-      },
-      estadoActual: [],
-      streak: 0,
-      maxStreak: 0,
-      hardModeMustContain: [],
-      idioma: 'es',
-      categoria: 'general',
-      longitud: 5,
-      dailyWord: ''
-    };
+  const [juego, setJuego] = useState<Juego>({
+    position: 1,
+    row: 1,
+    dificil: false,
+    modoOscuro: true,
+    modoDaltonico: false,
+    // dailyWord: encriptarPalabra(words[Math.floor(Math.random() * words.length)]),
+    juegoFinalizado: false,
+    jugadas: 0,
+    victorias: 0,
+    distribucion: {
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0,
+      6: 0,
+      X: 0
+    },
+    estadoActual: [],
+    streak: 0,
+    maxStreak: 0,
+    hardModeMustContain: [],
+    idioma: 'es',        
+    categoria: 'general',
+    longitud: 5,
+    dailyWord: ''     
   });
+
+
+
 
   useEffect(() => {
     const rawData = localStorage.getItem('juego');
@@ -633,7 +629,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/jugar" element={<HomePage juego={juego} setJuego={setJuego} />} />
-        <Route path="/register" element={<LoginRegister initialMode="register" onLogin={() => toast.info('Registrado')} />} />
+        <Route path="/register" element={<LoginRegister initialMode="register" onLogin={() => console.log('Registrado')} />} />
         <Route path="/help" element={<Ayuda />} />
         <Route path="/stats" element={<Stats juego={juego} />} />
         <Route path="/settings" element={<Settings juego={juego} setJuego={setJuego} />} />

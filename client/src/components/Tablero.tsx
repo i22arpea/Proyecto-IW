@@ -55,21 +55,21 @@ export default function Board({ children, juego }: BoardProps) {
     const filas = 6;
     const columnas = juego?.longitud || 5;
 
-    function renderSquare(rowIdx: number, colIdx: number) {
-        const i = rowIdx * columnas + colIdx + 1;
-        // Usar un identificador único para la key del botón
+  function renderSquare(rowIdx: number, colIdx: number) {
+    const i = rowIdx * columnas + colIdx + 1;
+    // Usar un identificador único para la key del botón
 
-        return (
-            <button
-                onClick={() => setAttemptsUsed(attemptsUsed + 1)}
-                aria-label="square"
-                className="square"
-                type="button"
-                value={i}
-                key={`square-${i}`}
-            />
-        );
-    }
+    return (
+      <button
+        onClick={() => setAttemptsUsed(attemptsUsed + 1)}
+        aria-label="square"
+        className="square"
+        type="button"
+        value={i}
+        key={`square-${i}`}
+      />
+    );
+  }
 
     return (
         <main className="board-flex">

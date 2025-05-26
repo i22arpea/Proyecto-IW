@@ -23,13 +23,11 @@ export const isAuthenticated = () => {
     // exp está en segundos desde epoch
     if (Date.now() / 1000 > decoded.exp) {
       removeToken();
-
       return false;
     }
 
     return true;
   } catch {
-
     removeToken();
     return false;
   }
