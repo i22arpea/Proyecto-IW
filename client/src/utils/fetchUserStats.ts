@@ -1,4 +1,4 @@
-const fetchUserStats = async (token: string) => {
+export default async function fetchUserStats(token: string) {
   const res = await fetch('/api/usuarios/estadisticas', {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -6,7 +6,5 @@ const fetchUserStats = async (token: string) => {
   });
 
   if (!res.ok) throw new Error('Error al obtener estadísticas del usuario');
-  return res.json();
-};
-
-export default fetchUserStats;
+  return await res.json();
+}
