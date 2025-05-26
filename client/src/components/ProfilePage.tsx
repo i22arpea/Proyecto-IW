@@ -16,13 +16,13 @@ interface UserProfile {
 // Hook para detectar si está en modo claro
 function useIsLightMode() {
   const [isLight, setIsLight] = useState(() =>
-    typeof document !== 'undefined' && document.documentElement.classList.contains('light-mode')
+    typeof document !== 'undefined' && document.body.classList.contains('light-mode')
   );
   useEffect(() => {
     const observer = new MutationObserver(() => {
-      setIsLight(document.documentElement.classList.contains('light-mode'));
+      setIsLight(document.body.classList.contains('light-mode'));
     });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
     return () => observer.disconnect();
   }, []);
   return isLight;
@@ -216,11 +216,11 @@ export default function ProfilePage() {
           color: 'var(--color-texto)'
         }}>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
-            <span style={{color:isLightMode ? '#111' : '#fff',minWidth:80, fontSize:'0.98rem'}}>Usuario:</span>
+            <span style={{color:isLightMode ? '#000' : '#fff',minWidth:80, fontSize:'0.98rem'}}>Usuario:</span>
             <span style={{color:isLightMode ? '#222' : '#aaa', fontSize:'0.98rem'}}>{user.username}</span>
           </div>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
-            <span style={{color:isLightMode ? '#111' : '#fff',minWidth:80, fontSize:'0.98rem'}}>Nombre:</span>
+            <span style={{color:isLightMode ? '#000' : '#fff',minWidth:80, fontSize:'0.98rem'}}>Nombre:</span>
             {editField === 'name' ? (
               <>
                 <input
@@ -285,12 +285,12 @@ export default function ProfilePage() {
             )}
           </div>
           <div style={{display:'flex',flexWrap:'wrap',alignItems:'center',gap:10,wordBreak:'break-word',overflowWrap:'anywhere'}}>
-            <span style={{color:isLightMode ? '#111' : '#fff',minWidth:80, fontSize:'0.98rem'}}>Email:</span>
+              <span style={{color:isLightMode ? '#000' : '#fff',minWidth:80, fontSize:'0.98rem'}}>Email:</span>
             {user && <span style={{color:isLightMode ? '#222' : '#aaa',wordBreak:'break-word', fontSize:'0.98rem'}}>{user.email}</span>}
           </div>
           {/* Contraseña y botón cambiar al lado */}
           <div style={{display:'flex',alignItems:'center',gap:10,position:'relative'}}>
-            <span style={{color:isLightMode ? '#111' : '#fff',minWidth:80, fontSize:'0.98rem'}}>Contraseña:</span>
+            <span style={{color:isLightMode ? '#000' : '#fff',minWidth:80, fontSize:'0.98rem'}}>Contraseña:</span>
             <span style={{color:isLightMode ? '#222' : '#aaa', fontSize:'0.98rem'}}>********</span>
             <button
               style={{marginLeft:8,padding:'6px 14px',fontSize:'0.95rem',background:'#1ed760',color:'#181a1b',border:'none',borderRadius:6,cursor:'pointer'}}
