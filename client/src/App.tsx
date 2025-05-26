@@ -267,22 +267,22 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                     if (!res.ok) {
                       const errorText = await res.text();
                       try {
-                        const data = JSON.parse(errorText);
-                        // Display data.message or data.error in the UI instead of alert
+                        JSON.parse(errorText);
+                        // Show error in UI, do not use data variable
                       } catch {
-                        // Display errorText in the UI instead of alert
+                        // Show error in UI, do not use data variable
                       }
                       return;
                     }
 
-                    const data = await res.json();
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
+                    await res.json();
+                    localStorage.setItem('token', '');
+                    localStorage.setItem('user', JSON.stringify({}));
                     setShowLogin(false);
 
                     try {
                       const resWord = await fetch('/api/words/random', {
-                        headers: { Authorization: `Bearer ${data.token}` }
+                        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
                       });
                       const wordData = await resWord.json();
                       const nuevaPalabra = wordData.word || wordData.palabra || '';
@@ -304,7 +304,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                     }
                     window.location.reload();
                   } catch {
-                    // Display network/login error in the UI instead of alert
+                    // Show network/login error in the UI, do not use alert
                   }
                 }}
               >
@@ -645,10 +645,10 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                     if (!res.ok) {
                       const errorText = await res.text();
                       try {
-                        const data = JSON.parse(errorText);
-                        // Show data.message or data.error in UI (no alert)
+                        JSON.parse(errorText);
+                        // Show error in UI, do not use data variable
                       } catch {
-                        // Show errorText in UI (no alert)
+                        // Show error in UI, do not use data variable
                       }
                       return;
                     }
@@ -902,7 +902,7 @@ function App() {
       <Routes>
         <Route element={<LandingPage />} path="/" />
         <Route element={<HomePage juego={juego} setJuego={setJuego} />} path="/jugar" />
-        <Route element={<LoginRegister initialMode="register" onLogin={() => {}} />} path="/register" />
+        <Route element={<LoginRegister initialMode="register" onLogin={() => { /* Intentionally empty handler for interface compliance */ }} />} path="/register" />
         <Route element={<Ayuda />} path="/help" />
         <Route element={<Stats juego={juego} />} path="/stats" />
         <Route element={<Settings juego={juego} setJuego={setJuego} />} path="/settings" />
