@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - Fusión-frontend-y-backend
+      - Fmain
 
 permissions:
   contents: write      
