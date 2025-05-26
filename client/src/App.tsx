@@ -54,7 +54,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
   const handleSaveGame = async () => {
     setSaving(true);
     try {
-      await fetch('/Proyecto-IW/api/partidas/guardar', {
+      await fetch('Proyecto-IW/api/partidas/guardar', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -195,7 +195,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                   const username = form.username.value;
                   const password = form.password.value;
                   try {
-                    const res = await fetch('/Proyecto-IW/api/login', {
+                    const res = await fetch('/api/login', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ username, password })
@@ -216,7 +216,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                     setShowLogin(false);
                     // --- NUEVO: reiniciar juego con nueva palabra al iniciar sesión ---
                     try {
-                      const resWord = await fetch('/Proyecto-IW/api/words/random', {
+                      const resWord = await fetch('Proyecto-IW/api/words/random', {
                         headers: { Authorization: `Bearer ${data.token}` }
                       });
                       const wordData = await resWord.json();
@@ -426,7 +426,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                     return;
                   }
                   try {
-                    const res = await fetch('/Proyecto-IW/api/register', {
+                    const res = await fetch('Proyecto-IW/api/register', {
                       method: 'POST',
                       headers: {'Content-Type': 'application/json'},
                       body: JSON.stringify({username, email, password})
@@ -615,7 +615,7 @@ function App() {
       // Solo guardar si la partida no está finalizada
       if (!juego.juegoFinalizado && localStorage.getItem('token')) {
         try {
-          await fetch('/Proyecto-IW/api/partidas/guardar', {
+          await fetch('Proyecto-IW/api/partidas/guardar', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
