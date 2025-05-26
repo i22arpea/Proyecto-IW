@@ -54,7 +54,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
   const handleSaveGame = async () => {
     setSaving(true);
     try {
-      await fetch(`${process.env.PUBLIC_URL}/api/partidas/guardar`, {
+      await fetch('/api/partidas/guardar', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -195,7 +195,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                   const username = form.username.value;
                   const password = form.password.value;
                   try {
-                    const res = await fetch(`${process.env.PUBLIC_URL}/api/login`, {
+                    const res = await fetch('/api/login', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ username, password })
@@ -216,7 +216,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                     setShowLogin(false);
                     // --- NUEVO: reiniciar juego con nueva palabra al iniciar sesión ---
                     try {
-                      const resWord = await fetch(`${process.env.PUBLIC_URL}/api/words/random`, {
+                      const resWord = await fetch('/api/words/random', {
                         headers: { Authorization: `Bearer ${data.token}` }
                       });
                       const wordData = await resWord.json();
@@ -325,7 +325,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                 const form = e.currentTarget;
                 const email = form.email.value;
                 try {
-                  const res = await fetch(`${process.env.PUBLIC_URL}/api/forgot-password`, {
+                  const res = await fetch('/api/forgot-password', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email })
@@ -426,7 +426,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                     return;
                   }
                   try {
-                    const res = await fetch(`${process.env.PUBLIC_URL}/api/register`, {
+                    const res = await fetch('/api/register', {
                       method: 'POST',
                       headers: {'Content-Type': 'application/json'},
                       body: JSON.stringify({username, email, password})
@@ -572,9 +572,9 @@ function App() {
         streak: 0,
         maxStreak: 0,
         hardModeMustContain: [],
-        idioma: savedData.idioma ?? 'es',
+        idioma: savedData.idioma ?? 'es',           
         categoria: savedData.categoria ?? 'general',
-        longitud: savedData.longitud ?? 5
+        longitud: savedData.longitud ?? 5           
       };
 
       if (savedData.estadoActual[0] && savedData.estadoActual[0] !== '') {
@@ -615,8 +615,61 @@ function App() {
       // Solo guardar si la partida no está finalizada
       if (!juego.juegoFinalizado && localStorage.getItem('token')) {
         try {
-          await fetch(`${process.env.PUBLIC_URL}/api/partidas/guardar`, {
+          await fetch('/api/partidas/guardar', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({
+              secretWord: juego.dailyWord,
+              attempts: juego.estadoActual
+            })
+          });
+        } catch (err) {
+          // Silenciar errores de guardado automático
+        }
+      }
+    };
+    window.addEventListener('beforeunload', handleAutoSave);
+    return () => window.removeEventListener('beforeunload', handleAutoSave);
+  }, [juego]);
 
+  useEffect(() => {
+    // --- CORRECCIÓN: Siempre empezar en la primera fila editable si está vacía ---
+    const squares = document.getElementsByClassName('square');
+    if (squares.length >= 5) {
+      let allEmpty = true;
+      for (let i = 0; i < 5; i++) {
+        if (squares[i].textContent && squares[i].textContent !== '') {
+          allEmpty = false;
+          break;
+        }
+      }
+      if (allEmpty) {
+        // Si la primera fila está vacía, forzar posición y fila al inicio
+        setJuego(j => ({ ...j, row: 1, position: 1 }));
+      }
+    }
+  }, []);
+
+  return (
+    <Router basename="/Proyecto-IW">
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/jugar" element={<HomePage juego={juego} setJuego={setJuego} />} />
+        <Route path="/register" element={<LoginRegister initialMode="register" onLogin={() => toast.info('Registrado')} />} />
+        <Route path="/help" element={<Ayuda />} />
+        <Route path="/stats" element={<Stats juego={juego} />} />
+        <Route path="/settings" element={<Settings juego={juego} setJuego={setJuego} />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/amistades" element={<AmistadesPanel />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
