@@ -4,6 +4,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
+
   const [password, setPassword] = useState('');
   const [password2, setPassword2] = useState('');
   const [loading, setLoading] = useState(false);
@@ -12,26 +13,33 @@ export default function ResetPasswordPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     setMessage(null);
+
     if (!password || !password2) {
       setMessage('Por favor, completa ambos campos.');
       return;
     }
+
     if (password !== password2) {
       setMessage('Las contraseñas no coinciden.');
       return;
     }
+
     if (password.length < 6) {
       setMessage('La contraseña debe tener al menos 6 caracteres.');
       return;
     }
+
     setLoading(true);
+
     try {
       const res = await fetch('/api/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, password })
       });
+
       if (res.ok) {
         setMessage('Contraseña restablecida correctamente. Ahora puedes iniciar sesión.');
         setTimeout(() => navigate('/'), 2000);
@@ -55,20 +63,27 @@ export default function ResetPasswordPage() {
       <h2 style={{textAlign:'center',color:'#1ed760',marginBottom:'1.5rem'}}>Restablecer contraseña</h2>
       <form onSubmit={handleSubmit} style={{display:'flex',flexDirection:'column',gap:16}}>
         <input
-          type="password"
+          autoComplete="new-password"
           placeholder="Nueva contraseña"
+          style={{background:'#181a1b',border:'1.5px solid #1ed760',borderRadius:8,color:'#fff',padding:8}}
+          type="password"
           value={password}
           onChange={e => setPassword(e.target.value)}
-          style={{padding:8,borderRadius:8,border:'1.5px solid #1ed760',background:'#181a1b',color:'#fff'}}
         />
         <input
-          type="password"
+          autoComplete="new-password"
           placeholder="Repite la nueva contraseña"
+          style={{background:'#181a1b',border:'1.5px solid #1ed760',borderRadius:8,color:'#fff',padding:8}}
+          type="password"
           value={password2}
           onChange={e => setPassword2(e.target.value)}
-          style={{padding:8,borderRadius:8,border:'1.5px solid #1ed760',background:'#181a1b',color:'#fff'}}
         />
-        <button className="login-btn" type="submit" disabled={loading} style={{width:'100%',padding:'12px 0',fontSize:'1.08rem'}}>
+        <button
+          className="login-btn"
+          disabled={loading}
+          style={{fontSize:'1.08rem',padding:'12px 0',width:'100%'}}
+          type="submit"
+        >
           {loading ? 'Guardando...' : 'Restablecer contraseña'}
         </button>
       </form>

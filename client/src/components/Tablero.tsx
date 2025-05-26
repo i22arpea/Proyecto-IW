@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Juego } from '../types/types';
 
 interface BoardProps {
   children?: React.ReactNode;
-  juego: any; // Debe ser tipo Juego, pero para evitar dependencias cruzadas
+  juego: Juego;
 }
 
 export default function Board({ children, juego }: BoardProps) {
@@ -29,10 +30,10 @@ export default function Board({ children, juego }: BoardProps) {
         });
 
         if (!response.ok) {
-          console.error('Error saving game:', await response.text());
+          // TODO: manejar error de guardado
         }
       } catch (error) {
-        console.error('Network error:', error);
+        // TODO: manejar error de red
       }
     },
     [attemptsUsed, startTime]
@@ -55,6 +56,7 @@ export default function Board({ children, juego }: BoardProps) {
 
   function renderSquare(rowIdx: number, colIdx: number) {
     const i = rowIdx * columnas + colIdx + 1;
+    // Usar un identificador único para la key del botón
     return (
       <button
         aria-label="square"
@@ -62,7 +64,7 @@ export default function Board({ children, juego }: BoardProps) {
         type="button"
         value={i}
         onClick={() => setAttemptsUsed(attemptsUsed + 1)}
-        key={`square-${rowIdx}-${colIdx}`}
+        key={`square-${i}`}
       />
     );
   }
@@ -73,8 +75,8 @@ export default function Board({ children, juego }: BoardProps) {
         {children}
         {Array.from({ length: filas }).map((filaVoid, rowIdx) => (
           <div
+
             className="fila"
-            
             style={{ display: 'grid', gridTemplateColumns: `repeat(${columnas}, 1fr)` }}
           >
             {Array.from({ length: columnas }).map((colVoid, colIdx) => renderSquare(rowIdx, colIdx))}

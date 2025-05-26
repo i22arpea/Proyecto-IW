@@ -18,6 +18,7 @@ export default function AmistadesPanel() {
     async function fetchData() {
       setLoading(true);
       setError(null);
+
       try {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -25,12 +26,15 @@ export default function AmistadesPanel() {
           setLoading(false);
           return;
         }
+
         const resAmigos = await fetch('/api/friends', {
           headers: { Authorization: `Bearer ${token}` }
         });
+
         const resSolicitudes = await fetch('/api/friend-requests', {
           headers: { Authorization: `Bearer ${token}` }
         });
+
         const amigosData = await resAmigos.json();
         const solicitudesData = await resSolicitudes.json();
         setAmigos(Array.isArray(amigosData) ? amigosData : []);
@@ -41,6 +45,7 @@ export default function AmistadesPanel() {
         setLoading(false);
       }
     }
+
     fetchData();
   }, []);
 
@@ -48,7 +53,9 @@ export default function AmistadesPanel() {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', background: '#181a1b' }}>
       <div style={{ background: '#23272f', borderRadius: 16, boxShadow: '0 4px 16px #000a', padding: '2.5rem 2rem', minWidth: 320, maxWidth: 400, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <h1 style={{ color: '#fff', marginBottom: 10, fontWeight: 800, fontSize: '2rem', letterSpacing: '0.03em', textAlign: 'center' }}>Gestión de amistades</h1>
+
         <AgregarAmigo />
+
         <h2 style={{ color: '#1ed760', marginBottom: 24 }}>Solicitudes de amistad</h2>
         {loading ? (
           <p style={{ color: '#aaa' }}>Cargando...</p>
@@ -65,6 +72,7 @@ export default function AmistadesPanel() {
             ))}
           </ul>
         )}
+
         <h2 style={{ color: '#1ed760', margin: '32px 0 24px 0' }}>Tus amigos</h2>
         {loading ? (
           <p style={{ color: '#aaa' }}>Cargando...</p>
@@ -81,21 +89,22 @@ export default function AmistadesPanel() {
             ))}
           </ul>
         )}
+
         <button
-          type="button"
           style={{
-            marginTop: 32,
             background: '#1ed760',
-            color: '#181a1b',
-            fontWeight: 'bold',
             border: 'none',
             borderRadius: 8,
-            padding: '12px 28px',
-            fontSize: '1.1rem',
-            cursor: 'pointer',
             boxShadow: '0 2px 8px #1ed76044',
+            color: '#181a1b',
+            cursor: 'pointer',
+            fontSize: '1.1rem',
+            fontWeight: 'bold',
+            marginTop: 32,
+            padding: '12px 28px',
             transition: 'background 0.2s',
           }}
+          type="button"
           onClick={() => navigate('/jugar')}
         >
           Volver al juego

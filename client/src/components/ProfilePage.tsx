@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { desencriptarPalabra } from '../libs/crypto';
 import UserStats from './UserStats'; 
-import { fetchUserStats } from '../utils/fetchUserStats';
-
+import fetchUserStats  from '../utils/fetchUserStats';
 
 interface UserProfile {
   username: string;
@@ -18,6 +17,7 @@ function useIsLightMode() {
   const [isLight, setIsLight] = useState(() =>
     typeof document !== 'undefined' && document.body.classList.contains('light-mode')
   );
+
   useEffect(() => {
     const observer = new MutationObserver(() => {
       setIsLight(document.body.classList.contains('light-mode'));
@@ -25,14 +25,19 @@ function useIsLightMode() {
     observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
     return () => observer.disconnect();
   }, []);
+
   return isLight;
 }
 
 export default function ProfilePage() {
   const [user, setUser] = useState<UserProfile | null>(null);
+
   const [loading, setLoading] = useState(false);
+
   const [message, setMessage] = useState<string | null>(null);
+
   const navigate = useNavigate();
+
   const isLightMode = useIsLightMode();
 
   // Estado para el historial de partidas
@@ -43,10 +48,12 @@ export default function ProfilePage() {
     attemptsUsed: number;
     createdAt: string;
   }>>([]);
+
   const [historyLoading, setHistoryLoading] = useState(false);
 
   // Estado para estadísticas del usuario
-  const [userStats, setUserStats] = useState<any>(null);
+  const [userStats, setUserStats] = useState<Record<string, unknown> | null>(null);
+
   const [statsLoading, setStatsLoading] = useState(false);
 
   // Estado para partidas guardadas en curso
@@ -64,6 +71,7 @@ export default function ProfilePage() {
   useEffect(() => {
     async function fetchProfile() {
       setLoading(true);
+
       try {
         const token = localStorage.getItem('token');
         const res = await fetch('/api/usuarios/verPerfil', {
@@ -77,8 +85,10 @@ export default function ProfilePage() {
         setLoading(false);
       }
     }
+
     async function fetchHistory() {
       setHistoryLoading(true);
+
       try {
         const token = localStorage.getItem('token');
         const res = await fetch('/api/usuarios/historial', {
@@ -92,15 +102,17 @@ export default function ProfilePage() {
         setHistoryLoading(false);
       }
     }
+
     async function fetchStats() {
       setStatsLoading(true);
+
       try {
         const token = localStorage.getItem('token');
         if (!token) throw new Error('Token no disponible');
         const data = await fetchUserStats(token);
         setUserStats(data);
       } catch (err) {
-        console.error('Error al cargar estadísticas:', err);
+        setMessage('Error al cargar estadísticas.');
       } finally {
         setStatsLoading(false);
       }
@@ -120,6 +132,7 @@ export default function ProfilePage() {
         // Opcional: puedes mostrar un mensaje de error si lo deseas
       }
     }
+
     fetchProfile();
     fetchHistory();
     fetchStats(); // <-- SIEMPRE obtiene estadísticas de la base de datos
@@ -143,19 +156,24 @@ export default function ProfilePage() {
   const handleCloseMouseOver = (e: React.MouseEvent<HTMLButtonElement> | React.FocusEvent<HTMLButtonElement>) => {
     e.currentTarget.style.color = '#1ed760';
   };
+
   const handleCloseMouseOut = (e: React.MouseEvent<HTMLButtonElement> | React.FocusEvent<HTMLButtonElement>) => {
     e.currentTarget.style.color = '#aaa';
   };
+
   const handleLogoutMouseOver = (e: React.MouseEvent<HTMLButtonElement> | React.FocusEvent<HTMLButtonElement>) => {
     e.currentTarget.style.background = '#16b34a';
   };
+
   const handleLogoutMouseOut = (e: React.MouseEvent<HTMLButtonElement> | React.FocusEvent<HTMLButtonElement>) => {
     e.currentTarget.style.background = '#1ed760';
   };
 
   // Nuevo: control de edición por campo
   const [editField, setEditField] = useState<'username' | 'password' | 'name' | null>(null);
+
   const [editValue, setEditValue] = useState<string>('');
+
   const [currentPassword, setCurrentPassword] = useState('');
 
   // Función para continuar una partida guardada en curso
@@ -165,6 +183,7 @@ export default function ProfilePage() {
     attempts: string[];
     createdAt: string;
   };
+
   const continueInProgressGame = (game: InProgressGame) => {
     // Puedes guardar la partida en localStorage o usar navigate con state
     localStorage.setItem('inProgressGame', JSON.stringify(game));
@@ -190,15 +209,15 @@ export default function ProfilePage() {
     }}>
       {/* Botón cerrar ventana arriba a la derecha */}
       <button
-        type="button"
-        onClick={handleClose}
-        title="Cerrar ventana"
         aria-label="Cerrar ventana"
-        style={{position:'absolute',top:18,right:18,background:'none',border:'none',color:'#aaa',fontSize:'1.5rem',cursor:'pointer',transition:'color 0.2s',padding:0,zIndex:2}}
-        onMouseOver={handleCloseMouseOver}
+        onBlur={handleCloseMouseOut}
+        onClick={handleClose}
         onFocus={handleCloseMouseOver}
         onMouseOut={handleCloseMouseOut}
-        onBlur={handleCloseMouseOut}
+        onMouseOver={handleCloseMouseOver}
+        style={{position:'absolute',top:18,right:18,background:'none',border:'none',color:'#aaa',fontSize:'1.5rem',cursor:'pointer',transition:'color 0.2s',padding:0,zIndex:2}}
+        title="Cerrar ventana"
+        type="button"
       >
         ×
       </button>
@@ -568,10 +587,12 @@ export default function ProfilePage() {
       {message && <div style={{marginTop:12,textAlign:'center',color:message.includes('actualizada')||message.includes('actualizado')?'#1ed760':'#ff5252', fontSize:'0.97rem'}}>{message}</div>}
       <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
         <button
-          type="button"
-          onClick={handleLogout}
-          title="Cerrar sesión"
           aria-label="Cerrar sesión"
+          onBlur={handleLogoutMouseOut}
+          onClick={handleLogout}
+          onFocus={handleLogoutMouseOver}
+          onMouseOut={handleLogoutMouseOut}
+          onMouseOver={handleLogoutMouseOver}
           style={{
             marginTop: '2rem',
             background: '#1ed760',
@@ -586,10 +607,8 @@ export default function ProfilePage() {
             transition: 'background 0.2s',
             alignSelf: 'flex-end'
           }}
-          onMouseOver={handleLogoutMouseOver}
-          onFocus={handleLogoutMouseOver}
-          onMouseOut={handleLogoutMouseOut}
-          onBlur={handleLogoutMouseOut}
+          title="Cerrar sesión"
+          type="button"
         >
           Cerrar sesión
         </button>
@@ -599,7 +618,8 @@ export default function ProfilePage() {
       <button
         type="button"
         onClick={async () => {
-          if (window.confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.')) {
+          setMessage('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer. Haz clic en "Eliminar cuenta" nuevamente para confirmar.');
+          if (message === '¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer. Haz clic en "Eliminar cuenta" nuevamente para confirmar.') {
             const token = localStorage.getItem('token');
             const res = await fetch('/api/usuarios', {
               method: 'DELETE',
@@ -610,7 +630,7 @@ export default function ProfilePage() {
               localStorage.removeItem('user');
               window.location.href = '/';
             } else {
-              alert('No se pudo eliminar la cuenta.');
+              setMessage('No se pudo eliminar la cuenta.');
             }
           }
         }}

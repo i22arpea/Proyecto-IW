@@ -10,10 +10,15 @@ const API = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 
 const LoginRegister = function LoginRegister({ onLogin, children, initialMode }: LoginRegisterProps) {
   const [isLogin, setIsLogin] = useState(initialMode === 'login');
+
   const [form, setForm] = useState({ username: '', email: '', password: '' });
+
   const [message, setMessage] = useState<string | null>(null);
+
   const [loading, setLoading] = useState(false);
+
   const [hovered, setHovered] = useState(false);
+
   const [profileImage, setProfileImage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -28,7 +33,7 @@ const LoginRegister = function LoginRegister({ onLogin, children, initialMode }:
     setLoading(true);
 
     const endpoint = isLogin ? 'login' : 'register';
-    const body: any = { ...form };
+    const body: Record<string, unknown> = { ...form };
     if (!isLogin && profileImage) body.profileImage = profileImage;
 
     try {
@@ -182,12 +187,11 @@ const LoginRegister = function LoginRegister({ onLogin, children, initialMode }:
           />
 
           <button
-            type="submit"
             disabled={loading}
+            onBlur={() => setHovered(false)}
+            onFocus={() => setHovered(true)}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
-            onFocus={() => setHovered(true)}
-            onBlur={() => setHovered(false)}
             style={{
               backgroundColor: hovered ? '#16b34a' : '#1ed760',
               color: '#181a1b',
@@ -199,6 +203,7 @@ const LoginRegister = function LoginRegister({ onLogin, children, initialMode }:
               cursor: 'pointer',
               transition: 'background 0.3s',
             }}
+            type="submit"
           >
             {loading ? 'Enviando...' : isLogin ? 'Entrar' : 'Registrarse'}
           </button>
@@ -210,10 +215,6 @@ const LoginRegister = function LoginRegister({ onLogin, children, initialMode }:
 
         <button
           type="button"
-          onClick={() => {
-            setIsLogin(!isLogin);
-            setMessage(null);
-          }}
           style={{
             marginTop: '1.5rem',
             background: 'none',
@@ -222,6 +223,10 @@ const LoginRegister = function LoginRegister({ onLogin, children, initialMode }:
             cursor: 'pointer',
             fontSize: '0.9rem',
             textDecoration: 'underline',
+          }}
+          onClick={() => {
+            setIsLogin(!isLogin);
+            setMessage(null);
           }}
         >
           {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
