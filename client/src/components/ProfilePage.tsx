@@ -75,7 +75,7 @@ export default function ProfilePage() {
 
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch('/Proyecto-IW/api/usuarios/verPerfil', {
+        const res = await fetch('/api/usuarios/verPerfil', {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -92,7 +92,7 @@ export default function ProfilePage() {
 
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch('/Proyecto-IW/api/usuarios/historial', {
+        const res = await fetch('/api/usuarios/historial', {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -122,7 +122,7 @@ export default function ProfilePage() {
     async function fetchInProgressGames() {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch('/Proyecto-IW/api/partidas/guardadas', {
+        const res = await fetch('/api/partidas/guardadas', {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -257,7 +257,7 @@ export default function ProfilePage() {
                     setMessage(null);
                     try {
                       const token = localStorage.getItem('token');
-                      const res = await fetch('/Proyecto-IW/api/usuarios/modificarPerfil', {
+                      const res = await fetch('/api/usuarios/modificarPerfil', {
                         method: 'PUT',
                         headers: {
                           'Content-Type': 'application/json',
@@ -344,7 +344,7 @@ export default function ProfilePage() {
                     setLoading(true);
                     try {
                       const token = localStorage.getItem('token');
-                      const res = await fetch('/Proyecto-IW/api/usuarios/cambiarPassword', {
+                      const res = await fetch('/api/usuarios/cambiarPassword', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                         body: JSON.stringify({ currentPassword, newPassword: editValue }),
@@ -420,14 +420,14 @@ export default function ProfilePage() {
                 const token = localStorage.getItem('token');
                 setLoading(true);
                 try {
-                  const res = await fetch('/Proyecto-IW/api/usuarios/subirFoto', {
+                  const res = await fetch('/api/usuarios/subirFoto', {
                     method: 'POST',
                     headers: { Authorization: `Bearer ${token}` },
                     body: formData
                   });
                   if (res.ok) {
                     // Recargar el perfil desde el backend para obtener la URL definitiva
-                    const profileRes = await fetch('/Proyecto-IW/api/usuarios/verPerfil', {
+                    const profileRes = await fetch('/api/usuarios/verPerfil', {
                       headers: { Authorization: `Bearer ${token}` }
                     });
                     if (profileRes.ok) {
@@ -502,12 +502,14 @@ export default function ProfilePage() {
         </div>
       </div>
       <hr style={{ margin: '1.5rem 0', borderColor: '#1ed76033' }} />
-      {/* Historial de partidas */}
-      <div style={{ marginBottom: 18, color: 'var(--color-texto)' }}>
-        <h3 style={{ color: '#1ed760', marginBottom: 8, fontSize: '1.08rem' }}>Historial de partidas</h3>
-        {historyLoading && <div style={{ color: '#1ed760' }}>Cargando historial...</div>}
-        {!historyLoading && history.length === 0 && <em>No hay partidas registradas.</em>}
-        {!historyLoading && history.length > 0 && (
+      {/* Historial de partidas jugadas */}
+      <div style={{ marginBottom: 32, color: 'var(--color-texto)' }}>
+        <h3 style={{ color: '#1ed760', marginBottom: 8, fontSize: '1.08rem' }}>Historial de partidas jugadas</h3>
+        {historyLoading ? (
+          <div style={{ color: '#1ed760' }}>Cargando historial...</div>
+        ) : history.length === 0 ? (
+          <em>No hay partidas jugadas.</em>
+        ) : (
           <table style={{
             width: '100%',
             background: 'var(--color-fondo)',
@@ -531,7 +533,6 @@ export default function ProfilePage() {
                   <td style={{ padding: '6px 4px', fontFamily: 'monospace', fontWeight: 600 }}>
                     {(() => {
                       const palabra = desencriptarPalabra(secretWord);
-                      // Forzar mostrar la palabra desencriptada para depuración
                       return palabra && typeof palabra === 'string' ? palabra.toUpperCase() : secretWord;
                     })()}
                   </td>
@@ -544,9 +545,11 @@ export default function ProfilePage() {
         )}
       </div>
       {/* Historial de partidas guardadas */}
-      {inProgressGames.length > 0 && (
-        <div style={{ marginBottom: 18 }}>
-          <h4 style={{ color: '#1ed760', margin: '16px 0 8px', fontSize: '1.01rem' }}>Historial de partidas guardadas</h4>
+      <div style={{ marginBottom: 18 }}>
+        <h3 style={{ color: '#1ed760', margin: '16px 0 8px', fontSize: '1.08rem' }}>Partidas guardadas (en curso)</h3>
+        {inProgressGames.length === 0 ? (
+          <em>No hay partidas guardadas en curso.</em>
+        ) : (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, flexDirection: 'row' }}>
             {inProgressGames.map((game) => {
               const idioma = game.idioma ? game.idioma.toUpperCase() : 'N/A';
@@ -583,8 +586,8 @@ export default function ProfilePage() {
               );
             })}
           </div>
-        </div>
-      )}
+        )}
+      </div>
       {message && <div style={{marginTop:12,textAlign:'center',color:message.includes('actualizada')||message.includes('actualizado')?'#1ed760':'#ff5252', fontSize:'0.97rem'}}>{message}</div>}
       <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
         <button
@@ -622,7 +625,7 @@ export default function ProfilePage() {
           setMessage('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer. Haz clic en "Eliminar cuenta" nuevamente para confirmar.');
           if (message === '¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer. Haz clic en "Eliminar cuenta" nuevamente para confirmar.') {
             const token = localStorage.getItem('token');
-            const res = await fetch('/Proyecto-IW/api/usuarios', {
+            const res = await fetch('/api/usuarios', {
               method: 'DELETE',
               headers: { Authorization: `Bearer ${token}` },
             });
