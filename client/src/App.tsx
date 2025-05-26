@@ -195,7 +195,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                   const username = form.username.value;
                   const password = form.password.value;
                   try {
-                    const res = await fetch('Proyecto-IW/api/login', {
+                    const res = await fetch('/api/login', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ username, password })
