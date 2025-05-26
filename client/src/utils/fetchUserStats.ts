@@ -1,4 +1,5 @@
-export async function fetchUserStats(token: string) {
+// Change from named export to default export
+export default async function fetchUserStats(token: string) {
   const res = await fetch('/api/usuarios/estadisticas', {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -6,5 +7,7 @@ export async function fetchUserStats(token: string) {
   });
 
   if (!res.ok) throw new Error('Error al obtener estadísticas del usuario');
-  return await res.json();
+  
+  // Remove redundant 'await'
+  return res.json();
 }
