@@ -54,7 +54,8 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
   const handleSaveGame = async () => {
     setSaving(true);
     try {
-      await fetch('/api/partidas/guardar', {
+      // Guardar en backend el estado completo relevante
+      await fetch('/api/partidas/guardar-progreso', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -62,9 +63,26 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
         },
         body: JSON.stringify({
           secretWord: juego.dailyWord,
-          attempts: juego.estadoActual
+          attempts: juego.estadoActual,
+          hardModeMustContain: juego.hardModeMustContain,
+          row: juego.row,
+          position: juego.position,
+          idioma: juego.idioma,
+          categoria: juego.categoria,
+          longitud: juego.longitud
         })
       });
+      // Guardar también en localStorage
+      localStorage.setItem('inProgressGame', JSON.stringify({
+        secretWord: juego.dailyWord,
+        attempts: juego.estadoActual,
+        hardModeMustContain: juego.hardModeMustContain,
+        row: juego.row,
+        position: juego.position,
+        idioma: juego.idioma,
+        categoria: juego.categoria,
+        longitud: juego.longitud
+      }));
     } catch (err) {
       // Silenciar errores
     } finally {
@@ -624,6 +642,33 @@ function App() {
       if (allEmpty) {
         // Si la primera fila está vacía, forzar posición y fila al inicio
         setJuego(j => ({ ...j, row: 1, position: 1 }));
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    // Restaurar el tablero visualmente si hay partida guardada
+    const partidaGuardada = localStorage.getItem('inProgressGame');
+    if (partidaGuardada) {
+      try {
+        const game = JSON.parse(partidaGuardada);
+        // Si hay estadoActual y dailyWord, rehidratar el estado
+        if (game.attempts && Array.isArray(game.attempts) && game.secretWord) {
+          let newState: Juego = {
+            ...juego,
+            dailyWord: game.secretWord,
+            estadoActual: game.attempts,
+            hardModeMustContain: game.hardModeMustContain || [],
+            row: game.row || 1,
+            position: game.position || 1,
+            idioma: game.idioma || 'es',
+            categoria: game.categoria || 'general',
+            longitud: game.longitud || 5,
+          };
+          setJuego(newState);
+        }
+      } catch (e) {
+        // Si hay error, no restaurar
       }
     }
   }, []);

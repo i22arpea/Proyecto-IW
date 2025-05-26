@@ -8,6 +8,9 @@ export interface IProgressGame extends Document {
   idioma: string;
   categoria: string;
   longitud: number;
+  hardModeMustContain?: any[];
+  row?: number;
+  position?: number;
 }
 
 const ProgressGameSchema = new Schema<IProgressGame>(
@@ -18,6 +21,9 @@ const ProgressGameSchema = new Schema<IProgressGame>(
     idioma: { type: String, required: true },
     categoria: { type: String, required: true },
     longitud: { type: Number, required: true },
+    hardModeMustContain: { type: [Schema.Types.Mixed], default: [] },
+    row: { type: Number, default: 1 },
+    position: { type: Number, default: 1 },
   },
   {
     timestamps: true,

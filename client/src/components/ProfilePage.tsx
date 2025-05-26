@@ -62,10 +62,13 @@ export default function ProfilePage() {
     _id: string;
     secretWord: string;
     attempts: string[];
+    hardModeMustContain?: any[];
+    row?: number;
+    position?: number;
+    idioma?: string;
+    categoria?: string;
+    longitud?: number;
     createdAt: string;
-    idioma: string;
-    categoria: string;
-    longitud: number;
   }>>([]);
 
   // Cargar perfil, historial y estadísticas al montar el componente  
@@ -127,7 +130,20 @@ export default function ProfilePage() {
         });
         if (res.ok) {
           const data = await res.json();
-          setInProgressGames(data);
+          // Normalizar para asegurar que todos los campos existen
+          setInProgressGames(
+            Array.isArray(data)
+              ? data.map(g => ({
+                  ...g,
+                  hardModeMustContain: g.hardModeMustContain ?? [],
+                  row: g.row ?? 1,
+                  position: g.position ?? 1,
+                  idioma: g.idioma ?? 'es',
+                  categoria: g.categoria ?? 'general',
+                  longitud: g.longitud ?? 5,
+                }))
+              : []
+          );
         }
       } catch (e) {
         // Opcional: puedes mostrar un mensaje de error si lo deseas
@@ -182,13 +198,45 @@ export default function ProfilePage() {
     _id: string;
     secretWord: string;
     attempts: string[];
+    hardModeMustContain?: any[];
+    row?: number;
+    position?: number;
+    idioma?: string;
+    categoria?: string;
+    longitud?: number;
     createdAt: string;
   };
 
-  const continueInProgressGame = (game: InProgressGame) => {
-    // Puedes guardar la partida en localStorage o usar navigate con state
+  const continueInProgressGame = async (game: InProgressGame) => {
+    // Guardar el estado completo de la partida en curso en el backend antes de continuar
+    try {
+      const token = localStorage.getItem('token');
+      await fetch('/api/partidas/guardar-progreso', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          secretWord: game.secretWord,
+          attempts: game.attempts,
+          hardModeMustContain: game.hardModeMustContain ?? [],
+          row: game.row ?? 1,
+          position: game.position ?? 1,
+          idioma: game.idioma,
+          categoria: game.categoria,
+          longitud: game.longitud,
+          gameId: game._id,
+        }),
+      });
+    } catch (e) {
+      setMessage('Error de red al guardar la partida.');
+    }
+    // Guardar también en localStorage para restaurar en el cliente
     localStorage.setItem('inProgressGame', JSON.stringify(game));
     navigate('/jugar', { state: { continueGame: true, gameId: game._id } });
+    // Limpiar la partida guardada tras continuarla
+    setTimeout(() => localStorage.removeItem('inProgressGame'), 1000);
   };
 
   if (loading && !user) return <div style={{color:'#1ed760',textAlign:'center',marginTop:40}}>Cargando perfil...</div>;
@@ -200,7 +248,7 @@ export default function ProfilePage() {
       maxWidth: 700,
       margin: '2rem auto',
       background: 'var(--color-fondo)',
-      color: isLightMode ? '#111' : 'var(--color-texto)', // Forzar color principal
+      color: isLightMode ? '#111' : 'var(--color-texto', // Forzar color principal
       borderRadius: 20,
       padding: '2rem',
       boxShadow: '0 2px 16px #1ed76033',
@@ -516,7 +564,7 @@ export default function ProfilePage() {
             borderRadius: 8,
             overflow: 'hidden',
             fontSize: '0.97rem',
-            color: isLightMode ? '#111' : 'var(--color-texto)'
+            color: isLightMode ? '#111' : 'var(--color-texto'
           }}>
             <thead>
               <tr style={{ color: '#1ed760', background: 'var(--color-fondo)' }}>

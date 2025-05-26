@@ -209,7 +209,7 @@ export const getUserCompletedGames = async (req: Request, res: Response) => {
 export const saveProgressGame = async (req: Request, res: Response) => {
   try {
     const userId = (req.user as { id: string }).id;
-    const { secretWord, attempts, idioma, categoria, longitud } = req.body;
+    const { secretWord, attempts, idioma, categoria, longitud, hardModeMustContain, row, position } = req.body;
 
     // Busca si ya existe una partida en progreso para este usuario
     let progressGame = await ProgressGame.findOne({ userId });
@@ -219,12 +219,28 @@ export const saveProgressGame = async (req: Request, res: Response) => {
       progressGame.idioma = idioma;
       progressGame.categoria = categoria;
       progressGame.longitud = longitud;
+      progressGame.hardModeMustContain = hardModeMustContain ?? [];
+      progressGame.row = row ?? 1;
+      progressGame.position = position ?? 1;
       await progressGame.save();
     } else {
-      progressGame = new ProgressGame({ userId, secretWord, attempts, idioma, categoria, longitud });
+      progressGame = new ProgressGame({
+        userId,
+        secretWord,
+        attempts,
+        idioma,
+        categoria,
+        longitud,
+        hardModeMustContain: hardModeMustContain ?? [],
+        row: row ?? 1,
+        position: position ?? 1,
+      });
       await progressGame.save();
     }
-    res.status(201).json({ message: 'Partida en progreso guardada correctamente.' });
+    res.status(201).json({
+      message: 'Partida en progreso guardada correctamente.',
+      progressGame
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error al guardar partida en progreso', error });
   }
