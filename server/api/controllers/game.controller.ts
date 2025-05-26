@@ -209,7 +209,7 @@ export const getUserCompletedGames = async (req: Request, res: Response) => {
 export const saveProgressGame = async (req: Request, res: Response) => {
   try {
     const userId = (req.user as { id: string }).id;
-    const { secretWord, attempts, idioma, categoria, longitud, hardModeMustContain, row, position } = req.body;
+    const { secretWord, attempts, idioma, categoria, longitud, hardModeMustContain, row, position, squaresState } = req.body;
 
     // Busca si ya existe una partida en progreso para este usuario
     let progressGame = await ProgressGame.findOne({ userId });
@@ -222,6 +222,7 @@ export const saveProgressGame = async (req: Request, res: Response) => {
       progressGame.hardModeMustContain = hardModeMustContain ?? [];
       progressGame.row = row ?? 1;
       progressGame.position = position ?? 1;
+      progressGame.squaresState = squaresState ?? [];
       await progressGame.save();
     } else {
       progressGame = new ProgressGame({
@@ -234,6 +235,7 @@ export const saveProgressGame = async (req: Request, res: Response) => {
         hardModeMustContain: hardModeMustContain ?? [],
         row: row ?? 1,
         position: position ?? 1,
+        squaresState: squaresState ?? [],
       });
       await progressGame.save();
     }

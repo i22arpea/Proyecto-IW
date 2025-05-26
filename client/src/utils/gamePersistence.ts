@@ -12,7 +12,14 @@ export async function guardarPartida(juego: Juego) {
   }
 
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(juego));
+    // Guardar también el estado visual de las celdas
+    const squares = Array.from(document.getElementsByClassName('square')).map(sq => ({
+      text: sq.textContent,
+      classList: Array.from(sq.classList),
+    }));
+
+    const juegoConCeldas = { ...juego, squaresState: squares };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(juegoConCeldas));
 
     await fetch('/api/partidas/guardar-progreso', {
       method: 'POST',
@@ -23,9 +30,13 @@ export async function guardarPartida(juego: Juego) {
       body: JSON.stringify({
         secretWord: juego.dailyWord,
         attempts: juego.estadoActual,
+        hardModeMustContain: juego.hardModeMustContain,
+        row: juego.row,
+        position: juego.position,
         idioma: juego.idioma,
         categoria: juego.categoria,
-        longitud: juego.longitud
+        longitud: juego.longitud,
+        squaresState: squares
       })
     });
   } catch (e) {
@@ -77,4 +88,21 @@ export function preguntarRestaurarPartida(): Juego | null {
   }
 
   return null;
+}
+
+export function restaurarCeldasVisuales(squaresState?: Array<{ text: string | null; classList: string[] }>) {
+  if (!squaresState) return;
+  const squares = document.getElementsByClassName('square');
+  for (let i = 0; i < squaresState.length; i++) {
+    if (squares[i]) {
+      // Limpia clases previas excepto 'square'
+      squares[i].className = 'square';
+      // Añade las clases guardadas (excepto 'square' para evitar duplicados)
+      squaresState[i].classList.forEach(cl => {
+        if (cl !== 'square') squares[i].classList.add(cl);
+      });
+      // Restaura el texto
+      squares[i].textContent = squaresState[i].text || '';
+    }
+  }
 }

@@ -11,6 +11,7 @@ export interface IProgressGame extends Document {
   hardModeMustContain?: any[];
   row?: number;
   position?: number;
+  squaresState?: Array<{ text: string | null; classList: string[] }>;
 }
 
 const ProgressGameSchema = new Schema<IProgressGame>(
@@ -24,6 +25,7 @@ const ProgressGameSchema = new Schema<IProgressGame>(
     hardModeMustContain: { type: [Schema.Types.Mixed], default: [] },
     row: { type: Number, default: 1 },
     position: { type: Number, default: 1 },
+    squaresState: { type: [Schema.Types.Mixed], default: [] },
   },
   {
     timestamps: true,

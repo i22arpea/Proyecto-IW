@@ -673,6 +673,27 @@ function App() {
     }
   }, []);
 
+  useEffect(() => {
+    // Restaurar el tablero visualmente si hay partida guardada con squaresState
+    const partidaGuardada = localStorage.getItem('inProgressGame');
+    if (partidaGuardada) {
+      try {
+        const game = JSON.parse(partidaGuardada);
+        if (game.squaresState) {
+          // Esperar a que el DOM del tablero esté montado
+          setTimeout(() => {
+            // Importación dinámica para evitar problemas de dependencias circulares
+            import('./utils/gamePersistence').then(mod => {
+              mod.restaurarCeldasVisuales(game.squaresState);
+            });
+          }, 100);
+        }
+      } catch (e) {
+        // Si hay error, no restaurar
+      }
+    }
+  }, []);
+
   return (
     <Router basename="/Proyecto-IW">
       <Routes>
