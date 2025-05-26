@@ -32,7 +32,7 @@ export default function Stats({ juego, children }: StatsProps) {
       }
 
       try {
-        const res = await fetch('/api/stats/usuarios/historial', {
+        const res = await fetch('/Proyecto-IW/api/stats/usuarios/historial', {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (!res.ok) throw new Error('No se pudo cargar el historial');

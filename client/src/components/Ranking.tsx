@@ -20,7 +20,7 @@ export default function Ranking({ onClose }: { onClose?: () => void }) {
       setError(null);
 
       try {
-        const res = await fetch('/api/stats/ranking/global');
+        const res = await fetch('/Proyecto-IW/api/stats/ranking/global');
         if (!res.ok) throw new Error('No se pudo cargar el ranking');
         const data = await res.json();
         setRanking(Array.isArray(data) ? data : []);

@@ -19,7 +19,7 @@ export default function Solicitudes() {
     }
 
     try {
-      const res = await fetch('/api/amigos/solicitudes-recibidas', {
+      const res = await fetch('/Proyecto-IW/api/amigos/solicitudes-recibidas', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -42,7 +42,7 @@ export default function Solicitudes() {
   }
 
   try {
-    const res = await fetch('/api/amigos/responder', {
+    const res = await fetch('/Proyecto-IW/api/amigos/responder', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

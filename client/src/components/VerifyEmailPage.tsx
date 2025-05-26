@@ -13,13 +13,13 @@ export default function VerifyEmailPage() {
     if (!token || token === 'null' || token === 'undefined') {
       setMessage('Token de verificación inválido o faltante.');
       setLoading(false);
-      
+
       return;
     }
 
     const verify = async () => {
       try {
-        const res = await fetch('/api/verify-email', {
+        const res = await fetch('/Proyecto-IW/api/verify-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token }),

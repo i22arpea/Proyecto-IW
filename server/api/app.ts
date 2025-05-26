@@ -23,26 +23,25 @@ app.use(express.json());
 
 // API Routes
 app.use(Routes);
-app.use('/api', userRoutes);
-app.use('/api', statsRoutes);
-app.use('/api', authRoutes);
-app.use('/api/amigos', friendRoutes);
-app.use('/api/partidas', gameRoutes);
-app.use('/api', passwordRoutes);
-
+app.use('/Proyecto-IW/api', userRoutes);
+app.use('/Proyecto-IW/api', statsRoutes);
+app.use('/Proyecto-IW/api', authRoutes);
+app.use('/Proyecto-IW/api/amigos', friendRoutes);
+app.use('/Proyecto-IW/api/partidas', gameRoutes);
+app.use('/Proyecto-IW/api', passwordRoutes);
 
 // Hay que acutalizar las rutas
 app.get('*', (req, res) => {
   res.status(200).json({
     Routes: [
-      '/api/wordle',
-      '/api/wordle/checkword/:word',
-      '/api/wordle/updateword',
-      '/api/wordle/setword/:word',
-      '/api/wordle/random',
-      '/register',
-      '/login',
-      '/protected'
+      '/Proyecto-IW/api/wordle',
+      '/Proyecto-IW/api/wordle/checkword/:word',
+      '/Proyecto-IW/api/wordle/updateword',
+      '/Proyecto-IW/api/wordle/setword/:word',
+      '/Proyecto-IW/api/wordle/random',
+      '/Proyecto-IW/api/register',
+      '/Proyecto-IW/api/login',
+      '/Proyecto-IW/api/protected'
     ],
   });
 });
