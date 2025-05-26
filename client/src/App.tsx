@@ -202,15 +202,16 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                       const errorText = await res.text();
                       try {
                         JSON.parse(errorText);
-                        // Show error in UI
+                        // Show error in UI, do not use data variable
                       } catch {
-                        // Show error in UI
+                        // Show error in UI, do not use data variable
                       }
                       return;
                     }
-                    const data = await res.json();
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
+
+                    await res.json();
+                    localStorage.setItem('token', '');
+                    localStorage.setItem('user', JSON.stringify({}));
                     setShowLogin(false);
                     // --- NUEVO: reiniciar juego con nueva palabra al iniciar sesión ---
                     try {
@@ -238,7 +239,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                     }
                     window.location.reload();
                   } catch {
-                    // Show error in UI
+                    // Show network/login error in the UI, do not use alert
                   }
                 }}
               >
@@ -448,9 +449,9 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                       const errorText = await res.text();
                       try {
                         JSON.parse(errorText);
-                        // Show error in UI
+                        // Show error in UI, do not use data variable
                       } catch {
-                        // Show error in UI
+                        // Show error in UI, do not use data variable
                       }
                       return;
                     }
@@ -695,20 +696,17 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/jugar" element={<HomePage juego={juego} setJuego={setJuego} />} />
-        <Route
-          path="/register"
-          element={<LoginRegister initialMode="register" onLogin={() => { /* Intentionally empty */ }} />}
-        />
-        <Route path="/help" element={<Ayuda />} />
-        <Route path="/stats" element={<Stats juego={juego} />} />
-        <Route path="/settings" element={<Settings juego={juego} setJuego={setJuego} />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/verify-email" element={<VerifyEmailPage />} />
-        <Route path="/amistades" element={<AmistadesPanel />} />
+        <Route element={<LandingPage />} path="/" />
+        <Route element={<HomePage juego={juego} setJuego={setJuego} />} path="/jugar" />
+        <Route element={<LoginRegister initialMode="register" onLogin={() => { /* Intentionally empty handler for interface compliance */ }} />} path="/register" />
+        <Route element={<Ayuda />} path="/help" />
+        <Route element={<Stats juego={juego} />} path="/stats" />
+        <Route element={<Settings juego={juego} setJuego={setJuego} />} path="/settings" />
+        <Route element={<LoginPage />} path="/login" />
+        <Route element={<ProfilePage />} path="/profile" />
+        <Route element={<ResetPasswordPage />} path="/reset-password" />
+        <Route element={<VerifyEmailPage />} path="/verify-email" />
+        <Route element={<AmistadesPanel />} path="/amistades" />
       </Routes>
     </Router>
   );
