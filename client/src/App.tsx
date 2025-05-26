@@ -175,9 +175,9 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
       <div className="game-main">
         <Header
           juego={juego}
+          setJuego={setJuego}
           onLoginClick={() => setShowLogin(true)}
           onProfileClick={handleProfileClick}
-          setJuego={setJuego}
         />
         <Board juego={juego} />
         <Teclado juego={juego} setJuego={setJuego} />
@@ -248,8 +248,8 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
             </h2>
             <div style={{ width: '100%' }}>
               <form
-                autoComplete="off"
                 className="login-form"
+                autoComplete="off"
                 onSubmit={async e => {
                   e.preventDefault();
 
@@ -268,9 +268,9 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                       const errorText = await res.text();
                       try {
                         JSON.parse(errorText);
-                        // Show error in UI, do not use data variable
+                        // Show error in UI
                       } catch {
-                        // Show error in UI, do not use data variable
+                        // Show error in UI
                       }
                       return;
                     }
@@ -304,7 +304,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                     }
                     window.location.reload();
                   } catch {
-                    // Show network/login error in the UI, do not use alert
+                    // Show error in UI
                   }
                 }}
               >
@@ -352,9 +352,11 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                     ¿Olvidaste tu contraseña?
                   </span>
                 </div>
+
                 <button className="login-btn" type="submit">
                   Iniciar sesión
                 </button>
+
                 <div
                   style={{
                     color: '#aaa',
@@ -452,8 +454,8 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
               </span>
             </h2>
             <form
-              autoComplete="off"
               className="login-form"
+              autoComplete="off"
               onSubmit={async e => {
                 e.preventDefault();
                 setForgotLoading(true);
@@ -494,9 +496,11 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                   type="email"
                 />
               </div>
+
               <button className="login-btn" disabled={forgotLoading} type="submit">
                 {forgotLoading ? 'Enviando...' : 'Enviar enlace de recuperación'}
               </button>
+
               {forgotMessage && (
                 <div
                   style={{
@@ -509,6 +513,7 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                   {forgotMessage}
                 </div>
               )}
+
               <div
                 style={{
                   color: '#aaa',
@@ -604,8 +609,8 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
             </h2>
             <div style={{ width: '100%' }}>
               <form
-                autoComplete="off"
                 className="login-form"
+                autoComplete="off"
                 onSubmit={async e => {
                   e.preventDefault();
                   const form = e.currentTarget;
@@ -615,26 +620,32 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                   const password2 = form.password2.value;
 
                   // Validación de contraseñas
+
                   if (password !== password2) {
-                    // Show error UI, do not use alert
+                    // Show error UI
                     return;
                   }
+
                   if (password.length < 6) {
-                    // Show error UI, do not use alert
+                    // Show error UI
                     return;
                   }
+
                   if (!/[A-Z]/.test(password)) {
-                    // Show error UI, do not use alert
+                    // Show error UI
                     return;
                   }
+
                   if (!/[a-z]/.test(password)) {
-                    // Show error UI, do not use alert
+                    // Show error UI
                     return;
                   }
+
                   if (!/[0-9]/.test(password)) {
-                    // Show error UI, do not use alert
+                    // Show error UI
                     return;
                   }
+
                   try {
                     const res = await fetch('/api/register', {
                       body: JSON.stringify({ username, email, password }),
@@ -646,17 +657,17 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                       const errorText = await res.text();
                       try {
                         JSON.parse(errorText);
-                        // Show error in UI, do not use data variable
+                        // Show error in UI
                       } catch {
-                        // Show error in UI, do not use data variable
+                        // Show error in UI
                       }
                       return;
                     }
-                    // Show success message in UI (no alert)
+
                     setShowRegister(false);
                     setShowLogin(true);
                   } catch {
-                    // Show network/register error in UI (no alert)
+                    // Show error in UI
                   }
                 }}
               >
@@ -671,8 +682,15 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                   >
                     Usuario
                   </label>
-                  <input id="reg-username" name="username" placeholder="Elige un usuario" required type="text" />
+                  <input
+                    id="reg-username"
+                    name="username"
+                    placeholder="Elige un usuario"
+                    required
+                    type="text"
+                  />
                 </div>
+
                 <div className="login-field">
                   <label
                     htmlFor="reg-email"
@@ -684,8 +702,15 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                   >
                     Email
                   </label>
-                  <input id="reg-email" name="email" placeholder="Tu correo electrónico" required type="email" />
+                  <input
+                    id="reg-email"
+                    name="email"
+                    placeholder="Tu correo electrónico"
+                    required
+                    type="email"
+                  />
                 </div>
+
                 <div className="login-field">
                   <label
                     htmlFor="reg-password"
@@ -697,8 +722,15 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                   >
                     Contraseña
                   </label>
-                  <input id="reg-password" name="password" placeholder="Crea una contraseña" required type="password" />
+                  <input
+                    id="reg-password"
+                    name="password"
+                    placeholder="Crea una contraseña"
+                    required
+                    type="password"
+                  />
                 </div>
+
                 <div className="login-field">
                   <label
                     htmlFor="reg-password2"
@@ -718,9 +750,11 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                     type="password"
                   />
                 </div>
+
                 <button className="login-btn" type="submit">
                   Registrarse
                 </button>
+
                 <div
                   style={{
                     color: '#aaa',
@@ -801,6 +835,7 @@ function App() {
     if (!rawData) return;
 
     const savedData = JSON.parse(rawData);
+
     if (savedData) {
       let newState: Juego = {
         categoria: savedData.categoria ?? 'general',
@@ -826,6 +861,7 @@ function App() {
         for (let i = 0; i < savedData.estadoActual.length; i++) {
           if (savedData.estadoActual[i] !== '') {
             newState = keyPress(savedData.estadoActual[i], newState);
+
             if ((i + 1) % 5 === 0) {
               newState = llenarArray(newState);
               newState = keyPress('Enter', newState);
@@ -833,6 +869,7 @@ function App() {
           }
         }
       }
+
       newState = recuperarStats(newState);
       setJuego(newState);
     }
@@ -846,8 +883,10 @@ function App() {
       if (e.key === 'Enter') newState = llenarArray(newState);
       setJuego(newState);
     }
+
     document.addEventListener('keydown', listenKeydown);
     cargarSettings(juego);
+
     return () => document.removeEventListener('keydown', listenKeydown);
   }, [juego]);
 
@@ -877,6 +916,7 @@ function App() {
     };
 
     window.addEventListener('beforeunload', handleAutoSave);
+
     return () => window.removeEventListener('beforeunload', handleAutoSave);
   }, [juego]);
 
@@ -900,17 +940,20 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route element={<LandingPage />} path="/" />
-        <Route element={<HomePage juego={juego} setJuego={setJuego} />} path="/jugar" />
-        <Route element={<LoginRegister initialMode="register" onLogin={() => { /* Intentionally empty handler for interface compliance */ }} />} path="/register" />
-        <Route element={<Ayuda />} path="/help" />
-        <Route element={<Stats juego={juego} />} path="/stats" />
-        <Route element={<Settings juego={juego} setJuego={setJuego} />} path="/settings" />
-        <Route element={<LoginPage />} path="/login" />
-        <Route element={<ProfilePage />} path="/profile" />
-        <Route element={<ResetPasswordPage />} path="/reset-password" />
-        <Route element={<VerifyEmailPage />} path="/verify-email" />
-        <Route element={<AmistadesPanel />} path="/amistades" />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/jugar" element={<HomePage juego={juego} setJuego={setJuego} />} />
+        <Route
+          path="/register"
+          element={<LoginRegister initialMode="register" onLogin={() => { /* Intentionally empty */ }} />}
+        />
+        <Route path="/help" element={<Ayuda />} />
+        <Route path="/stats" element={<Stats juego={juego} />} />
+        <Route path="/settings" element={<Settings juego={juego} setJuego={setJuego} />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/amistades" element={<AmistadesPanel />} />
       </Routes>
     </Router>
   );
