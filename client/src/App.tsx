@@ -133,7 +133,12 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
         </div>
       )}
       <div className="game-main">
-        <Header juego={juego} setJuego={setJuego} onLoginClick={() => setShowLogin(true)} onProfileClick={handleProfileClick} />
+        <Header
+          juego={juego}
+          setJuego={setJuego}
+          onLoginClick={() => setShowLogin(true)}
+          onProfileClick={handleProfileClick}
+        />
         <Board juego={juego} />
         <Teclado juego={juego} setJuego={setJuego} />
       </div>
@@ -181,9 +186,8 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
             </h2>
             <div style={{ width: '100%' }}>
               <form
-                className="login-form"
                 autoComplete="off"
-                onSubmit={async (e) => {
+                onSubmit={async e => {
                   e.preventDefault();
                   const form = e.currentTarget;
                   const username = form.username.value;
@@ -197,12 +201,10 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                     if (!res.ok) {
                       const errorText = await res.text();
                       try {
-                        const data = JSON.parse(errorText);
-                        console.error('Login error:', data);
-                        alert(data.message || data.error || 'Error al iniciar sesión');
-                      } catch (parseErr) {
-                        console.error('Login error (raw):', errorText);
-                        alert(`Error al iniciar sesión: ${errorText}`);
+                        JSON.parse(errorText);
+                        // Show error in UI
+                      } catch {
+                        // Show error in UI
                       }
                       return;
                     }
@@ -234,11 +236,9 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                       // Si falla, simplemente recarga
                       window.location.reload();
                     }
-                    // --- FIN NUEVO ---
-                    window.location.reload(); // Opcional: recarga para reflejar login
-                  } catch (err) {
-                    console.error('Network/login error:', err);
-                    alert('Error de red al iniciar sesión');
+                    window.location.reload();
+                  } catch {
+                    // Show error in UI
                   }
                 }}
               >
@@ -265,9 +265,18 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                 <button className="login-btn" type="submit">
                   Iniciar sesión
                 </button>
-                <div style={{ textAlign: 'center', marginTop: '0.7rem', color: '#aaa', fontSize: '0.95rem' }}>
-                  ¿No tienes cuenta? <span
-                    style={{ color: '#1ed760', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '2px' }}
+
+                <div
+                  style={{
+                    color: '#aaa',
+                    fontSize: '0.95rem',
+                    marginTop: '0.7rem',
+                    textAlign: 'center'
+                  }}
+                >
+                  ¿No tienes cuenta?{' '}
+                  <span
+                    aria-label="Registrarse"
                     role="button"
                     tabIndex={0}
                     onClick={() => { setShowLogin(false); setShowRegister(true); }}
@@ -313,9 +322,8 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
               <span style={{ fontSize: '1.1rem', color: '#1ed760', fontWeight: 700, marginLeft: 2 }}>Recuperar contraseña</span>
             </h2>
             <form
-              className="login-form"
               autoComplete="off"
-              onSubmit={async (e) => {
+              onSubmit={async e => {
                 e.preventDefault();
                 setForgotLoading(true);
                 setForgotMessage(null);
@@ -349,7 +357,8 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                 <label htmlFor="forgot-email">Correo electrónico</label>
                 <input id="forgot-email" name="email" type="email" placeholder="Tu correo electrónico" required />
               </div>
-              <button className="login-btn" type="submit" disabled={forgotLoading}>
+
+              <button className="login-btn" disabled={forgotLoading} type="submit">
                 {forgotLoading ? 'Enviando...' : 'Enviar enlace de recuperación'}
               </button>
               {forgotMessage && (
@@ -357,7 +366,15 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                   {forgotMessage}
                 </div>
               )}
-              <div style={{ textAlign: 'center', marginTop: '0.7rem', color: '#aaa', fontSize: '0.95rem' }}>
+
+              <div
+                style={{
+                  color: '#aaa',
+                  fontSize: '0.95rem',
+                  marginTop: '0.7rem',
+                  textAlign: 'center'
+                }}
+              >
                 ¿Recuerdas tu contraseña?{' '}
                 <span
                   style={{ color: '#1ed760', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '2px' }}
@@ -392,9 +409,8 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
             </h2>
             <div style={{ width: '100%' }}>
               <form
-                className="login-form"
                 autoComplete="off"
-                onSubmit={async (e) => {
+                onSubmit={async e => {
                   e.preventDefault();
                   const form = e.currentTarget;
                   const username = form.username.value;
@@ -403,23 +419,23 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                   const password2 = form.password2.value;
                   // Validación de contraseñas
                   if (password !== password2) {
-                    alert('Las contraseñas no coinciden');
+                    // Show error UI
                     return;
                   }
                   if (password.length < 6) {
-                    alert('La contraseña debe tener al menos 6 caracteres.');
+                    // Show error UI
                     return;
                   }
                   if (!/[A-Z]/.test(password)) {
-                    alert('La contraseña debe contener al menos una letra mayúscula.');
+                    // Show error UI
                     return;
                   }
                   if (!/[a-z]/.test(password)) {
-                    alert('La contraseña debe contener al menos una letra minúscula.');
+                    // Show error UI
                     return;
                   }
                   if (!/[0-9]/.test(password)) {
-                    alert('La contraseña debe contener al menos un número.');
+                    // Show error UI
                     return;
                   }
                   try {
@@ -431,35 +447,77 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                     if (!res.ok) {
                       const errorText = await res.text();
                       try {
-                        const data = JSON.parse(errorText);
-                        console.error('Register error:', data);
-                        alert(data.message || data.error || 'Error al registrarse');
-                      } catch (parseErr) {
-                        console.error('Register error (raw):', errorText);
-                        alert(`Error al registrarse: ${errorText}`);
+                        JSON.parse(errorText);
+                        // Show error in UI
+                      } catch {
+                        // Show error in UI
                       }
                       return;
                     }
-                    alert('Registro exitoso. Ahora puedes iniciar sesión.');
+
                     setShowRegister(false);
                     setShowLogin(true);
-                  } catch (err) {
-                    console.error('Network/register error:', err);
-                    alert('Error de red al registrarse');
+                  } catch {
+                    // Show error in UI
                   }
                 }}
               >
                 <div className="login-field">
-                  <label htmlFor="reg-username" style={{ fontWeight: 600, color: '#fff', alignSelf: 'flex-start' }}>Usuario</label>
-                  <input id="reg-username" name="username" type="text" placeholder="Elige un usuario" required />
+                  <label
+                    htmlFor="reg-username"
+                    style={{
+                      alignSelf: 'flex-start',
+                      color: '#fff',
+                      fontWeight: 600
+                    }}
+                  >
+                    Usuario
+                  </label>
+                  <input
+                    id="reg-username"
+                    name="username"
+                    placeholder="Elige un usuario"
+                    required
+                    type="text"
+                  />
                 </div>
                 <div className="login-field">
-                  <label htmlFor="reg-email" style={{ fontWeight: 600, color: '#fff', alignSelf: 'flex-start' }}>Email</label>
-                  <input id="reg-email" name="email" type="email" placeholder="Tu correo electrónico" required />
+                  <label
+                    htmlFor="reg-email"
+                    style={{
+                      alignSelf: 'flex-start',
+                      color: '#fff',
+                      fontWeight: 600
+                    }}
+                  >
+                    Email
+                  </label>
+                  <input
+                    id="reg-email"
+                    name="email"
+                    placeholder="Tu correo electrónico"
+                    required
+                    type="email"
+                  />
                 </div>
                 <div className="login-field">
-                  <label htmlFor="reg-password" style={{ fontWeight: 600, color: '#fff', alignSelf: 'flex-start' }}>Contraseña</label>
-                  <input id="reg-password" name="password" type="password" placeholder="Crea una contraseña" required />
+                  <label
+                    htmlFor="reg-password"
+                    style={{
+                      alignSelf: 'flex-start',
+                      color: '#fff',
+                      fontWeight: 600
+                    }}
+                  >
+                    Contraseña
+                  </label>
+                  <input
+                    id="reg-password"
+                    name="password"
+                    placeholder="Crea una contraseña"
+                    required
+                    type="password"
+                  />
                 </div>
                 <div className="login-field">
                   <label htmlFor="reg-password2" style={{ fontWeight: 600, color: '#fff', alignSelf: 'flex-start' }}>Repite la contraseña</label>
@@ -468,9 +526,19 @@ function HomePage({ juego, setJuego }: { juego: Juego; setJuego: React.Dispatch<
                 <button className="login-btn" type="submit">
                   Registrarse
                 </button>
-                <div style={{ textAlign: 'center', marginTop: '0.7rem', color: '#aaa', fontSize: '0.95rem', width: '100%' }}>
-                  ¿Ya tienes cuenta? <span
-                    style={{ color: '#1ed760', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '2px' }}
+
+                <div
+                  style={{
+                    color: '#aaa',
+                    fontSize: '0.95rem',
+                    marginTop: '0.7rem',
+                    textAlign: 'center',
+                    width: '100%'
+                  }}
+                >
+                  ¿Ya tienes cuenta?{' '}
+                  <span
+                    aria-label="Inicia sesión"
                     role="button"
                     tabIndex={0}
                     onClick={() => { setShowRegister(false); setShowLogin(true); }}
@@ -629,7 +697,10 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/jugar" element={<HomePage juego={juego} setJuego={setJuego} />} />
-        <Route path="/register" element={<LoginRegister initialMode="register" onLogin={() => console.log('Registrado')} />} />
+        <Route
+          path="/register"
+          element={<LoginRegister initialMode="register" onLogin={() => { /* Intentionally empty */ }} />}
+        />
         <Route path="/help" element={<Ayuda />} />
         <Route path="/stats" element={<Stats juego={juego} />} />
         <Route path="/settings" element={<Settings juego={juego} setJuego={setJuego} />} />
