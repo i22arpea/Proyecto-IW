@@ -629,7 +629,7 @@ function App() {
   }, []);
 
   return (
-    <Router basename="/Proyecto-IW">
+    <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/jugar" element={<HomePage juego={juego} setJuego={setJuego} />} />
